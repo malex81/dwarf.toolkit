@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<LangVersion>12.0</LangVersion>
+		<Nullable>enable</Nullable>
+		<Company>Dwarf holl</Company>
+		<Copyright>Copyright Dwarf holl © 2025</Copyright>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<Version>0.0.1</Version>
+		<PackageOutputPath>$(MSBuildThisFileDirectory)\..\..\..\LocalPackages\</PackageOutputPath>
+		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+	</PropertyGroup>
+
+	<Target DependsOnTargets="ResolveReferences" Name="CopyProjectReferencesToPackage">
+		<ItemGroup>
+			<!--
+			https://dev.to/yerac/include-both-nuget-package-references-and-project-reference-dll-using-dotnet-pack-2d8p
+			https://learn.microsoft.com/en-us/nuget/reference/msbuild-targets
+			-->
+			<BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))"/>
+		</ItemGroup>
+	</Target>
+	
+	<ItemGroup>
+		<None Include="..\..\LICENSE" Pack="true" PackagePath="" Visible="false"/>
+		<None Include="..\docs\README.md" Pack="true" PackagePath="" Visible="false"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Using Include="System" />
+		<Using Include="System.Collections.Generic" />
+		<Using Include="System.Linq" />
+		<Using Include="System.Threading.Tasks" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Dwarf.Toolkit.Base\Dwarf.Toolkit.Base.csproj" ReferenceOutputAssembly="true" IncludeAssets="Dwarf.Toolkit.Base.dll"/>
+	</ItemGroup>
+
+</Project>

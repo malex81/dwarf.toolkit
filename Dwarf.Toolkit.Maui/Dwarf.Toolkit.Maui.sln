@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.36105.23
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dwarf.Toolkit.Maui", "Dwarf.Toolkit.Maui\Dwarf.Toolkit.Maui.csproj", "{D9E61F0A-CC3F-48F4-B76B-199F03CD6AED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dwarf.Toolkit.Base", "..\Dwarf.Toolkit.Base\Dwarf.Toolkit.Base.csproj", "{EDFAFE70-FF28-465E-BBC0-D696DF19BC2D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D9E61F0A-CC3F-48F4-B76B-199F03CD6AED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9E61F0A-CC3F-48F4-B76B-199F03CD6AED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9E61F0A-CC3F-48F4-B76B-199F03CD6AED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9E61F0A-CC3F-48F4-B76B-199F03CD6AED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDFAFE70-FF28-465E-BBC0-D696DF19BC2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDFAFE70-FF28-465E-BBC0-D696DF19BC2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDFAFE70-FF28-465E-BBC0-D696DF19BC2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDFAFE70-FF28-465E-BBC0-D696DF19BC2D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FAAC34E0-9180-4E0C-9087-81DBC43318B3}
+	EndGlobalSection
+EndGlobal
