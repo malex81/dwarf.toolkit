@@ -1,3 +1,3 @@
 # dwarf.toolkit.maui
 
-Set of basic helpers for maui
+Set of basic helpers for MAUI
