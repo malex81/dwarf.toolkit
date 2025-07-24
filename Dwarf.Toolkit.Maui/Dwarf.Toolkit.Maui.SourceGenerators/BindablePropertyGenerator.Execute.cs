@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Dwarf.Toolkit.Maui.SourceGenerators;
@@ -30,12 +31,10 @@ partial class BindablePropertyGenerator
 				if (node is not VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax { Parent: FieldDeclarationSyntax { AttributeLists.Count: > 0 } fieldNode } })
 				{
 					containingTypeNode = null;
-
 					return false;
 				}
 
 				containingTypeNode = (TypeDeclarationSyntax?)fieldNode.Parent;
-
 				return true;
 			}
 
@@ -154,25 +153,17 @@ partial class BindablePropertyGenerator
 			if (memberSyntax.IsKind(SyntaxKind.FieldDeclaration) && memberSyntax.Modifiers.Any(SyntaxKind.PartialKeyword))
 			{
 				propertyInfo = null;
-				diagnostics = ImmutableArray<DiagnosticInfo>.Empty;
-
+				diagnostics = [];
 				return false;
 			}
 
 			// Validate the target type
-			if (!IsTargetTypeValid(memberSymbol, out bool shouldInvokeOnPropertyChanging))
+			if (!IsTargetTypeValid(memberSymbol))
 			{
 				propertyInfo = null;
-				diagnostics = ImmutableArray<DiagnosticInfo>.Empty;
-
+				diagnostics = [];
 				return false;
 			}
-
-			token.ThrowIfCancellationRequested();
-
-			// Override the property changing support if explicitly disabled.
-			// This setting is enabled by default, for backwards compatibility.
-			shouldInvokeOnPropertyChanging &= options.GetMSBuildBooleanPropertyValue("MvvmToolkitEnableINotifyPropertyChangingSupport", defaultValue: true);
 
 			token.ThrowIfCancellationRequested();
 
@@ -182,14 +173,13 @@ partial class BindablePropertyGenerator
 			string propertyName = GetGeneratedPropertyName(memberSymbol);
 
 			// Check for name collisions (only for fields)
+			// If the generated property would collide, skip generating it entirely. This makes sure that
+			// users only get the helpful diagnostic about the collision, and not the normal compiler error
+			// about a definition for "Property" already existing on the target type, which might be confusing.
 			if (fieldName == propertyName && memberSyntax.IsKind(SyntaxKind.FieldDeclaration))
 			{
 				propertyInfo = null;
-				diagnostics = ImmutableArray<DiagnosticInfo>.Empty;
-
-				// If the generated property would collide, skip generating it entirely. This makes sure that
-				// users only get the helpful diagnostic about the collision, and not the normal compiler error
-				// about a definition for "Property" already existing on the target type, which might be confusing.
+				diagnostics = [];
 				return false;
 			}
 
@@ -199,8 +189,7 @@ partial class BindablePropertyGenerator
 			if (IsGeneratedPropertyInvalid(propertyName, GetPropertyType(memberSymbol)))
 			{
 				propertyInfo = null;
-				diagnostics = ImmutableArray<DiagnosticInfo>.Empty;
-
+				diagnostics = [];
 				return false;
 			}
 
@@ -400,15 +389,15 @@ partial class BindablePropertyGenerator
 		/// Validates the containing type for a given field being annotated.
 		/// </summary>
 		/// <param name="memberSymbol">The input <see cref="ISymbol"/> instance to process.</param>
-		/// <param name="shouldInvokeOnPropertyChanging">Whether or not property changing events should also be raised.</param>
 		/// <returns>Whether or not the containing type for <paramref name="memberSymbol"/> is valid.</returns>
-		private static bool IsTargetTypeValid(ISymbol memberSymbol, out bool shouldInvokeOnPropertyChanging)
+		private static bool IsTargetTypeValid(ISymbol memberSymbol)
 		{
 			// The [ObservableProperty] attribute can only be used in types that are known to expose the necessary OnPropertyChanged and OnPropertyChanging methods.
 			// That means that the containing type for the field needs to match one of the following conditions:
 			//   - It inherits from ObservableObject (in which case it also implements INotifyPropertyChanging).
 			//   - It has the [ObservableObject] attribute (on itself or any of its base types).
 			//   - It has the [INotifyPropertyChanged] attribute (on itself or any of its base types).
+			/*
 			bool isObservableObject = memberSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject");
 			bool hasObservableObjectAttribute = memberSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.ObservableObjectAttribute");
 			bool hasINotifyPropertyChangedAttribute = memberSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.INotifyPropertyChangedAttribute");
@@ -416,6 +405,8 @@ partial class BindablePropertyGenerator
 			shouldInvokeOnPropertyChanging = isObservableObject || hasObservableObjectAttribute;
 
 			return isObservableObject || hasObservableObjectAttribute || hasINotifyPropertyChangedAttribute;
+			*/
+			return memberSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("Microsoft.Maui.Controls.BindableObject");
 		}
 
 		/// <summary>
@@ -1717,14 +1708,14 @@ partial class BindablePropertyGenerator
 
 			if (propertyName.StartsWith("m_"))
 			{
-				propertyName = propertyName.Substring(2);
+				propertyName = propertyName[2..];
 			}
 			else if (propertyName.StartsWith("_"))
 			{
 				propertyName = propertyName.TrimStart('_');
 			}
 
-			return $"{char.ToUpper(propertyName[0], CultureInfo.InvariantCulture)}{propertyName.Substring(1)}";
+			return $"{char.ToUpper(propertyName[0], CultureInfo.InvariantCulture)}{propertyName[1..]}";
 		}
 	}
 }
