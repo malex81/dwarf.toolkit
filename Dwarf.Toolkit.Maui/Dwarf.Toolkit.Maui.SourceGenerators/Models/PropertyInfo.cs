@@ -32,19 +32,10 @@ namespace Dwarf.Toolkit.Maui.SourceGenerators.Models;
 internal sealed record PropertyInfo(
     SyntaxKind AnnotatedMemberKind,
     string TypeNameWithNullabilityAnnotations,
-    string FieldName,
     string PropertyName,
     EquatableArray<ushort> PropertyModifers,
     Accessibility PropertyAccessibility,
     Accessibility GetterAccessibility,
     Accessibility SetterAccessibility,
-    EquatableArray<string> PropertyChangingNames,
-    EquatableArray<string> PropertyChangedNames,
-    EquatableArray<string> NotifiedCommandNames,
-    bool NotifyPropertyChangedRecipients,
-    bool NotifyDataErrorInfo,
-    bool IsOldPropertyValueDirectlyReferenced,
     bool IsReferenceTypeOrUnconstrainedTypeParameter,
-    bool IncludeMemberNotNullOnSetAccessor,
-    bool IncludeRequiresUnreferencedCodeOnSetAccessor,
-    EquatableArray<AttributeInfo> ForwardedAttributes);
+    bool IncludeMemberNotNullOnSetAccessor);

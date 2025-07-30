@@ -137,16 +137,6 @@ partial class BindablePropertyGenerator
 			[NotNullWhen(true)] out PropertyInfo? propertyInfo,
 			out ImmutableArray<DiagnosticInfo> diagnostics)
 		{
-			// Special case for downlevel: if a field has the 'partial' modifier, ignore it.
-			// This is because older compilers might parse a partial property as a field.
-			// In that case, we ignore it here and rely on Roslyn producing a build error.
-			if (memberSyntax.IsKind(SyntaxKind.FieldDeclaration) && memberSyntax.Modifiers.Any(SyntaxKind.PartialKeyword))
-			{
-				propertyInfo = null;
-				diagnostics = [];
-				return false;
-			}
-
 			// Validate the target type
 			if (!IsTargetTypeValid(memberSymbol))
 			{
@@ -176,8 +166,6 @@ partial class BindablePropertyGenerator
 			token.ThrowIfCancellationRequested();
 
 			using ImmutableArrayBuilder<string> propertyChangedNames = ImmutableArrayBuilder<string>.Rent();
-			using ImmutableArrayBuilder<string> notifiedCommandNames = ImmutableArrayBuilder<string>.Rent();
-			using ImmutableArrayBuilder<AttributeInfo> forwardedAttributes = ImmutableArrayBuilder<AttributeInfo>.Rent();
 
 			// Get the nullability info for the property
 			GetNullabilityInfo(
@@ -217,22 +205,13 @@ partial class BindablePropertyGenerator
 			propertyInfo = new PropertyInfo(
 				memberSyntax.Kind(),
 				typeNameWithNullabilityAnnotations,
-				fieldName,
 				propertyName,
 				propertyModifiers.AsUnderlyingType(),
 				propertyAccessibility,
 				getterAccessibility,
 				setterAccessibility,
-				effectivePropertyChangingNames,
-				effectivePropertyChangedNames,
-				notifiedCommandNames.ToImmutable(),
-				notifyRecipients,
-				notifyDataErrorInfo,
-				isOldPropertyValueDirectlyReferenced,
 				isReferenceTypeOrUnconstrainedTypeParameter,
-				includeMemberNotNullOnSetAccessor,
-				includeRequiresUnreferencedCodeOnSetAccessor,
-				forwardedAttributes.ToImmutable());
+				includeMemberNotNullOnSetAccessor);
 
 			diagnostics = builder.ToImmutable();
 
@@ -459,13 +438,6 @@ partial class BindablePropertyGenerator
 				getterFieldExpression = setterFieldExpression = IdentifierName(getterFieldIdentifierName);
 			}
 
-			// Prepare the XML docs:
-			//   - For partial properties, always just inherit from the partial declaration
-			//   - For fields, inherit from them
-			string xmlSummary = propertyInfo.AnnotatedMemberKind is SyntaxKind.PropertyDeclaration
-				? "/// <inheritdoc/>"
-				: $"/// <inheritdoc cref=\"{getterFieldIdentifierName}\"/>";
-
 			if (propertyInfo.NotifyPropertyChangedRecipients || propertyInfo.IsOldPropertyValueDirectlyReferenced)
 			{
 				// Store the old value for later. This code generates a statement as follows:
@@ -629,23 +601,6 @@ partial class BindablePropertyGenerator
 							Argument(IdentifierName("value")))),
 					Block(setterStatements.AsEnumerable()));
 
-			// Prepare the forwarded attributes, if any, for all targets
-			AttributeListSyntax[] forwardedPropertyAttributes =
-				propertyInfo.ForwardedAttributes
-				.Where(static a => a.AttributeTarget is SyntaxKind.PropertyKeyword)
-				.Select(static a => AttributeList(SingletonSeparatedList(a.GetSyntax())))
-				.ToArray();
-			AttributeListSyntax[] forwardedGetAccessorAttributes =
-				propertyInfo.ForwardedAttributes
-				.Where(static a => a.AttributeTarget is SyntaxKind.GetKeyword)
-				.Select(static a => AttributeList(SingletonSeparatedList(a.GetSyntax())))
-				.ToArray();
-			AttributeListSyntax[] forwardedSetAccessorAttributes =
-				propertyInfo.ForwardedAttributes
-				.Where(static a => a.AttributeTarget is SyntaxKind.SetKeyword)
-				.Select(static a => AttributeList(SingletonSeparatedList(a.GetSyntax())))
-				.ToArray();
-
 			// Prepare the setter for the generated property:
 			//
 			// <SETTER_ACCESSIBILITY> set
@@ -704,18 +659,15 @@ partial class BindablePropertyGenerator
 					AttributeList(SingletonSeparatedList(
 						Attribute(IdentifierName("global::System.CodeDom.Compiler.GeneratedCode"))
 						.AddArgumentListArguments(
-							AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservablePropertyGenerator).FullName))),
-							AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservablePropertyGenerator).Assembly.GetName().Version.ToString()))))))
-					.WithOpenBracketToken(Token(TriviaList(Comment(xmlSummary)), SyntaxKind.OpenBracketToken, TriviaList())),
+							AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(BindablePropertyGenerator).FullName))),
+							AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(BindablePropertyGenerator).Assembly.GetName().Version.ToString()))))))
 					AttributeList(SingletonSeparatedList(Attribute(IdentifierName("global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage")))))
-				.AddAttributeLists(forwardedPropertyAttributes)
 				.WithModifiers(GetPropertyModifiers(propertyInfo))
 				.AddAccessorListAccessors(
 					AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
 					.WithModifiers(propertyInfo.GetterAccessibility.ToSyntaxTokenList())
 					.WithExpressionBody(ArrowExpressionClause(getterFieldExpression))
-					.WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-					.AddAttributeLists(forwardedGetAccessorAttributes),
+					.WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
 					setAccessor);
 		}
 
