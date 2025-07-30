@@ -440,7 +440,7 @@ partial class BindablePropertyGenerator
 		/// <param name="propertyChangedNames">The target collection of dependent property names to populate.</param>
 		/// <param name="diagnostics">The current collection of gathered diagnostics.</param>
 		/// <returns>Whether or not <paramref name="attributeData"/> was an attribute containing any dependent properties.</returns>
-		private static bool TryGatherDependentPropertyChangedNames(
+		/*private static bool TryGatherDependentPropertyChangedNames(
 			ISymbol memberSymbol,
 			AttributeData attributeData,
 			in ImmutableArrayBuilder<string> propertyChangedNames,
@@ -496,7 +496,7 @@ partial class BindablePropertyGenerator
 
 			return false;
 		}
-
+		*/
 		/// <summary>
 		/// Tries to gather dependent commands from the given attribute.
 		/// </summary>
@@ -627,7 +627,7 @@ partial class BindablePropertyGenerator
 		/// <param name="hasOrInheritsClassLevelNotifyPropertyChangedRecipients">Indicates wether the containing type of <paramref name="memberSymbol"/> has or inherits <c>[NotifyPropertyChangedRecipients]</c>.</param>
 		/// <param name="isBroadcastTargetValid">Whether or not the the property is in a valid target that can notify recipients.</param>
 		/// <returns>Whether or not the generated property for <paramref name="memberSymbol"/> used <c>[NotifyPropertyChangedRecipients]</c>.</returns>
-		private static bool TryGetIsNotifyingRecipients(
+		/*private static bool TryGetIsNotifyingRecipients(
 			ISymbol memberSymbol,
 			AttributeData attributeData,
 			in ImmutableArrayBuilder<DiagnosticInfo> diagnostics,
@@ -672,14 +672,14 @@ partial class BindablePropertyGenerator
 
 			return false;
 		}
-
+		*/
 		/// <summary>
 		/// Checks whether a given generated property should also validate its value.
 		/// </summary>
 		/// <param name="memberSymbol">The input <see cref="ISymbol"/> instance to process.</param>
 		/// <param name="isValidationTargetValid">Whether or not the the property is in a valid target that can validate values.</param>
 		/// <returns>Whether or not the generated property for <paramref name="memberSymbol"/> used <c>[NotifyDataErrorInfo]</c>.</returns>
-		private static bool TryGetNotifyDataErrorInfo(ISymbol memberSymbol, out bool isValidationTargetValid)
+		/*private static bool TryGetNotifyDataErrorInfo(ISymbol memberSymbol, out bool isValidationTargetValid)
 		{
 			if (memberSymbol.ContainingType?.HasOrInheritsAttributeWithFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.NotifyDataErrorInfoAttribute") == true)
 			{
@@ -701,7 +701,7 @@ partial class BindablePropertyGenerator
 
 			return false;
 		}
-
+		*/
 		/// <summary>
 		/// Checks whether a given generated property should also validate its value.
 		/// </summary>
@@ -711,7 +711,7 @@ partial class BindablePropertyGenerator
 		/// <param name="hasOrInheritsClassLevelNotifyDataErrorInfo">Indicates whether the containing type of <paramref name="memberSymbol"/> has or inherits <c>[NotifyDataErrorInfo]</c>.</param>
 		/// <param name="isValidationTargetValid">Whether or not the the property is in a valid target that can validate values.</param>
 		/// <returns>Whether or not the generated property for <paramref name="memberSymbol"/> used <c>[NotifyDataErrorInfo]</c>.</returns>
-		private static bool TryGetNotifyDataErrorInfo(
+		/*private static bool TryGetNotifyDataErrorInfo(
 			ISymbol memberSymbol,
 			AttributeData attributeData,
 			in ImmutableArrayBuilder<DiagnosticInfo> diagnostics,
@@ -756,7 +756,7 @@ partial class BindablePropertyGenerator
 
 			return false;
 		}
-
+		*/
 		/// <summary>
 		/// Checks whether the generated code has to directly reference the old property value.
 		/// </summary>
