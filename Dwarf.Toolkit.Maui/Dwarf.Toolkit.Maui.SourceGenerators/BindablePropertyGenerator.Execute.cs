@@ -57,17 +57,17 @@ partial class BindablePropertyGenerator
 		public static bool IsCandidateValidForCompilation(MemberDeclarationSyntax node, SemanticModel semanticModel)
 		{
 			// At least C# 8 is always required
-			if (!semanticModel.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp8))
+			if (!semanticModel.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp11))
 			{
 				return false;
 			}
 
 			// If the target is a property, we only support using C# preview.
 			// This is because the generator is relying on the 'field' keyword.
-			if (node is PropertyDeclarationSyntax && !semanticModel.Compilation.IsLanguageVersionPreview())
-			{
-				return false;
-			}
+			//if (node is PropertyDeclarationSyntax && !semanticModel.Compilation.IsLanguageVersionPreview())
+			//{
+			//	return false;
+			//}
 
 			// All other cases are supported, the syntax filter is already validating that
 			return true;
@@ -80,26 +80,17 @@ partial class BindablePropertyGenerator
 		/// <returns>Whether <paramref name="memberSymbol"/> is valid.</returns>
 		public static bool IsCandidateSymbolValid(ISymbol memberSymbol)
 		{
-            // We only need these additional checks for properties (Roslyn already validates things for fields in our scenarios)
-            if (memberSymbol is IPropertySymbol propertySymbol)
-            {
-                // Ensure that the property declaration is a partial definition with no implementation
-                if (propertySymbol is not { IsPartialDefinition: true, PartialImplementationPart: null })
-                {
-                    return false;
-                }
+			// Ensure that the property declaration is a partial definition with no implementation
+			if (memberSymbol is not IPropertySymbol propertySymbol
+				|| propertySymbol is not { IsPartialDefinition: true, PartialImplementationPart: null })
+			{
+				return false;
+			}
 
-                // Also ignore all properties that have an invalid declaration
-                if (propertySymbol.ReturnsByRef || propertySymbol.ReturnsByRefReadonly || propertySymbol.Type.IsRefLikeType)
-                {
-                    return false;
-                }
-            }
-
+			// Also ignore all properties that have an invalid declaration
 			// Pointer types are never allowed in either case
-			if (memberSymbol is
-				IPropertySymbol { Type.TypeKind: TypeKind.Pointer or TypeKind.FunctionPointer } or
-				IFieldSymbol { Type.TypeKind: TypeKind.Pointer or TypeKind.FunctionPointer })
+			if (propertySymbol.ReturnsByRef || propertySymbol.ReturnsByRefReadonly || propertySymbol.Type.IsRefLikeType
+				|| propertySymbol.Type.TypeKind == TypeKind.Pointer || propertySymbol.Type.TypeKind == TypeKind.FunctionPointer)
 			{
 				return false;
 			}
@@ -142,7 +133,6 @@ partial class BindablePropertyGenerator
 			MemberDeclarationSyntax memberSyntax,
 			ISymbol memberSymbol,
 			SemanticModel semanticModel,
-			AnalyzerConfigOptions options,
 			CancellationToken token,
 			[NotNullWhen(true)] out PropertyInfo? propertyInfo,
 			out ImmutableArray<DiagnosticInfo> diagnostics)
@@ -185,28 +175,9 @@ partial class BindablePropertyGenerator
 
 			token.ThrowIfCancellationRequested();
 
-			// Check for special cases that are explicitly not allowed
-			if (IsGeneratedPropertyInvalid(propertyName, GetPropertyType(memberSymbol)))
-			{
-				propertyInfo = null;
-				diagnostics = [];
-				return false;
-			}
-
-			token.ThrowIfCancellationRequested();
-
 			using ImmutableArrayBuilder<string> propertyChangedNames = ImmutableArrayBuilder<string>.Rent();
 			using ImmutableArrayBuilder<string> notifiedCommandNames = ImmutableArrayBuilder<string>.Rent();
 			using ImmutableArrayBuilder<AttributeInfo> forwardedAttributes = ImmutableArrayBuilder<AttributeInfo>.Rent();
-
-			bool notifyRecipients = false;
-			bool notifyDataErrorInfo = false;
-			bool hasOrInheritsClassLevelNotifyPropertyChangedRecipients = false;
-			bool hasOrInheritsClassLevelNotifyDataErrorInfo = false;
-			bool hasAnyValidationAttributes = false;
-			bool isOldPropertyValueDirectlyReferenced = IsOldPropertyValueDirectlyReferenced(memberSymbol, propertyName);
-
-			token.ThrowIfCancellationRequested();
 
 			// Get the nullability info for the property
 			GetNullabilityInfo(
@@ -220,126 +191,9 @@ partial class BindablePropertyGenerator
 			// The current property is always notified
 			propertyChangedNames.Add(propertyName);
 
-			// Get the class-level [NotifyPropertyChangedRecipients] setting, if any
-			if (TryGetIsNotifyingRecipients(memberSymbol, out bool isBroadcastTargetValid))
-			{
-				notifyRecipients = isBroadcastTargetValid;
-				hasOrInheritsClassLevelNotifyPropertyChangedRecipients = true;
-			}
-
-			token.ThrowIfCancellationRequested();
-
-			// Get the class-level [NotifyDataErrorInfo] setting, if any
-			if (TryGetNotifyDataErrorInfo(memberSymbol, out bool isValidationTargetValid))
-			{
-				notifyDataErrorInfo = isValidationTargetValid;
-				hasOrInheritsClassLevelNotifyDataErrorInfo = true;
-			}
-
 			token.ThrowIfCancellationRequested();
 
 			using ImmutableArrayBuilder<DiagnosticInfo> builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
-
-			// Gather attributes info
-			foreach (AttributeData attributeData in memberSymbol.GetAttributes())
-			{
-				token.ThrowIfCancellationRequested();
-
-				// Gather dependent property and command names
-				if (TryGatherDependentPropertyChangedNames(memberSymbol, attributeData, in propertyChangedNames, in builder) ||
-					TryGatherDependentCommandNames(memberSymbol, attributeData, in notifiedCommandNames, in builder))
-				{
-					continue;
-				}
-
-				// Check whether the property should also notify recipients
-				if (TryGetIsNotifyingRecipients(memberSymbol, attributeData, in builder, hasOrInheritsClassLevelNotifyPropertyChangedRecipients, out isBroadcastTargetValid))
-				{
-					notifyRecipients = isBroadcastTargetValid;
-
-					continue;
-				}
-
-				// Check whether the property should also be validated
-				if (TryGetNotifyDataErrorInfo(memberSymbol, attributeData, in builder, hasOrInheritsClassLevelNotifyDataErrorInfo, out isValidationTargetValid))
-				{
-					notifyDataErrorInfo = isValidationTargetValid;
-
-					continue;
-				}
-
-				// Track the current attribute for forwarding if it is a validation attribute
-				if (attributeData.AttributeClass?.InheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.ValidationAttribute") == true)
-				{
-					hasAnyValidationAttributes = true;
-
-					// Only forward the attribute if the target is a field.
-					// Otherwise, the attribute is already applied correctly.
-					if (memberSyntax.IsKind(SyntaxKind.FieldDeclaration))
-					{
-						forwardedAttributes.Add(AttributeInfo.Create(attributeData));
-					}
-				}
-			}
-
-			token.ThrowIfCancellationRequested();
-
-			// Also gather any forwarded attributes on the annotated member, if it is a field.
-			// This method will not do anything for properties, as those don't support this.
-			GatherLegacyForwardedAttributes(
-				memberSyntax,
-				memberSymbol,
-				semanticModel,
-				in forwardedAttributes,
-				in builder,
-				token);
-
-			token.ThrowIfCancellationRequested();
-
-			// Log the diagnostic for missing ObservableValidator, if needed
-			if (hasAnyValidationAttributes &&
-				!memberSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.ObservableValidator"))
-			{
-				builder.Add(
-					MissingObservableValidatorInheritanceForValidationAttributeError,
-					memberSymbol,
-					memberSyntax.Kind().ToFieldOrPropertyKeyword(),
-					memberSymbol.ContainingType,
-					memberSymbol.Name,
-					forwardedAttributes.Count);
-			}
-
-			// Log the diagnostic for missing validation attributes, if any
-			if (notifyDataErrorInfo && !hasAnyValidationAttributes)
-			{
-				builder.Add(
-					MissingValidationAttributesForNotifyDataErrorInfoError,
-					memberSymbol,
-					memberSymbol.Kind.ToFieldOrPropertyKeyword(),
-					memberSymbol.ContainingType,
-					memberSymbol.Name);
-			}
-
-			token.ThrowIfCancellationRequested();
-
-			// We should generate [RequiresUnreferencedCode] on the setter if [NotifyDataErrorInfo] was used and the attribute is available
-			bool includeRequiresUnreferencedCodeOnSetAccessor =
-				notifyDataErrorInfo &&
-				semanticModel.Compilation.HasAccessibleTypeWithMetadataName("System.Diagnostics.CodeAnalysis.RequiresUnreferencedCodeAttribute");
-
-			token.ThrowIfCancellationRequested();
-
-			// Prepare the effective property changing/changed names. For the property changing names,
-			// there are two possible cases: if the mode is disabled, then there are no names to report
-			// at all. If the mode is enabled, then the list is just the same as for property changed.
-			ImmutableArray<string> effectivePropertyChangedNames = propertyChangedNames.ToImmutable();
-			ImmutableArray<string> effectivePropertyChangingNames = shouldInvokeOnPropertyChanging switch
-			{
-				true => effectivePropertyChangedNames,
-				false => ImmutableArray<string>.Empty
-			};
-
-			token.ThrowIfCancellationRequested();
 
 			// Get all additional modifiers for the member
 			ImmutableArray<SyntaxKind> propertyModifiers = GetPropertyModifiers(memberSyntax);
@@ -392,401 +246,7 @@ partial class BindablePropertyGenerator
 		/// <returns>Whether or not the containing type for <paramref name="memberSymbol"/> is valid.</returns>
 		private static bool IsTargetTypeValid(ISymbol memberSymbol)
 		{
-			// The [ObservableProperty] attribute can only be used in types that are known to expose the necessary OnPropertyChanged and OnPropertyChanging methods.
-			// That means that the containing type for the field needs to match one of the following conditions:
-			//   - It inherits from ObservableObject (in which case it also implements INotifyPropertyChanging).
-			//   - It has the [ObservableObject] attribute (on itself or any of its base types).
-			//   - It has the [INotifyPropertyChanged] attribute (on itself or any of its base types).
-			/*
-			bool isObservableObject = memberSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject");
-			bool hasObservableObjectAttribute = memberSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.ObservableObjectAttribute");
-			bool hasINotifyPropertyChangedAttribute = memberSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.INotifyPropertyChangedAttribute");
-
-			shouldInvokeOnPropertyChanging = isObservableObject || hasObservableObjectAttribute;
-
-			return isObservableObject || hasObservableObjectAttribute || hasINotifyPropertyChangedAttribute;
-			*/
 			return memberSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("Microsoft.Maui.Controls.BindableObject");
-		}
-
-		/// <summary>
-		/// Checks whether the generated property would be a special case that is marked as invalid.
-		/// </summary>
-		/// <param name="propertyName">The property name.</param>
-		/// <param name="propertyType">The property type.</param>
-		/// <returns>Whether the generated property is invalid.</returns>
-		public static bool IsGeneratedPropertyInvalid(string propertyName, ITypeSymbol propertyType)
-		{
-			// If the generated property name is called "Property" and the type is either object or it is PropertyChangedEventArgs or
-			// PropertyChangingEventArgs (or a type derived from either of those two types), consider it invalid. This is needed because
-			// if such a property was generated, the partial On<PROPERTY_NAME>Changing and OnPropertyChanging(PropertyChangingEventArgs)
-			// methods, as well as the partial On<PROPERTY_NAME>Changed and OnPropertyChanged(PropertyChangedEventArgs) methods.
-			if (propertyName == "Property")
-			{
-				return
-					propertyType.SpecialType == SpecialType.System_Object ||
-					propertyType.HasOrInheritsFromFullyQualifiedMetadataName("System.ComponentModel.PropertyChangedEventArgs") ||
-					propertyType.HasOrInheritsFromFullyQualifiedMetadataName("System.ComponentModel.PropertyChangingEventArgs");
-			}
-
-			return false;
-		}
-
-		/// <summary>
-		/// Tries to gather dependent properties from the given attribute.
-		/// </summary>
-		/// <param name="memberSymbol">The input <see cref="ISymbol"/> instance to process.</param>
-		/// <param name="attributeData">The <see cref="AttributeData"/> instance for <paramref name="memberSymbol"/>.</param>
-		/// <param name="propertyChangedNames">The target collection of dependent property names to populate.</param>
-		/// <param name="diagnostics">The current collection of gathered diagnostics.</param>
-		/// <returns>Whether or not <paramref name="attributeData"/> was an attribute containing any dependent properties.</returns>
-		/*private static bool TryGatherDependentPropertyChangedNames(
-			ISymbol memberSymbol,
-			AttributeData attributeData,
-			in ImmutableArrayBuilder<string> propertyChangedNames,
-			in ImmutableArrayBuilder<DiagnosticInfo> diagnostics)
-		{
-			// Validates a property name using existing properties
-			bool IsPropertyNameValid(string propertyName)
-			{
-				return memberSymbol.ContainingType.GetAllMembers(propertyName).OfType<IPropertySymbol>().Any();
-			}
-
-			// Validate a property name including generated properties too
-			bool IsPropertyNameValidWithGeneratedMembers(string propertyName)
-			{
-				foreach (ISymbol member in memberSymbol.ContainingType.GetAllMembers())
-				{
-					if (member is IFieldSymbol otherFieldSymbol &&
-						!SymbolEqualityComparer.Default.Equals(memberSymbol, otherFieldSymbol) &&
-						otherFieldSymbol.HasAttributeWithFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.ObservablePropertyAttribute") &&
-						propertyName == GetGeneratedPropertyName(otherFieldSymbol))
-					{
-						return true;
-					}
-				}
-
-				return false;
-			}
-
-			if (attributeData.AttributeClass?.HasFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.NotifyPropertyChangedForAttribute") == true)
-			{
-				foreach (string? dependentPropertyName in attributeData.GetConstructorArguments<string>())
-				{
-					// Each target must be a (not null and not empty) string matching the name of a property from the containing type
-					// of the annotated field being processed, or alternatively it must match the name of a property being generated.
-					if (dependentPropertyName is not (null or "") &&
-						(IsPropertyNameValid(dependentPropertyName) ||
-						 IsPropertyNameValidWithGeneratedMembers(dependentPropertyName)))
-					{
-						propertyChangedNames.Add(dependentPropertyName);
-					}
-					else
-					{
-						diagnostics.Add(
-							NotifyPropertyChangedForInvalidTargetError,
-							memberSymbol,
-							dependentPropertyName ?? "",
-							memberSymbol.ContainingType);
-					}
-				}
-
-				return true;
-			}
-
-			return false;
-		}
-		*/
-		/// <summary>
-		/// Tries to gather dependent commands from the given attribute.
-		/// </summary>
-		/// <param name="memberSymbol">The input <see cref="ISymbol"/> instance to process.</param>
-		/// <param name="attributeData">The <see cref="AttributeData"/> instance for <paramref name="memberSymbol"/>.</param>
-		/// <param name="notifiedCommandNames">The target collection of dependent command names to populate.</param>
-		/// <param name="diagnostics">The current collection of gathered diagnostics.</param>
-		/// <returns>Whether or not <paramref name="attributeData"/> was an attribute containing any dependent commands.</returns>
-		private static bool TryGatherDependentCommandNames(
-			ISymbol memberSymbol,
-			AttributeData attributeData,
-			in ImmutableArrayBuilder<string> notifiedCommandNames,
-			in ImmutableArrayBuilder<DiagnosticInfo> diagnostics)
-		{
-			// Validates a command name using existing properties
-			bool IsCommandNameValid(string commandName, out bool shouldLookForGeneratedMembersToo)
-			{
-				// Each target must be a string matching the name of a property from the containing type of the annotated field, and the
-				// property must be of type IRelayCommand, or any type that implements that interface (to avoid generating invalid code).
-				if (memberSymbol.ContainingType.GetAllMembers(commandName).OfType<IPropertySymbol>().FirstOrDefault() is IPropertySymbol propertySymbol)
-				{
-					// If there is a property member with the specified name, check that it's valid. If it isn't, the
-					// target is definitely not valid, and the additional checks below can just be skipped. The property
-					// is valid if it's of type IRelayCommand, or it has IRelayCommand in the set of all interfaces.
-					if (propertySymbol.Type is INamedTypeSymbol typeSymbol &&
-						(typeSymbol.HasFullyQualifiedMetadataName("CommunityToolkit.Mvvm.Input.IRelayCommand") ||
-						 typeSymbol.HasInterfaceWithFullyQualifiedMetadataName("CommunityToolkit.Mvvm.Input.IRelayCommand")))
-					{
-						shouldLookForGeneratedMembersToo = true;
-
-						return true;
-					}
-
-					// If a property with this name exists but is not valid, the search should stop immediately, as
-					// the target is already known not to be valid, so there is no reason to look for other members.
-					shouldLookForGeneratedMembersToo = false;
-
-					return false;
-				}
-
-				shouldLookForGeneratedMembersToo = true;
-
-				return false;
-			}
-
-			// Validate a command name including generated command too
-			bool IsCommandNameValidWithGeneratedMembers(string commandName)
-			{
-				foreach (ISymbol member in memberSymbol.ContainingType.GetAllMembers())
-				{
-					if (member is IMethodSymbol methodSymbol &&
-						methodSymbol.HasAttributeWithFullyQualifiedMetadataName("CommunityToolkit.Mvvm.Input.RelayCommandAttribute") &&
-						commandName == RelayCommandGenerator.Execute.GetGeneratedFieldAndPropertyNames(methodSymbol).PropertyName)
-					{
-						return true;
-					}
-				}
-
-				return false;
-			}
-
-			if (attributeData.AttributeClass?.HasFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.NotifyCanExecuteChangedForAttribute") == true)
-			{
-				foreach (string? commandName in attributeData.GetConstructorArguments<string>())
-				{
-					// Each command must be a (not null and not empty) string matching the name of an existing command from the containing
-					// type (just like for properties), or it must match a generated command. The only caveat is the case where a property
-					// with the requested name does exist, but it is not of the right type. In that case the search should stop immediately.
-					if (commandName is not (null or "") &&
-						(IsCommandNameValid(commandName, out bool shouldLookForGeneratedMembersToo) ||
-						 shouldLookForGeneratedMembersToo && IsCommandNameValidWithGeneratedMembers(commandName)))
-					{
-						notifiedCommandNames.Add(commandName);
-					}
-					else
-					{
-						diagnostics.Add(
-						   NotifyCanExecuteChangedForInvalidTargetError,
-						   memberSymbol,
-						   commandName ?? "",
-						   memberSymbol.ContainingType);
-					}
-				}
-
-				return true;
-			}
-
-			return false;
-		}
-
-		/// <summary>
-		/// Checks whether a given generated property should also notify recipients.
-		/// </summary>
-		/// <param name="memberSymbol">The input <see cref="ISymbol"/> instance to process.</param>
-		/// <param name="isBroadcastTargetValid">Whether or not the the property is in a valid target that can notify recipients.</param>
-		/// <returns>Whether or not the generated property for <paramref name="memberSymbol"/> is in a type annotated with <c>[NotifyPropertyChangedRecipients]</c>.</returns>
-		private static bool TryGetIsNotifyingRecipients(ISymbol memberSymbol, out bool isBroadcastTargetValid)
-		{
-			if (memberSymbol.ContainingType?.HasOrInheritsAttributeWithFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.NotifyPropertyChangedRecipientsAttribute") == true)
-			{
-				// If the containing type is valid, track it
-				if (memberSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.ObservableRecipient") ||
-					memberSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.ObservableRecipientAttribute"))
-				{
-					isBroadcastTargetValid = true;
-
-					return true;
-				}
-
-				// Otherwise, ignore the attribute but don't emit a diagnostic.
-				// The diagnostic for class-level attributes is handled separately.
-				isBroadcastTargetValid = false;
-
-				return true;
-			}
-
-			isBroadcastTargetValid = false;
-
-			return false;
-		}
-
-		/// <summary>
-		/// Checks whether a given generated property should also notify recipients.
-		/// </summary>
-		/// <param name="memberSymbol">The input <see cref="ISymbol"/> instance to process.</param>
-		/// <param name="attributeData">The <see cref="AttributeData"/> instance for <paramref name="memberSymbol"/>.</param>
-		/// <param name="diagnostics">The current collection of gathered diagnostics.</param>
-		/// <param name="hasOrInheritsClassLevelNotifyPropertyChangedRecipients">Indicates wether the containing type of <paramref name="memberSymbol"/> has or inherits <c>[NotifyPropertyChangedRecipients]</c>.</param>
-		/// <param name="isBroadcastTargetValid">Whether or not the the property is in a valid target that can notify recipients.</param>
-		/// <returns>Whether or not the generated property for <paramref name="memberSymbol"/> used <c>[NotifyPropertyChangedRecipients]</c>.</returns>
-		/*private static bool TryGetIsNotifyingRecipients(
-			ISymbol memberSymbol,
-			AttributeData attributeData,
-			in ImmutableArrayBuilder<DiagnosticInfo> diagnostics,
-			bool hasOrInheritsClassLevelNotifyPropertyChangedRecipients,
-			out bool isBroadcastTargetValid)
-		{
-			if (attributeData.AttributeClass?.HasFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.NotifyPropertyChangedRecipientsAttribute") == true)
-			{
-				// Emit a diagnostic if the attribute is unnecessary
-				if (hasOrInheritsClassLevelNotifyPropertyChangedRecipients)
-				{
-					diagnostics.Add(
-						UnnecessaryNotifyPropertyChangedRecipientsAttributeOnMemberWarning,
-						memberSymbol,
-						memberSymbol.Kind.ToFieldOrPropertyKeyword(),
-						memberSymbol.ContainingType,
-						memberSymbol.Name);
-				}
-
-				// If the containing type is valid, track it
-				if (memberSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.ObservableRecipient") ||
-					memberSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.ObservableRecipientAttribute"))
-				{
-					isBroadcastTargetValid = true;
-
-					return true;
-				}
-
-				// Otherwise just emit the diagnostic and then ignore the attribute
-				diagnostics.Add(
-					InvalidContainingTypeForNotifyPropertyChangedRecipientsMemberError,
-					memberSymbol,
-					memberSymbol.ContainingType,
-					memberSymbol.Name);
-
-				isBroadcastTargetValid = false;
-
-				return true;
-			}
-
-			isBroadcastTargetValid = false;
-
-			return false;
-		}
-		*/
-		/// <summary>
-		/// Checks whether a given generated property should also validate its value.
-		/// </summary>
-		/// <param name="memberSymbol">The input <see cref="ISymbol"/> instance to process.</param>
-		/// <param name="isValidationTargetValid">Whether or not the the property is in a valid target that can validate values.</param>
-		/// <returns>Whether or not the generated property for <paramref name="memberSymbol"/> used <c>[NotifyDataErrorInfo]</c>.</returns>
-		/*private static bool TryGetNotifyDataErrorInfo(ISymbol memberSymbol, out bool isValidationTargetValid)
-		{
-			if (memberSymbol.ContainingType?.HasOrInheritsAttributeWithFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.NotifyDataErrorInfoAttribute") == true)
-			{
-				// If the containing type is valid, track it
-				if (memberSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.ObservableValidator"))
-				{
-					isValidationTargetValid = true;
-
-					return true;
-				}
-
-				// Otherwise, ignore the attribute but don't emit a diagnostic (same as above)
-				isValidationTargetValid = false;
-
-				return true;
-			}
-
-			isValidationTargetValid = false;
-
-			return false;
-		}
-		*/
-		/// <summary>
-		/// Checks whether a given generated property should also validate its value.
-		/// </summary>
-		/// <param name="memberSymbol">The input <see cref="ISymbol"/> instance to process.</param>
-		/// <param name="attributeData">The <see cref="AttributeData"/> instance for <paramref name="memberSymbol"/>.</param>
-		/// <param name="diagnostics">The current collection of gathered diagnostics.</param>
-		/// <param name="hasOrInheritsClassLevelNotifyDataErrorInfo">Indicates whether the containing type of <paramref name="memberSymbol"/> has or inherits <c>[NotifyDataErrorInfo]</c>.</param>
-		/// <param name="isValidationTargetValid">Whether or not the the property is in a valid target that can validate values.</param>
-		/// <returns>Whether or not the generated property for <paramref name="memberSymbol"/> used <c>[NotifyDataErrorInfo]</c>.</returns>
-		/*private static bool TryGetNotifyDataErrorInfo(
-			ISymbol memberSymbol,
-			AttributeData attributeData,
-			in ImmutableArrayBuilder<DiagnosticInfo> diagnostics,
-			bool hasOrInheritsClassLevelNotifyDataErrorInfo,
-			out bool isValidationTargetValid)
-		{
-			if (attributeData.AttributeClass?.HasFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.NotifyDataErrorInfoAttribute") == true)
-			{
-				// Emit a diagnostic if the attribute is unnecessary
-				if (hasOrInheritsClassLevelNotifyDataErrorInfo)
-				{
-					diagnostics.Add(
-						UnnecessaryNotifyDataErrorInfoAttributeOnMemberWarning,
-						memberSymbol,
-						memberSymbol.Kind.ToFieldOrPropertyKeyword(),
-						memberSymbol.ContainingType,
-						memberSymbol.Name);
-				}
-
-				// If the containing type is valid, track it
-				if (memberSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("CommunityToolkit.Mvvm.ComponentModel.ObservableValidator"))
-				{
-					isValidationTargetValid = true;
-
-					return true;
-				}
-
-				// Otherwise just emit the diagnostic and then ignore the attribute
-				diagnostics.Add(
-					MissingObservableValidatorInheritanceForNotifyDataErrorInfoError,
-					memberSymbol,
-					memberSymbol.Kind.ToFieldOrPropertyKeyword(),
-					memberSymbol.ContainingType,
-					memberSymbol.Name);
-
-				isValidationTargetValid = false;
-
-				return true;
-			}
-
-			isValidationTargetValid = false;
-
-			return false;
-		}
-		*/
-		/// <summary>
-		/// Checks whether the generated code has to directly reference the old property value.
-		/// </summary>
-		/// <param name="memberSymbol">The input <see cref="ISymbol"/> instance to process.</param>
-		/// <param name="propertyName">The name of the property being generated.</param>
-		/// <returns>Whether the generated code needs direct access to the old property value.</returns>
-		private static bool IsOldPropertyValueDirectlyReferenced(ISymbol memberSymbol, string propertyName)
-		{
-			// Check On<PROPERTY_NAME>Changing(<PROPERTY_TYPE> oldValue, <PROPERTY_TYPE> newValue) first
-			foreach (ISymbol symbol in memberSymbol.ContainingType.GetMembers($"On{propertyName}Changing"))
-			{
-				// No need to be too specific as we're not expecting false positives (which also wouldn't really
-				// cause any problems anyway, just produce slightly worse codegen). Just checking the number of
-				// parameters is good enough, and keeps the code very simple and cheap to run.
-				if (symbol is IMethodSymbol { Parameters.Length: 2 })
-				{
-					return true;
-				}
-			}
-
-			// Do the same for On<PROPERTY_NAME>Changed(<PROPERTY_TYPE> oldValue, <PROPERTY_TYPE> newValue)
-			foreach (ISymbol symbol in memberSymbol.ContainingType.GetMembers($"On{propertyName}Changed"))
-			{
-				if (symbol is IMethodSymbol { Parameters.Length: 2 })
-				{
-					return true;
-				}
-			}
-
-			return false;
 		}
 
 		/// <summary>
@@ -842,111 +302,6 @@ partial class BindablePropertyGenerator
 				isReferenceTypeOrUnconstraindTypeParameter &&
 				GetPropertyType(memberSymbol).NullableAnnotation != NullableAnnotation.Annotated &&
 				semanticModel.Compilation.HasAccessibleTypeWithMetadataName("System.Diagnostics.CodeAnalysis.MemberNotNullAttribute");
-		}
-
-		/// <summary>
-		/// Gathers all forwarded attributes from the given member syntax.
-		/// </summary>
-		/// <param name="memberSyntax">The <see cref="MemberDeclarationSyntax"/> instance to process.</param>
-		/// <param name="memberSymbol">The input <see cref="ISymbol"/> instance to process.</param>
-		/// <param name="semanticModel">The <see cref="SemanticModel"/> instance for the current run.</param>
-		/// <param name="forwardedAttributes">The collection of forwarded attributes to add new ones to.</param>
-		/// <param name="diagnostics">The current collection of gathered diagnostics.</param>
-		/// <param name="token">The cancellation token for the current operation.</param>
-		private static void GatherLegacyForwardedAttributes(
-			MemberDeclarationSyntax memberSyntax,
-			ISymbol memberSymbol,
-			SemanticModel semanticModel,
-			in ImmutableArrayBuilder<AttributeInfo> forwardedAttributes,
-			in ImmutableArrayBuilder<DiagnosticInfo> diagnostics,
-			CancellationToken token)
-		{
-			// For properties, we never need to forward any attributes with explicit targets either, because
-			// they can already "just work" when used with 'field'. As for 'get' and 'set', they can just be
-			// added directly to the partial declarations of the property accessors.
-			if (memberSyntax.IsKind(SyntaxKind.PropertyDeclaration))
-			{
-				return;
-			}
-
-			// Also track the current attribute for forwarding if it is of any of the following types:
-			//   - Display attributes (System.ComponentModel.DataAnnotations.DisplayAttribute)
-			//   - UI hint attributes(System.ComponentModel.DataAnnotations.UIHintAttribute)
-			//   - Scaffold column attributes (System.ComponentModel.DataAnnotations.ScaffoldColumnAttribute)
-			//   - Editable attributes (System.ComponentModel.DataAnnotations.EditableAttribute)
-			//   - Key attributes (System.ComponentModel.DataAnnotations.KeyAttribute)
-			//
-			// All of these have special handling and are always forwarded when a field is being targeted.
-			// That is because these attributes really only mean anything when used on generated properties.
-			foreach (AttributeData attributeData in memberSymbol.GetAttributes())
-			{
-				if (attributeData.AttributeClass?.HasOrInheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.UIHintAttribute") == true ||
-					attributeData.AttributeClass?.HasOrInheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.ScaffoldColumnAttribute") == true ||
-					attributeData.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.DisplayAttribute") == true ||
-					attributeData.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.EditableAttribute") == true ||
-					attributeData.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.KeyAttribute") == true)
-				{
-					forwardedAttributes.Add(AttributeInfo.Create(attributeData));
-				}
-			}
-
-			// Gather explicit forwarded attributes info
-			foreach (AttributeListSyntax attributeList in memberSyntax.AttributeLists)
-			{
-				// Only look for attribute lists explicitly targeting the (generated) property or one of its accessors. Roslyn will
-				// normally emit a CS0657 warning (invalid target), but that is automatically suppressed by a dedicated diagnostic
-				// suppressor that recognizes uses of this target specifically to support [ObservableProperty].
-				if (attributeList.Target?.Identifier is not SyntaxToken(SyntaxKind.PropertyKeyword or SyntaxKind.GetKeyword or SyntaxKind.SetKeyword) targetIdentifier)
-				{
-					continue;
-				}
-
-				token.ThrowIfCancellationRequested();
-
-				foreach (AttributeSyntax attribute in attributeList.Attributes)
-				{
-					// Roslyn ignores attributes in an attribute list with an invalid target, so we can't get the AttributeData as usual.
-					// To reconstruct all necessary attribute info to generate the serialized model, we use the following steps:
-					//   - We try to get the attribute symbol from the semantic model, for the current attribute syntax. In case this is not
-					//     available (in theory it shouldn't, but it can be), we try to get it from the candidate symbols list for the node.
-					//     If there are no candidates or more than one, we just issue a diagnostic and stop processing the current attribute.
-					//     The returned symbols might be method symbols (constructor attribute) so in that case we can get the declaring type.
-					//   - We then go over each attribute argument expression and get the operation for it. This will still be available even
-					//     though the rest of the attribute is not validated nor bound at all. From the operation we can still retrieve all
-					//     constant values to build the AttributeInfo model. After all, attributes only support constant values, typeof(T)
-					//     expressions, or arrays of either these two types, or of other arrays with the same rules, recursively.
-					//   - From the syntax, we can also determine the identifier names for named attribute arguments, if any.
-					// There is no need to validate anything here: the attribute will be forwarded as is, and then Roslyn will validate on the
-					// generated property. Users will get the same validation they'd have had directly over the field. The only drawback is the
-					// lack of IntelliSense when constructing attributes over the field, but this is the best we can do from this end anyway.
-					if (!semanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out INamedTypeSymbol? attributeTypeSymbol))
-					{
-						diagnostics.Add(
-							InvalidPropertyTargetedAttributeOnObservablePropertyField,
-							attribute,
-							memberSymbol,
-							attribute.Name);
-
-						continue;
-					}
-
-					IEnumerable<AttributeArgumentSyntax> attributeArguments = attribute.ArgumentList?.Arguments ?? Enumerable.Empty<AttributeArgumentSyntax>();
-
-					// Try to extract the forwarded attribute
-					if (!AttributeInfo.TryCreate(attributeTypeSymbol, semanticModel, attributeArguments, targetIdentifier.Kind(), token, out AttributeInfo? attributeInfo))
-					{
-						diagnostics.Add(
-							InvalidPropertyTargetedAttributeExpressionOnObservablePropertyField,
-							attribute,
-							memberSymbol,
-							attribute.Name);
-
-						continue;
-					}
-
-					forwardedAttributes.Add(attributeInfo);
-				}
-			}
 		}
 
 		/// <summary>
@@ -1059,32 +414,6 @@ partial class BindablePropertyGenerator
 			}
 
 			return true;
-		}
-
-		/// <summary>
-		/// Gets a <see cref="CompilationUnitSyntax"/> instance with the cached args for property changing notifications.
-		/// </summary>
-		/// <param name="names">The sequence of property names to cache args for.</param>
-		/// <returns>A <see cref="CompilationUnitSyntax"/> instance with the sequence of cached args, if any.</returns>
-		public static CompilationUnitSyntax? GetKnownPropertyChangingArgsSyntax(ImmutableArray<string> names)
-		{
-			return GetKnownPropertyChangingOrChangedArgsSyntax(
-				"__KnownINotifyPropertyChangingArgs",
-				"global::System.ComponentModel.PropertyChangingEventArgs",
-				names);
-		}
-
-		/// <summary>
-		/// Gets a <see cref="CompilationUnitSyntax"/> instance with the cached args for property changed notifications.
-		/// </summary>
-		/// <param name="names">The sequence of property names to cache args for.</param>
-		/// <returns>A <see cref="CompilationUnitSyntax"/> instance with the sequence of cached args, if any.</returns>
-		public static CompilationUnitSyntax? GetKnownPropertyChangedArgsSyntax(ImmutableArray<string> names)
-		{
-			return GetKnownPropertyChangingOrChangedArgsSyntax(
-				"__KnownINotifyPropertyChangedArgs",
-				"global::System.ComponentModel.PropertyChangedEventArgs",
-				names);
 		}
 
 		/// <summary>

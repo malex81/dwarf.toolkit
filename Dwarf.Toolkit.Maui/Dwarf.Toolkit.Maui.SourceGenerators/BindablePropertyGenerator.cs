@@ -14,7 +14,7 @@ public sealed partial class BindablePropertyGenerator : IIncrementalGenerator
 	{
 		// Gather info for all annotated fields
 		IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<PropertyInfo?> Info)> propertyInfoWithErrors
-			= context.ForAttributeWithMetadataNameAndOptions(
+			= context.SyntaxProvider.ForAttributeWithMetadataName(
 				"Dwarf.Toolkit.Maui.BindablePropertyAttribute",
 				Execute.IsCandidatePropertyDeclaration,
 				static (context, token) =>
@@ -22,13 +22,9 @@ public sealed partial class BindablePropertyGenerator : IIncrementalGenerator
 					MemberDeclarationSyntax memberSyntax = Execute.GetCandidateMemberDeclaration(context.TargetNode);
 
 					// Validate that the candidate is valid for the current compilation
-					if (!Execute.IsCandidateValidForCompilation(memberSyntax, context.SemanticModel))
-					{
-						return default;
-					}
-
-					// Validate the symbol as well before doing any work
-					if (!Execute.IsCandidateSymbolValid(context.TargetSymbol))
+					// and the symbol as well before doing any work
+					if (!Execute.IsCandidateValidForCompilation(memberSyntax, context.SemanticModel)
+						|| !Execute.IsCandidateSymbolValid(context.TargetSymbol))
 					{
 						return default;
 					}
@@ -44,7 +40,6 @@ public sealed partial class BindablePropertyGenerator : IIncrementalGenerator
 						memberSyntax,
 						context.TargetSymbol,
 						context.SemanticModel,
-						context.GlobalOptions,
 						token,
 						out PropertyInfo? propertyInfo,
 						out ImmutableArray<DiagnosticInfo> diagnostics);

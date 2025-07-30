@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Dwarf.Toolkit.Maui.SourceGenerators.Models;
 
@@ -31,10 +32,9 @@ internal sealed record TypeInfo(string QualifiedName, TypeKind Kind, bool IsReco
 		{
 			TypeKind.Struct => StructDeclaration(QualifiedName),
 			TypeKind.Interface => InterfaceDeclaration(QualifiedName),
-			TypeKind.Class when IsRecord =>
-				RecordDeclaration(Token(SyntaxKind.RecordKeyword), QualifiedName)
-				.WithOpenBraceToken(Token(SyntaxKind.OpenBraceToken))
-				.WithCloseBraceToken(Token(SyntaxKind.CloseBraceToken)),
+			TypeKind.Class when IsRecord => RecordDeclaration(Token(SyntaxKind.RecordKeyword), QualifiedName)
+							.WithOpenBraceToken(Token(SyntaxKind.OpenBraceToken))
+							.WithCloseBraceToken(Token(SyntaxKind.CloseBraceToken)),
 			_ => ClassDeclaration(QualifiedName)
 		};
 	}

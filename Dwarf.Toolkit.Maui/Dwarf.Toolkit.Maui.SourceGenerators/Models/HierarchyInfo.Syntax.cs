@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using System.Collections.Immutable;
 
 namespace Dwarf.Toolkit.Maui.SourceGenerators.Models;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 partial record HierarchyInfo
 {
@@ -37,7 +38,7 @@ partial record HierarchyInfo
 		}
 
 		// Add all parent types in ascending order, if any
-		foreach (TypeInfo parentType in Hierarchy.AsSpan().Slice(1))
+		foreach (TypeInfo parentType in Hierarchy.AsSpan()[1..])
 		{
 			typeDeclarationSyntax =
 				parentType.GetSyntax()

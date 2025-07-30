@@ -1,5 +1,4 @@
 ﻿using Dwarf.Toolkit.Maui.SourceGenerators.Helpers;
-using System;
 
 namespace Dwarf.Toolkit.Maui.SourceGenerators.Models;
 
