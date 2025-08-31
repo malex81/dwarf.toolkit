@@ -13,4 +13,9 @@
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Dwarf.Toolkit.Base\Dwarf.Toolkit.Base.csproj" />
+	  <ProjectReference Include="..\Dwarf.Toolkit.Maui.SourceGenerators\Dwarf.Toolkit.Maui.SourceGenerators.csproj" />
+	</ItemGroup>
+
 </Project>
