@@ -24,28 +24,17 @@ partial class BindablePropertyGenerator
 		/// <returns>Whether <paramref name="node"/> is a candidate property declaration.</returns>
 		public static bool IsCandidatePropertyDeclaration(SyntaxNode node, CancellationToken token)
 		{
-			// Matches a valid field declaration, for legacy support
-			static bool IsCandidateField(SyntaxNode node, out TypeDeclarationSyntax? containingTypeNode)
-			{
-				// The node must represent a field declaration
-				if (node is not VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax { Parent: FieldDeclarationSyntax { AttributeLists.Count: > 0 } fieldNode } })
-				{
-					containingTypeNode = null;
-					return false;
-				}
-
-				containingTypeNode = (TypeDeclarationSyntax?)fieldNode.Parent;
-				return true;
-			}
-
-			// Check that the target is a valid field
-			if (!IsCandidateField(node, out TypeDeclarationSyntax? parentNode))
+			if (node is not PropertyDeclarationSyntax { AccessorList.Accessors: { Count: 2 } accessors, AttributeLists.Count: > 0 } property
+				|| !property.Modifiers.Any(SyntaxKind.PartialKeyword)
+				|| property.Modifiers.Any(SyntaxKind.StaticKeyword)
+				|| accessors[0].Kind() is not (SyntaxKind.GetAccessorDeclaration or SyntaxKind.SetAccessorDeclaration)
+				|| accessors[1].Kind() is not (SyntaxKind.GetAccessorDeclaration or SyntaxKind.SetAccessorDeclaration))
 			{
 				return false;
 			}
-
+			return true;
 			// The candidate member must be in a type with a base type (as it must derive from ObservableObject)
-			return parentNode?.IsTypeDeclarationWithOrPotentiallyWithBaseTypes<ClassDeclarationSyntax>() == true;
+			//return parentNode?.IsTypeDeclarationWithOrPotentiallyWithBaseTypes<ClassDeclarationSyntax>() == true;
 		}
 
 		/// <summary>
@@ -351,7 +340,7 @@ partial class BindablePropertyGenerator
 					InvocationExpression(IdentifierName($"On{propertyInfo.PropertyName}Changing"))
 					.AddArgumentListArguments(Argument(IdentifierName("value")))));
 
-			
+
 			// Add the OnPropertyChanged() call:
 			//
 			// On<PROPERTY_NAME>Changed(value);
@@ -360,7 +349,7 @@ partial class BindablePropertyGenerator
 					InvocationExpression(IdentifierName($"On{propertyInfo.PropertyName}Changed"))
 					.AddArgumentListArguments(Argument(IdentifierName("value")))));
 
-			
+
 			// Get the property type syntax
 			TypeSyntax propertyType = IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations);
 
@@ -470,7 +459,7 @@ partial class BindablePropertyGenerator
 			return ((IFieldSymbol)memberSymbol).Type;
 		}
 
-		
+
 		/// <summary>
 		/// Creates a field declaration for a cached property changing/changed name.
 		/// </summary>
