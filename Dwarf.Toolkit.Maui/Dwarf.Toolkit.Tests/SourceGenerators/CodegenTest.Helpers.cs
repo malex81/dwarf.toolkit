@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Dwarf.Toolkit.Maui;
 
 namespace Dwarf.Toolkit.Tests.SourceGenerators;
 
@@ -30,8 +31,8 @@ partial class CodegenTest
 	private static void VerifyGenerateSources(string source, IIncrementalGenerator[] generators, LanguageVersion languageVersion, params (string filename, string? text)[] results)
 	{
 		// Ensure CommunityToolkit.Mvvm and System.ComponentModel.DataAnnotations are loaded
-		//Type observableObjectType = typeof(ObservableObject);
-		//Type validationAttributeType = typeof(ValidationAttribute);
+		Type bindableObjectType = typeof(BindableObject);
+		Type bindableAttributeType = typeof(BindablePropertyAttribute);
 
 		// Get all assembly references for the loaded assemblies (easy way to pull in all necessary dependencies)
 		IEnumerable<MetadataReference> references =
@@ -79,7 +80,7 @@ partial class CodegenTest
 			}
 		}
 
-		//GC.KeepAlive(observableObjectType);
-		//GC.KeepAlive(validationAttributeType);
+		GC.KeepAlive(bindableObjectType);
+		GC.KeepAlive(bindableAttributeType);
 	}
 }

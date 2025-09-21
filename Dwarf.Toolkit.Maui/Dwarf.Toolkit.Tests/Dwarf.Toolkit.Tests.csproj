@@ -4,6 +4,7 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<MauiVersion>8.0.100</MauiVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -11,11 +12,13 @@
 		<PackageReference Include="nunit" Version="4.3.2" />
 		<PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Dwarf.Toolkit.Base\Dwarf.Toolkit.Base.csproj" />
 	  <ProjectReference Include="..\Dwarf.Toolkit.Maui.SourceGenerators\Dwarf.Toolkit.Maui.SourceGenerators.csproj" />
+	  <ProjectReference Include="..\Dwarf.Toolkit.Maui\Dwarf.Toolkit.Maui.csproj" />
 	</ItemGroup>
 
 </Project>

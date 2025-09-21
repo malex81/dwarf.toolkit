@@ -24,6 +24,8 @@ partial class BindablePropertyGenerator
 		/// <returns>Whether <paramref name="node"/> is a candidate property declaration.</returns>
 		public static bool IsCandidatePropertyDeclaration(SyntaxNode node, CancellationToken token)
 		{
+			token.ThrowIfCancellationRequested();
+
 			if (node is not PropertyDeclarationSyntax { AccessorList.Accessors: { Count: 2 } accessors, AttributeLists.Count: > 0 } property
 				|| !property.Modifiers.Any(SyntaxKind.PartialKeyword)
 				|| property.Modifiers.Any(SyntaxKind.StaticKeyword)
