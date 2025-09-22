@@ -41,28 +41,13 @@ partial class BindablePropertyGenerator
 
 		/// <summary>
 		/// Checks whether a given candidate node is valid given a compilation.
+		/// At least C# 13 required for partial properties support
 		/// </summary>
-		/// <param name="node">The <see cref="MemberDeclarationSyntax"/> instance to process.</param>
 		/// <param name="semanticModel">The <see cref="SemanticModel"/> instance for the current run.</param>
 		/// <returns>Whether <paramref name="node"/> is valid.</returns>
-		public static bool IsCandidateValidForCompilation(MemberDeclarationSyntax node, SemanticModel semanticModel)
-		{
-			// At least C# 8 is always required
-			if (!semanticModel.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp11))
-			{
-				return false;
-			}
-
-			// If the target is a property, we only support using C# preview.
-			// This is because the generator is relying on the 'field' keyword.
-			//if (node is PropertyDeclarationSyntax && !semanticModel.Compilation.IsLanguageVersionPreview())
-			//{
-			//	return false;
-			//}
-
-			// All other cases are supported, the syntax filter is already validating that
-			return true;
-		}
+		public static bool IsCandidateValidForCompilation(SemanticModel semanticModel)
+			=> semanticModel.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp13)
+			|| semanticModel.Compilation.IsLanguageVersionPreview();
 
 		/// <summary>
 		/// Performs additional checks before running the core generation logic.

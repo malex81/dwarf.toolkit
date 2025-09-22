@@ -18,7 +18,7 @@ partial class CodegenTest
 	/// <param name="results">The source files to compare.</param>
 	private static void VerifyGenerateSources(string source, IIncrementalGenerator[] generators, params (string filename, string? text)[] results)
 	{
-		VerifyGenerateSources(source, generators, LanguageVersion.CSharp10, results);
+		VerifyGenerateSources(source, generators, LanguageVersion.CSharp13, results);
 	}
 
 	/// <summary>

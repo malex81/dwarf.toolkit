@@ -23,7 +23,7 @@ public sealed partial class BindablePropertyGenerator : IIncrementalGenerator
 
 					// Validate that the candidate is valid for the current compilation
 					// and the symbol as well before doing any work
-					if (!Execute.IsCandidateValidForCompilation(memberSyntax, context.SemanticModel)
+					if (!Execute.IsCandidateValidForCompilation(context.SemanticModel)
 						|| !Execute.IsCandidateSymbolValid(context.TargetSymbol))
 					{
 						return default;

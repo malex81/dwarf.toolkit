@@ -20,5 +20,7 @@ dotnet_diagnostic.IDE0001.severity = none
 dotnet_diagnostic.IDE0130.severity = silent
 # CA1822: Mark members as static
 dotnet_diagnostic.CA1822.severity = silent	
+# Предлагает заменять сравнение через ToLower() на StringComparer.CurrentCultureIgnoreCase, при этом не учитывает контекст использования, не видит в какой запрос это будет транслироваться
+dotnet_diagnostic.CA1862.severity = none
 # Ошибки генерации кода
 dotnet_diagnostic.CS8785.severity = error   
