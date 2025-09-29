@@ -10,6 +10,8 @@ namespace Dwarf.Toolkit.Tests.SourceGenerators;
 
 partial class CodegenTest
 {
+	const string TestOutputDirectory = "../../GeneratingTestOutput";
+
 	/// <summary>
 	/// Generates the requested sources
 	/// </summary>
@@ -62,15 +64,18 @@ partial class CodegenTest
 		{
 			if (text is not null)
 			{
-				string filePath = filename;
-
 				// Update the assembly version using the version from the assembly of the input generators.
 				// This allows the tests to not need updates whenever the version of the MVVM Toolkit changes.
 				string expectedText = text.Replace("<ASSEMBLY_VERSION>", $"\"{generators[0].GetType().Assembly.GetName().Version}\"");
-				SyntaxTree generatedTree = outputCompilation.SyntaxTrees.Single(tree => Path.GetFileName(tree.FilePath) == filePath);
+				SyntaxTree generatedTree = outputCompilation.SyntaxTrees.Single(tree => Path.GetFileName(tree.FilePath) == filename);
 
-				//Assert.AreEqual(expectedText, generatedTree.ToString());
-				Assert.That(expectedText, Is.EqualTo(generatedTree.ToString()));
+				var generatedCode = generatedTree.ToString();
+				if (expectedText != generatedCode)
+				{
+					Directory.CreateDirectory(TestOutputDirectory);
+					File.WriteAllText(Path.Combine(TestOutputDirectory, filename), generatedCode);
+				}
+				Assert.That(expectedText, Is.EqualTo(generatedCode));
 			}
 			else
 			{

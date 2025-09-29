@@ -15,7 +15,7 @@ internal partial class CodegenTest
 
 			namespace MyApp;
 
-			partial class MyMauiObject : BindableObject
+			partial class SimpleObject : BindableObject
 			{
 				[BindableProperty]
 				public partial string MyProp { get; set; }
@@ -27,6 +27,6 @@ internal partial class CodegenTest
 			namespace MyApp;
 			""";
 
-		VerifyGenerateSources(source, [new BindablePropertyGenerator()], ("MyApp.MyMauiObject.g.cs", result));
+		VerifyGenerateSources(source, [new BindablePropertyGenerator()], ("MyApp.SimpleObject.g.cs", result));
 	}
 }
