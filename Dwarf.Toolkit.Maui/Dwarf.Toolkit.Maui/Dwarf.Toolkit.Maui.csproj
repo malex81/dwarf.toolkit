@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\build\Netstandard.props" />
 
 	<PropertyGroup>
 		<Company>Dwarf holl</Company>

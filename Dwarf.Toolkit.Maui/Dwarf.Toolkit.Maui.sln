@@ -14,7 +14,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 	ProjectSection(SolutionItems) = preProject
 		..\Directory.Build.props = ..\Directory.Build.props
+		..\build\Netstandard.props = ..\build\Netstandard.props
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dwarf.Toolkit.Demo", "Dwarf.Toolkit.Demo\Dwarf.Toolkit.Demo.csproj", "{AD61388F-5477-432B-AC36-E3DC18931AFF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +41,12 @@ Global
 		{1445892C-A2F6-4720-A93A-97420D230AD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1445892C-A2F6-4720-A93A-97420D230AD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1445892C-A2F6-4720-A93A-97420D230AD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD61388F-5477-432B-AC36-E3DC18931AFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD61388F-5477-432B-AC36-E3DC18931AFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD61388F-5477-432B-AC36-E3DC18931AFF}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{AD61388F-5477-432B-AC36-E3DC18931AFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD61388F-5477-432B-AC36-E3DC18931AFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD61388F-5477-432B-AC36-E3DC18931AFF}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
