@@ -1,16 +1,10 @@
 <Project>
-	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<LangVersion>12.0</LangVersion>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<Nullable>enable</Nullable>
-	</PropertyGroup>
-
-	<ItemGroup>
+<!-- 	<ItemGroup>
 		<Using Include="System" />
 		<Using Include="System.Collections.Generic" />
 		<Using Include="System.Linq" />
 		<Using Include="System.Threading" />
 		<Using Include="System.Threading.Tasks" />
 	</ItemGroup>
-</Project>
+ -->
+ </Project>
