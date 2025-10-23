@@ -1,6 +1,6 @@
 @set progName=Dwarf.Toolkit.Maui
 
 dotnet pack "../%progName%/%progName%.csproj" -c Release
-@rd /S /Q "%UserProfile%/.nuget/packages/%progName%" /S
+@rd /s /q "%UserProfile%/.nuget/packages/%progName%"
 
 @pause

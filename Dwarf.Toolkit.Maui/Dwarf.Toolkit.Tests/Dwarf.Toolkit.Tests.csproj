@@ -16,9 +16,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\Dwarf.Toolkit.Base\Dwarf.Toolkit.Base.csproj" />
-	  <ProjectReference Include="..\Dwarf.Toolkit.Maui.SourceGenerators\Dwarf.Toolkit.Maui.SourceGenerators.csproj" />
-	  <ProjectReference Include="..\Dwarf.Toolkit.Maui\Dwarf.Toolkit.Maui.csproj" />
+		<ProjectReference Include="..\..\Dwarf.Toolkit.Base\Dwarf.Toolkit.Base.csproj" />
+		<ProjectReference Include="..\Dwarf.Toolkit.Maui.SourceGenerators\Dwarf.Toolkit.Maui.SourceGenerators.csproj" />
+		<ProjectReference Include="..\Dwarf.Toolkit.Maui\Dwarf.Toolkit.Maui.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="bin\GeneratingTestOutput\**" Link="TestOutput\%(Filename).%(Extension)"/>
 	</ItemGroup>
 
 </Project>
