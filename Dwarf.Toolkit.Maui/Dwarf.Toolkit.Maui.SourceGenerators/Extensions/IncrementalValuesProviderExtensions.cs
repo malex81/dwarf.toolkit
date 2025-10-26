@@ -14,7 +14,7 @@ using Microsoft.CodeAnalysis;
 namespace Dwarf.Toolkit.Maui.SourceGenerators.Extensions;
 
 /// <summary>
-/// Extension methods for <see cref="IncrementalValuesProvider{TValues}"/>.
+/// Extension methods for <see cref="IncrementalValuesProvider{TValues}"/>
 /// </summary>
 internal static class IncrementalValuesProviderExtensions
 {

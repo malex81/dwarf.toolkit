@@ -70,7 +70,7 @@ partial record HierarchyInfo
 			// <TYPE_HIERARCHY>
 			return CompilationUnit()
 				.AddMembers(typeDeclarationSyntax.WithLeadingTrivia(syntaxTriviaList))
-				.NormalizeWhitespace();
+				.NormalizeWhitespace(indentation: "\t");
 		}
 
 		// Create the compilation unit with disabled warnings, target namespace and generated type.
@@ -82,9 +82,10 @@ partial record HierarchyInfo
 		//     <TYPE_HIERARCHY>
 		// }
 		return CompilationUnit()
-			.AddMembers(NamespaceDeclaration(IdentifierName(Namespace))
+			//.AddMembers(NamespaceDeclaration(IdentifierName(Namespace))
+			.AddMembers(FileScopedNamespaceDeclaration(IdentifierName(Namespace))
 			.WithLeadingTrivia(syntaxTriviaList)
 			.AddMembers(typeDeclarationSyntax))
-			.NormalizeWhitespace();
+			.NormalizeWhitespace(indentation: "\t");
 	}
 }

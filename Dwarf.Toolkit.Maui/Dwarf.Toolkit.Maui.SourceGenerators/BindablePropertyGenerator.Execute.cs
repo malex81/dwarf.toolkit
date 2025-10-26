@@ -213,9 +213,7 @@ partial class BindablePropertyGenerator
 				SyntaxKind.VirtualKeyword,
 				SyntaxKind.SealedKeyword,
 				SyntaxKind.OverrideKeyword,
-#if ROSLYN_4_3_1_OR_GREATER
                 SyntaxKind.RequiredKeyword
-#endif
             ];
 
 			using ImmutableArrayBuilder<SyntaxKind> builder = ImmutableArrayBuilder<SyntaxKind>.Rent();
