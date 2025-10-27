@@ -42,8 +42,8 @@ partial record HierarchyInfo
 		{
 			typeDeclarationSyntax =
 				parentType.GetSyntax()
-				.AddModifiers(Token(TriviaList(Comment("/// <inheritdoc/>")), SyntaxKind.PartialKeyword, TriviaList()))
-				.AddMembers(typeDeclarationSyntax);
+						.AddModifiers(Token(TriviaList(Comment("/// <inheritdoc/>")), SyntaxKind.PartialKeyword, TriviaList()))
+						.AddMembers(typeDeclarationSyntax);
 		}
 
 		// Prepare the leading trivia for the generated compilation unit.

@@ -1,3 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<Version>0.1.0</Version>
+	</PropertyGroup>
+
 	<Import Project="..\build\Netstandard.props" />
 </Project>
