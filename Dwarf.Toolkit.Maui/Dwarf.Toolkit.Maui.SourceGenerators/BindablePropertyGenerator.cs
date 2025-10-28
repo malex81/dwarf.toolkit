@@ -67,7 +67,7 @@ public sealed partial class BindablePropertyGenerator : IIncrementalGenerator
 			// Generate all member declarations for the current type
 			ImmutableArray<MemberDeclarationSyntax> memberDeclarations
 				= item.Properties
-					.Select(Execute.GetPropertySyntax)
+					.SelectMany(p => Execute.GetPropertySyntax(p))
 					//.Concat(item.Properties.Select(Execute.GetOnPropertyChangeMethodsSyntax).SelectMany(static l => l))
 					.ToImmutableArray();
 

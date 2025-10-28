@@ -27,7 +27,7 @@ internal partial class CodegenTest
 			#pragma warning disable
 			#nullable enable
 			namespace MyApp;
-			/// <inheritdoc/>			
+			/// <inheritdoc/>
 			partial class SimpleObject
 			{
 				public static readonly BindableProperty MyPropProperty = BindableProperty.Create(nameof(MyProp), typeof(string), typeof(SimpleObject));

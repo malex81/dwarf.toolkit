@@ -125,19 +125,14 @@ partial class BindablePropertyGenerator
 
 			// Get the property type and name
 			string typeNameWithNullabilityAnnotations = GetPropertyType(memberSymbol).GetFullyQualifiedNameWithNullabilityAnnotations();
-			string fieldName = memberSymbol.Name;
-			string propertyName = GetGeneratedPropertyName(memberSymbol);
-
-			// Check for name collisions (only for fields)
-			// If the generated property would collide, skip generating it entirely. This makes sure that
-			// users only get the helpful diagnostic about the collision, and not the normal compiler error
-			// about a definition for "Property" already existing on the target type, which might be confusing.
-			if (fieldName == propertyName && memberSyntax.IsKind(SyntaxKind.FieldDeclaration))
+			if (memberSymbol is not IPropertySymbol propertySymbol)
 			{
 				propertyInfo = null;
 				diagnostics = [];
 				return false;
 			}
+
+			string propertyName = propertySymbol.Name;
 
 			token.ThrowIfCancellationRequested();
 
@@ -203,7 +198,7 @@ partial class BindablePropertyGenerator
 			// Fields never need to carry additional modifiers along
 			if (memberSyntax.IsKind(SyntaxKind.FieldDeclaration))
 			{
-				return ImmutableArray<SyntaxKind>.Empty;
+				return [];
 			}
 
 			// We only allow a subset of all possible modifiers (aside from the accessibility modifiers)
@@ -213,8 +208,8 @@ partial class BindablePropertyGenerator
 				SyntaxKind.VirtualKeyword,
 				SyntaxKind.SealedKeyword,
 				SyntaxKind.OverrideKeyword,
-                SyntaxKind.RequiredKeyword
-            ];
+				SyntaxKind.RequiredKeyword
+			];
 
 			using ImmutableArrayBuilder<SyntaxKind> builder = ImmutableArrayBuilder<SyntaxKind>.Rent();
 
@@ -308,7 +303,7 @@ partial class BindablePropertyGenerator
 		/// </summary>
 		/// <param name="propertyInfo">The input <see cref="PropertyInfo"/> instance to process.</param>
 		/// <returns>The generated <see cref="MemberDeclarationSyntax"/> instance for <paramref name="propertyInfo"/>.</returns>
-		public static MemberDeclarationSyntax GetPropertySyntax(PropertyInfo propertyInfo)
+		public static ImmutableArray<MemberDeclarationSyntax> GetPropertySyntax(PropertyInfo propertyInfo)
 		{
 			using ImmutableArrayBuilder<StatementSyntax> setterStatements = ImmutableArrayBuilder<StatementSyntax>.Rent();
 
@@ -385,7 +380,7 @@ partial class BindablePropertyGenerator
 			//     <GETTER_ACCESSIBILITY> get => <FIELD_NAME>;
 			//     <SET_ACCESSOR>
 			// }
-			return PropertyDeclaration(propertyType, Identifier(propertyInfo.PropertyName))
+			var propertyReference = PropertyDeclaration(propertyType, Identifier(propertyInfo.PropertyName))
 					.AddAttributeLists(
 						AttributeList(SingletonSeparatedList(
 							Attribute(IdentifierName("global::System.CodeDom.Compiler.GeneratedCode"))
@@ -400,7 +395,21 @@ partial class BindablePropertyGenerator
 							.WithModifiers(propertyInfo.GetterAccessibility.ToSyntaxTokenList())
 							.WithExpressionBody(ArrowExpressionClause(getterFieldExpression))
 							.WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
-						setAccessor);
+						setAccessor)
+					.WithLeadingTrivia(CarriageReturnLineFeed, CarriageReturnLineFeed);
+
+			// Genearte static BindableProperty defenition
+			//
+			// public static readonly BindableProperty {propertyName}Property = BindableProperty.Create(nameof({propertyName}), typeof({propertyType}), typeof(ClassName), {defaultValue});
+			TypeSyntax declarationFiealdType = IdentifierName("BindableProperty");
+			var staticFiealdDeclaration = FieldDeclaration(
+					VariableDeclaration(declarationFiealdType)
+						.AddVariables(VariableDeclarator($"{propertyInfo.PropertyName}Property")))
+				.AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.ReadOnlyKeyword))
+				.WithTrailingTrivia(CarriageReturn, CarriageReturn);
+
+
+			return [staticFiealdDeclaration, propertyReference];
 		}
 
 		/// <summary>
@@ -442,76 +451,6 @@ partial class BindablePropertyGenerator
 
 			// Otherwise, the only possible case is a field symbol
 			return ((IFieldSymbol)memberSymbol).Type;
-		}
-
-
-		/// <summary>
-		/// Creates a field declaration for a cached property changing/changed name.
-		/// </summary>
-		/// <param name="fullyQualifiedTypeName">The field fully qualified type name (either <see cref="PropertyChangedEventArgs"/> or <see cref="PropertyChangingEventArgs"/>).</param>
-		/// <param name="propertyName">The name of the cached property name.</param>
-		/// <returns>A <see cref="FieldDeclarationSyntax"/> instance for the input cached property name.</returns>
-		private static FieldDeclarationSyntax CreateFieldDeclaration(string fullyQualifiedTypeName, string propertyName)
-		{
-			// Create a static field with a cached property changed/changing argument for a specified property.
-			// This code produces a field declaration as follows:
-			//
-			// /// <summary>The cached <see cref="<TYPE_NAME>"/> instance for all "<PROPERTY_NAME>" generated properties.</summary>
-			// [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-			// [global::System.Obsolete("This field is not intended to be referenced directly by user code")]
-			// public static readonly <ARG_TYPE> <PROPERTY_NAME> = new("<PROPERTY_NAME>");
-			return
-				FieldDeclaration(
-				VariableDeclaration(IdentifierName(fullyQualifiedTypeName))
-				.AddVariables(
-					VariableDeclarator(Identifier(propertyName))
-					.WithInitializer(EqualsValueClause(
-						ObjectCreationExpression(IdentifierName(fullyQualifiedTypeName))
-						.AddArgumentListArguments(Argument(
-							LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(propertyName))))))))
-				.AddModifiers(
-					Token(SyntaxKind.PublicKeyword),
-					Token(SyntaxKind.StaticKeyword),
-					Token(SyntaxKind.ReadOnlyKeyword))
-				.AddAttributeLists(
-					AttributeList(SingletonSeparatedList(
-						Attribute(IdentifierName("global::System.ComponentModel.EditorBrowsable")).AddArgumentListArguments(
-						AttributeArgument(ParseExpression("global::System.ComponentModel.EditorBrowsableState.Never")))))
-					.WithOpenBracketToken(Token(TriviaList(
-						Comment($"/// <summary>The cached <see cref=\"{fullyQualifiedTypeName}\"/> instance for all \"{propertyName}\" generated properties.</summary>")),
-						SyntaxKind.OpenBracketToken, TriviaList())),
-					AttributeList(SingletonSeparatedList(
-						Attribute(IdentifierName("global::System.Obsolete")).AddArgumentListArguments(
-						AttributeArgument(LiteralExpression(
-							SyntaxKind.StringLiteralExpression,
-							Literal("This field is not intended to be referenced directly by user code")))))));
-		}
-
-		/// <summary>
-		/// Get the generated property name for an input field or property.
-		/// </summary>
-		/// <param name="memberSymbol">The input <see cref="ISymbol"/> instance to process.</param>
-		/// <returns>The generated property name for <paramref name="memberSymbol"/>.</returns>
-		public static string GetGeneratedPropertyName(ISymbol memberSymbol)
-		{
-			// If the input is a property, just always match the name exactly
-			if (memberSymbol is IPropertySymbol propertySymbol)
-			{
-				return propertySymbol.Name;
-			}
-
-			string propertyName = memberSymbol.Name;
-
-			if (propertyName.StartsWith("m_"))
-			{
-				propertyName = propertyName[2..];
-			}
-			else if (propertyName.StartsWith("_"))
-			{
-				propertyName = propertyName.TrimStart('_');
-			}
-
-			return $"{char.ToUpper(propertyName[0], CultureInfo.InvariantCulture)}{propertyName[1..]}";
 		}
 	}
 }
