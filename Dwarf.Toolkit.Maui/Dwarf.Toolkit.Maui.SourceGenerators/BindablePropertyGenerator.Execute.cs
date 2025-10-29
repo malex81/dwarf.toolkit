@@ -367,47 +367,58 @@ partial class BindablePropertyGenerator
 				.WithModifiers(propertyInfo.SetterAccessibility.ToSyntaxTokenList())
 				.WithBody(Block(setterIfStatement));
 
-
-			// Construct the generated property as follows:
-			//
-			// <XML_SUMMARY>
-			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
-			// [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-			// <FORWARDED_ATTRIBUTES>
-			// <PROPERTY_MODIFIERS> <FIELD_TYPE><NULLABLE_ANNOTATION?> <PROPERTY_NAME>
-			// {
-			//     <FORWARDED_ATTRIBUTES>
-			//     <GETTER_ACCESSIBILITY> get => <FIELD_NAME>;
-			//     <SET_ACCESSOR>
-			// }
-			var propertyReference = PropertyDeclaration(propertyType, Identifier(propertyInfo.PropertyName))
-					.AddAttributeLists(
+			AttributeListSyntax[] genCodeAttrMarker = [
 						AttributeList(SingletonSeparatedList(
 							Attribute(IdentifierName("global::System.CodeDom.Compiler.GeneratedCode"))
 								.AddArgumentListArguments(
 									AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(BindablePropertyGenerator).FullName))),
 									AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(BindablePropertyGenerator).Assembly.GetName().Version.ToString()))))
 								)),
-						AttributeList(SingletonSeparatedList(Attribute(IdentifierName("global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage")))))
-					.WithModifiers(GetPropertyModifiers(propertyInfo))
-					.AddAccessorListAccessors(
-						AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-							.WithModifiers(propertyInfo.GetterAccessibility.ToSyntaxTokenList())
-							.WithExpressionBody(ArrowExpressionClause(getterFieldExpression))
-							.WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
-						setAccessor)
-					.WithLeadingTrivia(CarriageReturnLineFeed, CarriageReturnLineFeed);
+						AttributeList(SingletonSeparatedList(Attribute(IdentifierName("global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage"))))];
 
-			// Genearte static BindableProperty defenition
+
+			// Construct static BindableProperty defenition:
 			//
-			// public static readonly BindableProperty {propertyName}Property = BindableProperty.Create(nameof({propertyName}), typeof({propertyType}), typeof(ClassName), {defaultValue});
+			// public static readonly BindableProperty <PROPERY_NAME>Property = BindableProperty.Create(nameof(<PROPERY_NAME>), typeof(<PROPERY_TYPE>), typeof(<CLASS_NAME>), ...);
 			TypeSyntax declarationFiealdType = IdentifierName("BindableProperty");
 			var staticFiealdDeclaration = FieldDeclaration(
 					VariableDeclaration(declarationFiealdType)
 						.AddVariables(VariableDeclarator($"{propertyInfo.PropertyName}Property")))
-				.AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.ReadOnlyKeyword))
-				.WithTrailingTrivia(CarriageReturn, CarriageReturn);
+				.AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.ReadOnlyKeyword));
 
+			// Construct the generated property as follows:
+			//
+			// /// <inheritdoc/>
+			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
+			// [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+			// partial <PROPERY_TYPE> <PROPERTY_NAME>
+			// {
+			//		get => (<PROPERY_TYPE>)GetValue(<PROPERY_NAME>Property);
+			//		set => SetValue(<PROPERY_NAME>Property, value);
+			// }
+			var propertyReference = PropertyDeclaration(propertyType, Identifier(propertyInfo.PropertyName))
+					.AddAttributeLists(genCodeAttrMarker)
+					.WithLeadingTrivia(TriviaList(Comment("/// <inheritdoc/>")))
+					.AddModifiers(Token(SyntaxKind.PartialKeyword))
+					.AddAccessorListAccessors(
+						AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+							.WithExpressionBody(ArrowExpressionClause(
+								CastExpression(propertyType,
+									InvocationExpression(IdentifierName($"GetValue"),
+									ArgumentList(SeparatedList([
+										Argument(IdentifierName($"{propertyInfo.PropertyName}Property"))
+										]))
+								))))
+							.WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+						AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+							.WithExpressionBody(ArrowExpressionClause(
+								InvocationExpression(IdentifierName($"SetValue"),
+								ArgumentList(SeparatedList([
+									Argument(IdentifierName($"{propertyInfo.PropertyName}Property")),
+									Argument(IdentifierName("value"))
+									]))
+								)))
+							.WithSemicolonToken(Token(SyntaxKind.SemicolonToken)));
 
 			return [staticFiealdDeclaration, propertyReference];
 		}

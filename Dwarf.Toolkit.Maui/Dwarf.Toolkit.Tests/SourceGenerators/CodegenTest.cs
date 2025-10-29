@@ -31,14 +31,10 @@ internal partial class CodegenTest
 			partial class SimpleObject
 			{
 				public static readonly BindableProperty MyPropProperty = BindableProperty.Create(nameof(MyProp), typeof(string), typeof(SimpleObject));
-
+				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-				partial string MyProp
-				{
-					get => (static)GetValue(MyPropProperty);
-					set => SetValue(MyPropProperty, value);
-				}
+				partial string MyProp { get => (string)GetValue(MyPropProperty); set => SetValue(MyPropProperty, value); }
 			}
 			""";
 
