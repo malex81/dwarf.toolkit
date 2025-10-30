@@ -367,6 +367,9 @@ partial class BindablePropertyGenerator
 				.WithModifiers(propertyInfo.SetterAccessibility.ToSyntaxTokenList())
 				.WithBody(Block(setterIfStatement));
 
+			//
+			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
+			// [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 			AttributeListSyntax[] genCodeAttrMarker = [
 						AttributeList(SingletonSeparatedList(
 							Attribute(IdentifierName("global::System.CodeDom.Compiler.GeneratedCode"))
@@ -375,15 +378,28 @@ partial class BindablePropertyGenerator
 									AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(BindablePropertyGenerator).Assembly.GetName().Version.ToString()))))
 								)),
 						AttributeList(SingletonSeparatedList(Attribute(IdentifierName("global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage"))))];
+			//
+			// Prepare for constract static BindableProperty:
+			//
+			TypeSyntax bipType = IdentifierName("BindableProperty");
 
+			var bipCreateAccess = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bipType, IdentifierName("Create"));
 
-			// Construct static BindableProperty defenition:
+			var bipCreateArgs = ArgumentList([
+				Argument(IdentifierName($"nameof({propertyInfo.PropertyName})")),
+				Argument(IdentifierName($"typeof({propertyInfo.TypeNameWithNullabilityAnnotations})")),
+				Argument(IdentifierName($"typeof({propertyInfo.TypeNameWithNullabilityAnnotations})")) // <-- Must be class name hear !!!
+				]);
+
+			var bipEqualsClause = EqualsValueClause(InvocationExpression(bipCreateAccess, bipCreateArgs));
+			// static BindableProperty defenition:
 			//
 			// public static readonly BindableProperty <PROPERY_NAME>Property = BindableProperty.Create(nameof(<PROPERY_NAME>), typeof(<PROPERY_TYPE>), typeof(<CLASS_NAME>), ...);
-			TypeSyntax declarationFiealdType = IdentifierName("BindableProperty");
+			//
 			var staticFiealdDeclaration = FieldDeclaration(
-					VariableDeclaration(declarationFiealdType)
-						.AddVariables(VariableDeclarator($"{propertyInfo.PropertyName}Property")))
+					VariableDeclaration(bipType, SingletonSeparatedList(
+						VariableDeclarator(Identifier($"{propertyInfo.PropertyName}Property"), null, bipEqualsClause)
+						)))
 				.AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.ReadOnlyKeyword));
 
 			// Construct the generated property as follows:
