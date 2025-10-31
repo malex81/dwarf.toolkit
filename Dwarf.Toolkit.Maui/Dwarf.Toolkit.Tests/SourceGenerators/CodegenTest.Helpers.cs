@@ -60,20 +60,25 @@ partial class CodegenTest
 		// Ensure that no diagnostics were generated
 		CollectionAssert.AreEquivalent(Array.Empty<Diagnostic>(), diagnostics);
 
-		foreach ((string filename, string? text) in results)
+		foreach ((string fileName, string? text) in results)
 		{
 			if (text is not null)
 			{
 				// Update the assembly version using the version from the assembly of the input generators.
 				// This allows the tests to not need updates whenever the version of the MVVM Toolkit changes.
 				string expectedText = text.Replace("<ASSEMBLY_VERSION>", $"\"{generators[0].GetType().Assembly.GetName().Version}\"");
-				SyntaxTree generatedTree = outputCompilation.SyntaxTrees.Single(tree => Path.GetFileName(tree.FilePath) == filename);
+				SyntaxTree generatedTree = outputCompilation.SyntaxTrees.Single(tree => Path.GetFileName(tree.FilePath) == fileName);
 
 				var generatedCode = generatedTree.ToString();
+				var testFilePath = Path.Combine(TestOutputDirectory, fileName);
 				if (expectedText != generatedCode)
 				{
 					Directory.CreateDirectory(TestOutputDirectory);
-					File.WriteAllText(Path.Combine(TestOutputDirectory, filename), generatedCode);
+					File.WriteAllText(testFilePath, generatedCode);
+				}
+				else
+				{
+					File.Delete(testFilePath);
 				}
 				Assert.That(expectedText, Is.EqualTo(generatedCode));
 			}
@@ -81,7 +86,7 @@ partial class CodegenTest
 			{
 				// If the text is null, verify that the file was not generated at all
 				//Assert.IsFalse(outputCompilation.SyntaxTrees.Any(tree => Path.GetFileName(tree.FilePath) == filename));
-				Assert.That(outputCompilation.SyntaxTrees.Any(tree => Path.GetFileName(tree.FilePath) == filename), Is.False);
+				Assert.That(outputCompilation.SyntaxTrees.Any(tree => Path.GetFileName(tree.FilePath) == fileName), Is.False);
 			}
 		}
 

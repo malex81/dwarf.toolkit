@@ -124,7 +124,6 @@ partial class BindablePropertyGenerator
 			token.ThrowIfCancellationRequested();
 
 			// Get the property type and name
-			string typeNameWithNullabilityAnnotations = GetPropertyType(memberSymbol).GetFullyQualifiedNameWithNullabilityAnnotations();
 			if (memberSymbol is not IPropertySymbol propertySymbol)
 			{
 				propertyInfo = null;
@@ -148,30 +147,13 @@ partial class BindablePropertyGenerator
 			// Get all additional modifiers for the member
 			ImmutableArray<SyntaxKind> propertyModifiers = GetPropertyModifiers(memberSyntax);
 
-			// Retrieve the accessibility values for all components
-			if (!TryGetAccessibilityModifiers(
-				memberSyntax,
-				memberSymbol,
-				out Accessibility propertyAccessibility,
-				out Accessibility getterAccessibility,
-				out Accessibility setterAccessibility))
-			{
-				propertyInfo = null;
-				diagnostics = builder.ToImmutable();
-
-				return false;
-			}
-
 			token.ThrowIfCancellationRequested();
 
 			propertyInfo = new PropertyInfo(
 				memberSyntax.Kind(),
-				typeNameWithNullabilityAnnotations,
+				propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations(),
 				propertyName,
-				propertyModifiers.AsUnderlyingType(),
-				propertyAccessibility,
-				getterAccessibility,
-				setterAccessibility);
+				propertyModifiers.AsUnderlyingType());
 
 			diagnostics = builder.ToImmutable();
 
@@ -226,147 +208,16 @@ partial class BindablePropertyGenerator
 		}
 
 		/// <summary>
-		/// Tries to get the accessibility of the property and accessors, if possible.
-		/// If the target member is not a property, it will use the defaults.
-		/// </summary>
-		/// <param name="memberSyntax">The <see cref="MemberDeclarationSyntax"/> instance to process.</param>
-		/// <param name="memberSymbol">The input <see cref="ISymbol"/> instance to process.</param>
-		/// <param name="propertyAccessibility">The accessibility of the property, if available.</param>
-		/// <param name="getterAccessibility">The accessibility of the <see langword="get"/> accessor, if available.</param>
-		/// <param name="setterAccessibility">The accessibility of the <see langword="set"/> accessor, if available.</param>
-		/// <returns>Whether the property was valid and the accessibilities could be retrieved.</returns>
-		private static bool TryGetAccessibilityModifiers(
-			MemberDeclarationSyntax memberSyntax,
-			ISymbol memberSymbol,
-			out Accessibility propertyAccessibility,
-			out Accessibility getterAccessibility,
-			out Accessibility setterAccessibility)
-		{
-			// For legacy support for fields, the property that is generated is public, and neither
-			// accessors will have any accessibility modifiers. To customize the accessibility,
-			// partial properties should be used instead.
-			if (memberSyntax.IsKind(SyntaxKind.FieldDeclaration))
-			{
-				propertyAccessibility = Accessibility.Public;
-				getterAccessibility = Accessibility.NotApplicable;
-				setterAccessibility = Accessibility.NotApplicable;
-
-				return true;
-			}
-
-			propertyAccessibility = Accessibility.NotApplicable;
-			getterAccessibility = Accessibility.NotApplicable;
-			setterAccessibility = Accessibility.NotApplicable;
-
-			// Ensure that we have a getter and a setter, and that the setter is not init-only
-			if (memberSymbol is not IPropertySymbol { GetMethod: { } getMethod, SetMethod: { IsInitOnly: false } setMethod })
-			{
-				return false;
-			}
-
-			// At this point the node is definitely a property, just do a sanity check
-			if (memberSyntax is not PropertyDeclarationSyntax propertySyntax)
-			{
-				return false;
-			}
-
-			// Track the property accessibility if explicitly set
-			if (propertySyntax.Modifiers.ContainsAnyAccessibilityModifiers())
-			{
-				propertyAccessibility = memberSymbol.DeclaredAccessibility;
-			}
-
-			// Track the accessors accessibility, if explicitly set
-			foreach (AccessorDeclarationSyntax accessor in propertySyntax.AccessorList?.Accessors ?? [])
-			{
-				if (!accessor.Modifiers.ContainsAnyAccessibilityModifiers())
-				{
-					continue;
-				}
-
-				switch (accessor.Kind())
-				{
-					case SyntaxKind.GetAccessorDeclaration:
-						getterAccessibility = getMethod.DeclaredAccessibility;
-						break;
-					case SyntaxKind.SetAccessorDeclaration:
-						setterAccessibility = setMethod.DeclaredAccessibility;
-						break;
-				}
-			}
-
-			return true;
-		}
-
-		/// <summary>
 		/// Gets the <see cref="MemberDeclarationSyntax"/> instance for the input field.
 		/// </summary>
 		/// <param name="propertyInfo">The input <see cref="PropertyInfo"/> instance to process.</param>
 		/// <returns>The generated <see cref="MemberDeclarationSyntax"/> instance for <paramref name="propertyInfo"/>.</returns>
-		public static ImmutableArray<MemberDeclarationSyntax> GetPropertySyntax(PropertyInfo propertyInfo)
+		public static ImmutableArray<MemberDeclarationSyntax> GetPropertySyntax(HierarchyInfo hInfo, PropertyInfo propertyInfo)
 		{
-			using ImmutableArrayBuilder<StatementSyntax> setterStatements = ImmutableArrayBuilder<StatementSyntax>.Rent();
-
-			ExpressionSyntax getterFieldExpression;
-			ExpressionSyntax setterFieldExpression;
-
-			getterFieldExpression = setterFieldExpression = IdentifierName("_temp");
-
-			// Add the OnPropertyChanging() call first:
-			//
-			// On<PROPERTY_NAME>Changing(value);
-			setterStatements.Add(
-				ExpressionStatement(
-					InvocationExpression(IdentifierName($"On{propertyInfo.PropertyName}Changing"))
-					.AddArgumentListArguments(Argument(IdentifierName("value")))));
-
-
-			// Add the OnPropertyChanged() call:
-			//
-			// On<PROPERTY_NAME>Changed(value);
-			setterStatements.Add(
-				ExpressionStatement(
-					InvocationExpression(IdentifierName($"On{propertyInfo.PropertyName}Changed"))
-					.AddArgumentListArguments(Argument(IdentifierName("value")))));
-
-
 			// Get the property type syntax
 			TypeSyntax propertyType = IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations);
 
-			// Generate the inner setter block as follows:
-			//
-			// if (!global::System.Collections.Generic.EqualityComparer<<PROPERTY_TYPE>>.Default.Equals(<FIELD_EXPRESSION>, value))
-			// {
-			//     <STATEMENTS>
-			// }
-			IfStatementSyntax setterIfStatement =
-				IfStatement(
-					PrefixUnaryExpression(
-						SyntaxKind.LogicalNotExpression,
-						InvocationExpression(
-							MemberAccessExpression(
-								SyntaxKind.SimpleMemberAccessExpression,
-								MemberAccessExpression(
-									SyntaxKind.SimpleMemberAccessExpression,
-									GenericName(Identifier("global::System.Collections.Generic.EqualityComparer"))
-									.AddTypeArgumentListArguments(propertyType),
-									IdentifierName("Default")),
-								IdentifierName("Equals")))
-						.AddArgumentListArguments(
-							Argument(setterFieldExpression),
-							Argument(IdentifierName("value")))),
-					Block(setterStatements.AsEnumerable()));
-
-			// Prepare the setter for the generated property:
-			//
-			// <SETTER_ACCESSIBILITY> set
-			// {
-			//     <BODY>
-			// }
-			AccessorDeclarationSyntax setAccessor = AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-				.WithModifiers(propertyInfo.SetterAccessibility.ToSyntaxTokenList())
-				.WithBody(Block(setterIfStatement));
-
+			// Mark with GeneratedCode attribute
 			//
 			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
 			// [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -382,13 +233,12 @@ partial class BindablePropertyGenerator
 			// Prepare for constract static BindableProperty:
 			//
 			TypeSyntax bipType = IdentifierName("BindableProperty");
-
 			var bipCreateAccess = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bipType, IdentifierName("Create"));
 
 			var bipCreateArgs = ArgumentList([
 				Argument(IdentifierName($"nameof({propertyInfo.PropertyName})")),
 				Argument(IdentifierName($"typeof({propertyInfo.TypeNameWithNullabilityAnnotations})")),
-				Argument(IdentifierName($"typeof({propertyInfo.TypeNameWithNullabilityAnnotations})")) // <-- Must be class name hear !!!
+				Argument(IdentifierName($"typeof({hInfo.MetadataName})"))
 				]);
 
 			var bipEqualsClause = EqualsValueClause(InvocationExpression(bipCreateAccess, bipCreateArgs));
@@ -437,47 +287,6 @@ partial class BindablePropertyGenerator
 							.WithSemicolonToken(Token(SyntaxKind.SemicolonToken)));
 
 			return [staticFiealdDeclaration, propertyReference];
-		}
-
-		/// <summary>
-		/// Gets all modifiers that need to be added to a generated property.
-		/// </summary>
-		/// <param name="propertyInfo">The input <see cref="PropertyInfo"/> instance to process.</param>
-		/// <returns>The list of necessary modifiers for <paramref name="propertyInfo"/>.</returns>
-		private static SyntaxTokenList GetPropertyModifiers(PropertyInfo propertyInfo)
-		{
-			SyntaxTokenList propertyModifiers = propertyInfo.PropertyAccessibility.ToSyntaxTokenList();
-
-			// Add all gathered modifiers
-			foreach (SyntaxKind modifier in propertyInfo.PropertyModifers.AsImmutableArray().FromUnderlyingType())
-			{
-				propertyModifiers = propertyModifiers.Add(Token(modifier));
-			}
-
-			// Add the 'partial' modifier if the original member is a partial property
-			if (propertyInfo.AnnotatedMemberKind is SyntaxKind.PropertyDeclaration)
-			{
-				propertyModifiers = propertyModifiers.Add(Token(SyntaxKind.PartialKeyword));
-			}
-
-			return propertyModifiers;
-		}
-
-		/// <summary>
-		/// Gets the <see cref="ITypeSymbol"/> for a given member symbol (it can be either a field or a property).
-		/// </summary>
-		/// <param name="memberSymbol">The input <see cref="ISymbol"/> instance to process.</param>
-		/// <returns>The type of <paramref name="memberSymbol"/>.</returns>
-		public static ITypeSymbol GetPropertyType(ISymbol memberSymbol)
-		{
-			// Check if the member is a property first
-			if (memberSymbol is IPropertySymbol propertySymbol)
-			{
-				return propertySymbol.Type;
-			}
-
-			// Otherwise, the only possible case is a field symbol
-			return ((IFieldSymbol)memberSymbol).Type;
-		}
+		}	
 	}
 }

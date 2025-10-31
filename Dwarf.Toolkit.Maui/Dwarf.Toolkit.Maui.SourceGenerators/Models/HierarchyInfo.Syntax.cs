@@ -26,8 +26,8 @@ partial record HierarchyInfo
 		// {
 		//     <MEMBERS>
 		// }
-		TypeDeclarationSyntax typeDeclarationSyntax =
-			Hierarchy[0].GetSyntax()
+		TypeDeclarationSyntax typeDeclarationSyntax = Hierarchy[0]
+			.GetSyntax()
 			.AddModifiers(Token(TriviaList(Comment("/// <inheritdoc/>")), SyntaxKind.PartialKeyword, TriviaList()))
 			.AddMembers(memberDeclarations.ToArray());
 

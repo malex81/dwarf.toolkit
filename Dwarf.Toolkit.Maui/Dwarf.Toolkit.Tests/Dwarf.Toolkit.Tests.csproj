@@ -22,7 +22,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="bin\GeneratingTestOutput\**" Link="TestOutput\%(Filename).%(Extension)"/>
+		<None Include="bin\GeneratingTestOutput\**" Link="TestOutput\%(Filename).%(Extension)" />
 	</ItemGroup>
 
 </Project>

@@ -23,9 +23,7 @@ internal sealed partial record HierarchyInfo(string FilenameHint, string Metadat
 	{
 		using ImmutableArrayBuilder<TypeInfo> hierarchy = ImmutableArrayBuilder<TypeInfo>.Rent();
 
-		for (INamedTypeSymbol? parent = typeSymbol;
-			 parent is not null;
-			 parent = parent.ContainingType)
+		for (INamedTypeSymbol? parent = typeSymbol; parent is not null; parent = parent.ContainingType)
 		{
 			hierarchy.Add(new TypeInfo(
 				parent.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
