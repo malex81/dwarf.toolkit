@@ -10,17 +10,17 @@ namespace Dwarf.Toolkit.Maui.SourceGenerators;
 [Generator(LanguageNames.CSharp)]
 public sealed partial class BindablePropertyGenerator : IIncrementalGenerator
 {
+	const string AttributeFullyQualifiedName = "Dwarf.Toolkit.Maui.BindablePropertyAttribute";
+
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
 		// Gather info for all annotated fields
 		IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<PropertyInfo?> Info)> propertyInfoWithErrors
 			= context.SyntaxProvider.ForAttributeWithMetadataName(
-				"Dwarf.Toolkit.Maui.BindablePropertyAttribute",
+				AttributeFullyQualifiedName,
 				Execute.IsCandidatePropertyDeclaration,
 				static (context, token) =>
 				{
-					MemberDeclarationSyntax memberSyntax = Execute.GetCandidateMemberDeclaration(context.TargetNode);
-
 					// Validate that the candidate is valid for the current compilation
 					// and the symbol as well before doing any work
 					if (!Execute.IsCandidateValidForCompilation(context.SemanticModel)
@@ -37,9 +37,7 @@ public sealed partial class BindablePropertyGenerator : IIncrementalGenerator
 					token.ThrowIfCancellationRequested();
 
 					_ = Execute.TryGetInfo(
-						memberSyntax,
-						context.TargetSymbol,
-						context.SemanticModel,
+						context,
 						token,
 						out PropertyInfo? propertyInfo,
 						out ImmutableArray<DiagnosticInfo> diagnostics);

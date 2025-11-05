@@ -5,7 +5,7 @@ namespace Dwarf.Toolkit.Demo.Bunnies;
 internal partial class SimpleBindableObject : BindableObject
 {
 	#region Example property
-	public static readonly BindableProperty ExampleProperty = BindableProperty.Create(nameof(Example), typeof(int), typeof(SimpleBindableObject), 11);
+	public static readonly BindableProperty ExampleProperty = BindableProperty.Create(nameof(Example), typeof(int), typeof(SimpleBindableObject), defaultValue: 11);
 
 	public int Example
 	{

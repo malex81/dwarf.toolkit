@@ -1,7 +1,2 @@
 <Project>
-	<PropertyGroup>
-		<Version>0.1.0</Version>
-		<SignAssembly>True</SignAssembly>
-		<AssemblyOriginatorKeyFile>..\..\keys\Dwarf.snk</AssemblyOriginatorKeyFile>
-	</PropertyGroup>
 </Project>

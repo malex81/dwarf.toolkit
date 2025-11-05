@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Dwarf.Toolkit.Maui;
+using Microsoft.Maui.Controls;
 
 namespace Dwarf.Toolkit.Tests.SourceGenerators;
 
@@ -78,7 +79,8 @@ partial class CodegenTest
 				}
 				else
 				{
-					File.Delete(testFilePath);
+					if (File.Exists(testFilePath))
+						File.Delete(testFilePath);
 				}
 				Assert.That(expectedText, Is.EqualTo(generatedCode));
 			}

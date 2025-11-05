@@ -76,25 +76,6 @@ partial class BindablePropertyGenerator
 		}
 
 		/// <summary>
-		/// Gets the candidate <see cref="MemberDeclarationSyntax"/> after the initial filtering.
-		/// </summary>
-		/// <param name="node">The input syntax node to convert.</param>
-		/// <returns>The resulting <see cref="MemberDeclarationSyntax"/> instance.</returns>
-		public static MemberDeclarationSyntax GetCandidateMemberDeclaration(SyntaxNode node)
-		{
-			// If the node is a property declaration, just return it directly. Note that we don't have
-			// to check whether we're using Roslyn 4.12 here, as if that's not the case all of these
-			// syntax nodes would already have pre-filtered well before this method could run at all.
-			if (node is PropertyDeclarationSyntax propertySyntax)
-			{
-				return propertySyntax;
-			}
-
-			// Otherwise, assume all targets are field declarations
-			return (MemberDeclarationSyntax)node.Parent!.Parent!;
-		}
-
-		/// <summary>
 		/// Processes a given field or property.
 		/// </summary>
 		/// <param name="memberSyntax">The <see cref="MemberDeclarationSyntax"/> instance to process.</param>
@@ -106,53 +87,34 @@ partial class BindablePropertyGenerator
 		/// <param name="diagnostics">The resulting diagnostics from the processing operation.</param>
 		/// <returns>The resulting <see cref="PropertyInfo"/> instance for <paramref name="memberSymbol"/>, if successful.</returns>
 		public static bool TryGetInfo(
-			MemberDeclarationSyntax memberSyntax,
-			ISymbol memberSymbol,
-			SemanticModel semanticModel,
+			GeneratorAttributeSyntaxContext context,
 			CancellationToken token,
 			[NotNullWhen(true)] out PropertyInfo? propertyInfo,
 			out ImmutableArray<DiagnosticInfo> diagnostics)
 		{
-			// Validate the target type
-			if (!IsTargetTypeValid(memberSymbol))
+
+			if (context.TargetNode is not PropertyDeclarationSyntax propertySyntax
+				|| context.TargetSymbol is not IPropertySymbol propertySymbol
+				|| !IsTargetTypeValid(propertySymbol))
 			{
 				propertyInfo = null;
 				diagnostics = [];
 				return false;
 			}
-
-			token.ThrowIfCancellationRequested();
-
-			// Get the property type and name
-			if (memberSymbol is not IPropertySymbol propertySymbol)
-			{
-				propertyInfo = null;
-				diagnostics = [];
-				return false;
-			}
-
-			string propertyName = propertySymbol.Name;
-
-			token.ThrowIfCancellationRequested();
-
-			using ImmutableArrayBuilder<string> propertyChangedNames = ImmutableArrayBuilder<string>.Rent();
-
-			// The current property is always notified
-			propertyChangedNames.Add(propertyName);
 
 			token.ThrowIfCancellationRequested();
 
 			using ImmutableArrayBuilder<DiagnosticInfo> builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
 
 			// Get all additional modifiers for the member
-			ImmutableArray<SyntaxKind> propertyModifiers = GetPropertyModifiers(memberSyntax);
+			ImmutableArray<SyntaxKind> propertyModifiers = GetPropertyModifiers(propertySyntax);
 
 			token.ThrowIfCancellationRequested();
 
 			propertyInfo = new PropertyInfo(
-				memberSyntax.Kind(),
+				propertySyntax.Kind(),
 				propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations(),
-				propertyName,
+				propertySymbol.Name,
 				propertyModifiers.AsUnderlyingType());
 
 			diagnostics = builder.ToImmutable();
