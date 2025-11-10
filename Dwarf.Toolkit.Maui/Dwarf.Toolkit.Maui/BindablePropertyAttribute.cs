@@ -1,6 +1,7 @@
 ﻿namespace Dwarf.Toolkit.Maui;
 
-public class BindablePropertyAttribute : Attribute
+public sealed class BindablePropertyAttribute : Attribute
 {
 	public object? DefaultValue { get; set; }
+	public string? DefaultValueExpression { get; set; }
 }

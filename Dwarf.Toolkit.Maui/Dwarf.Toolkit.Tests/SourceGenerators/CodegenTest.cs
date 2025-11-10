@@ -99,7 +99,7 @@ internal partial class CodegenTest
 				[BindableProperty(DefaultValue="Привет, Вася!")]
 				public partial string TextProp { get; set; }
 
-				[BindableProperty(DefaultValue=3.14159)]
+				[BindableProperty(DefaultValue=3.14159f)]
 				public partial float FloatProp { get; set; }
 			}
 			""";
@@ -118,7 +118,7 @@ internal partial class CodegenTest
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 				partial string TextProp { get => (string)GetValue(TextPropProperty); set => SetValue(TextPropProperty, value); }
 			
-				public static readonly BindableProperty FloatPropProperty = BindableProperty.Create(nameof(FloatProp), typeof(float), typeof(Container), defaultValue: 3.14159);
+				public static readonly BindableProperty FloatPropProperty = BindableProperty.Create(nameof(FloatProp), typeof(float), typeof(Container), defaultValue: 3.14159F);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]

@@ -2,7 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Dwarf.Toolkit.Maui.SourceGenerators.Helpers;
+using Dwarf.Toolkit.SourceGenerators.Helpers;
+using Dwarf.Toolkit.SourceGenerators.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -19,4 +20,5 @@ internal sealed record PropertyInfo(
     SyntaxKind AnnotatedMemberKind,
     string TypeNameWithNullabilityAnnotations,
     string PropertyName,
-    EquatableArray<ushort> PropertyModifers);
+    EquatableArray<ushort> PropertyModifers,
+	AttributeInfo BindableAttribute);

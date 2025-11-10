@@ -20,6 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{02EA681E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dwarf.Toolkit.Demo", "Dwarf.Toolkit.Demo\Dwarf.Toolkit.Demo.csproj", "{AD61388F-5477-432B-AC36-E3DC18931AFF}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Dwarf.Toolkit.SourceGenerators.Base", "..\Dwarf.Toolkit.SourceGenerators.Base\Dwarf.Toolkit.SourceGenerators.Base.shproj", "{A4ACA2E4-8B21-44D2-AE40-702AA273D9D2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,5 +56,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FAAC34E0-9180-4E0C-9087-81DBC43318B3}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\Dwarf.Toolkit.SourceGenerators.Base\Dwarf.Toolkit.SourceGenerators.Base.projitems*{25056c6c-d0eb-4154-af96-415d810088b6}*SharedItemsImports = 5
+		..\Dwarf.Toolkit.SourceGenerators.Base\Dwarf.Toolkit.SourceGenerators.Base.projitems*{a4aca2e4-8b21-44d2-ae40-702aa273d9d2}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

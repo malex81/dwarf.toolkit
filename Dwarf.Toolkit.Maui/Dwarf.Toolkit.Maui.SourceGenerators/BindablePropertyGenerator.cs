@@ -1,6 +1,7 @@
-﻿using Dwarf.Toolkit.Maui.SourceGenerators.Extensions;
-using Dwarf.Toolkit.Maui.SourceGenerators.Helpers;
-using Dwarf.Toolkit.Maui.SourceGenerators.Models;
+﻿using Dwarf.Toolkit.Maui.SourceGenerators.Models;
+using Dwarf.Toolkit.SourceGenerators.Extensions;
+using Dwarf.Toolkit.SourceGenerators.Helpers;
+using Dwarf.Toolkit.SourceGenerators.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
@@ -10,14 +11,12 @@ namespace Dwarf.Toolkit.Maui.SourceGenerators;
 [Generator(LanguageNames.CSharp)]
 public sealed partial class BindablePropertyGenerator : IIncrementalGenerator
 {
-	const string AttributeFullyQualifiedName = "Dwarf.Toolkit.Maui.BindablePropertyAttribute";
-
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
 		// Gather info for all annotated fields
 		IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<PropertyInfo?> Info)> propertyInfoWithErrors
 			= context.SyntaxProvider.ForAttributeWithMetadataName(
-				AttributeFullyQualifiedName,
+				BindableAttributeNaming.FullyQualifiedName,
 				Execute.IsCandidatePropertyDeclaration,
 				static (context, token) =>
 				{

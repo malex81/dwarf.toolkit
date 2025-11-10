@@ -1,6 +1,7 @@
-﻿using Dwarf.Toolkit.Maui.SourceGenerators.Extensions;
-using Dwarf.Toolkit.Maui.SourceGenerators.Helpers;
-using Dwarf.Toolkit.Maui.SourceGenerators.Models;
+﻿using Dwarf.Toolkit.Maui.SourceGenerators.Models;
+using Dwarf.Toolkit.SourceGenerators.Extensions;
+using Dwarf.Toolkit.SourceGenerators.Helpers;
+using Dwarf.Toolkit.SourceGenerators.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -104,20 +105,30 @@ partial class BindablePropertyGenerator
 
 			token.ThrowIfCancellationRequested();
 
-			using ImmutableArrayBuilder<DiagnosticInfo> builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
+			using ImmutableArrayBuilder<DiagnosticInfo> diagnosticsBuilder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
 
 			// Get all additional modifiers for the member
 			ImmutableArray<SyntaxKind> propertyModifiers = GetPropertyModifiers(propertySyntax);
 
 			token.ThrowIfCancellationRequested();
 
+			var bindableAttrData = context.Attributes.FirstOrDefault(
+				attr => attr.AttributeClass?.HasFullyQualifiedMetadataName(BindableAttributeNaming.FullyQualifiedName) == true);
+			if (bindableAttrData == null)
+			{
+				propertyInfo = null;
+				diagnostics = [];
+				return false;
+			}
+
 			propertyInfo = new PropertyInfo(
 				propertySyntax.Kind(),
 				propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations(),
 				propertySymbol.Name,
-				propertyModifiers.AsUnderlyingType());
+				propertyModifiers.AsUnderlyingType(),
+				AttributeInfo.Create(bindableAttrData));
 
-			diagnostics = builder.ToImmutable();
+			diagnostics = diagnosticsBuilder.ToImmutable();
 
 			return true;
 		}
@@ -192,16 +203,30 @@ partial class BindablePropertyGenerator
 								)),
 						AttributeList(SingletonSeparatedList(Attribute(IdentifierName("global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage"))))];
 			//
-			// Prepare for constract static BindableProperty:
+			// Prepare for construct static BindableProperty:
 			//
 			TypeSyntax bipType = IdentifierName("BindableProperty");
 			var bipCreateAccess = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bipType, IdentifierName("Create"));
 
-			var bipCreateArgs = ArgumentList([
+			using ImmutableArrayBuilder<ArgumentSyntax> bipCreateArgsBuilder = ImmutableArrayBuilder<ArgumentSyntax>.Rent();
+			bipCreateArgsBuilder.AddRange([
 				Argument(IdentifierName($"nameof({propertyInfo.PropertyName})")),
 				Argument(IdentifierName($"typeof({propertyInfo.TypeNameWithNullabilityAnnotations})")),
 				Argument(IdentifierName($"typeof({hInfo.MetadataName})"))
-				]);
+			]);
+
+			/*			var bipCreateArgs = ArgumentList([
+							Argument(IdentifierName($"nameof({propertyInfo.PropertyName})")),
+							Argument(IdentifierName($"typeof({propertyInfo.TypeNameWithNullabilityAnnotations})")),
+							Argument(IdentifierName($"typeof({hInfo.MetadataName})"))
+							]);
+			*/
+			if (propertyInfo.BindableAttribute.TryGetNamedArgumentInfo(BindableAttributeNaming.DefaultValueArg, out var defaultArgInfo))
+			{
+				bipCreateArgsBuilder.Add(Argument(NameColon(IdentifierName("defaultValue")), default, defaultArgInfo.GetSyntax()));
+			}
+
+			var bipCreateArgs = ArgumentList(SeparatedList(bipCreateArgsBuilder.AsEnumerable()));
 
 			var bipEqualsClause = EqualsValueClause(InvocationExpression(bipCreateAccess, bipCreateArgs));
 			// static BindableProperty defenition:
@@ -249,6 +274,6 @@ partial class BindablePropertyGenerator
 							.WithSemicolonToken(Token(SyntaxKind.SemicolonToken)));
 
 			return [staticFiealdDeclaration, propertyReference];
-		}	
+		}
 	}
 }

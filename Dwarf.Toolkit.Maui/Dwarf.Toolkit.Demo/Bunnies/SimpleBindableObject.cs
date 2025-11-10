@@ -14,6 +14,14 @@ internal partial class SimpleBindableObject : BindableObject
 	}
 	#endregion
 
+	public SimpleBindableObject()
+	{
+	}
+
 	[BindableProperty]
 	partial string PropA { get; set; }
+
+	[BindableProperty(DefaultValue = 18)]
+	partial int PropB { get; set; }
+
 }
