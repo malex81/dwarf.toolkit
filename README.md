@@ -2,4 +2,4 @@
 
 Set of basic helpers
 
-- [dwarf.toolkit.maui](./dwarf.toolkit.maui/README.md)
+- [dwarf.toolkit.maui](./Dwarf.Toolkit.Maui/README.md)
