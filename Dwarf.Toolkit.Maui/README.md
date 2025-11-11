@@ -46,8 +46,10 @@ partial class ExampleBindableObject
 
 ## Change Log
 
-### 0.1.1 - coming soon ...
+### 0.1.1 - 2025.11.12
 
+- Add `DefaultValue` and `DefaultValueExpression` properties to `BindablePropertyAttribute`
+- Fix property accessibility
 
 ### 0.1.0 - 2025.10.31
 

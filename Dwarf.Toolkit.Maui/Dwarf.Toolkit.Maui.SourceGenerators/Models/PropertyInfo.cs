@@ -16,9 +16,11 @@ namespace Dwarf.Toolkit.Maui.SourceGenerators.Models;
 /// <param name="TypeNameWithNullabilityAnnotations">The type name for the generated property, including nullability annotations.</param>
 /// <param name="PropertyName">The generated property name.</param>
 /// <param name="PropertyModifers">The list of additional modifiers for the property (they are <see cref="SyntaxKind"/> values).</param>
+/// <param name="PropertyAccessibility">The accessibility of the property.</param>
 internal sealed record PropertyInfo(
-    SyntaxKind AnnotatedMemberKind,
-    string TypeNameWithNullabilityAnnotations,
-    string PropertyName,
-    EquatableArray<ushort> PropertyModifers,
+	SyntaxKind AnnotatedMemberKind,
+	string TypeNameWithNullabilityAnnotations,
+	string PropertyName,
+	EquatableArray<ushort> PropertyModifers,
+	Accessibility PropertyAccessibility,
 	AttributeInfo BindableAttribute);

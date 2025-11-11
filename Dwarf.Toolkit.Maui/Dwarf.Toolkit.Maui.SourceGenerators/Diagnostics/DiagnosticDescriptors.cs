@@ -5,12 +5,12 @@ namespace Dwarf.Toolkit.Maui.SourceGenerators.Diagnostics;
 
 internal static class DiagnosticDescriptors
 {
-	public static readonly DiagnosticDescriptor DefaultValueExprassionAndDefaultValueWarning = new(
-		id: "BPMTK0001",
+	public static readonly DiagnosticDescriptor DefaultValueExprassionWithDefaultValue_Warning = new(
+		id: "DTKM0001",
 		title: "DefaultValueExprassion used with DefaultValue",
-		messageFormat: "Cannot use <DefaultValueExprassion> at the same time as <DefaultValue>",
+		messageFormat: "Propery {0} use [DefaultValueExpression] simultaneously with [DefaultValue]",
 		category: typeof(BindablePropertyGenerator).FullName,
 		defaultSeverity: DiagnosticSeverity.Warning,
 		isEnabledByDefault: true,
-		description: "Cannot use <DefaultValueExprassion> at the same time as <DefaultValue>.");
+		description: "Cannot use [DefaultValueExpression] simultaneously with [DefaultValue].");
 }

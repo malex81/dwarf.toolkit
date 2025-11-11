@@ -18,10 +18,10 @@ internal partial class ExampleBindableObject : BindableObject
 	{
 	}
 
-	[BindableProperty]
-	partial string TextProp { get; set; }
+	[BindableProperty(DefaultValueExpression = "typeof(ExampleBindableObject)")]
+	public partial string TextProp { get; set; }
 
-	[BindableProperty(DefaultValue = 18)]
+	[BindableProperty(DefaultValueExpression = "24")]
 	partial int NumProp { get; set; }
 
 }

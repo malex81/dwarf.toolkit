@@ -7,4 +7,4 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-BPMTK0001 | Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator | Warning | `DefaultValueExprassion used with DefaultValue`
+DTKM0001 | Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator | Warning | `DefaultValueExprassion used with DefaultValue`

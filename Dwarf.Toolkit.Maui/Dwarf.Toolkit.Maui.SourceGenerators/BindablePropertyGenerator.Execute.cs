@@ -1,4 +1,5 @@
-﻿using Dwarf.Toolkit.Maui.SourceGenerators.Models;
+﻿using Dwarf.Toolkit.Maui.SourceGenerators.Diagnostics;
+using Dwarf.Toolkit.Maui.SourceGenerators.Models;
 using Dwarf.Toolkit.SourceGenerators.Extensions;
 using Dwarf.Toolkit.SourceGenerators.Helpers;
 using Dwarf.Toolkit.SourceGenerators.Models;
@@ -93,13 +94,13 @@ partial class BindablePropertyGenerator
 			[NotNullWhen(true)] out PropertyInfo? propertyInfo,
 			out ImmutableArray<DiagnosticInfo> diagnostics)
 		{
+			propertyInfo = null;
+			diagnostics = [];
 
 			if (context.TargetNode is not PropertyDeclarationSyntax propertySyntax
 				|| context.TargetSymbol is not IPropertySymbol propertySymbol
 				|| !IsTargetTypeValid(propertySymbol))
 			{
-				propertyInfo = null;
-				diagnostics = [];
 				return false;
 			}
 
@@ -112,13 +113,19 @@ partial class BindablePropertyGenerator
 
 			token.ThrowIfCancellationRequested();
 
-			var bindableAttrData = context.Attributes.FirstOrDefault(
-				attr => attr.AttributeClass?.HasFullyQualifiedMetadataName(BindableAttributeNaming.FullyQualifiedName) == true);
+			var bindableAttrData = context.Attributes.FirstOrDefault(attr => attr.AttributeClass?.HasFullyQualifiedMetadataName(BindableAttributeNaming.FullyQualifiedName) == true);
 			if (bindableAttrData == null)
 			{
-				propertyInfo = null;
-				diagnostics = [];
 				return false;
+			}
+
+			if (bindableAttrData.TryGetNamedArgument<object>(BindableAttributeNaming.DefaultValueArg, out _)
+				&& bindableAttrData.TryGetNamedArgument<string>(BindableAttributeNaming.DefaultValueExpressionArg, out _))
+			{
+				diagnosticsBuilder.Add(
+					   DiagnosticDescriptors.DefaultValueExprassionWithDefaultValue_Warning,
+					   propertySymbol,
+					   propertySymbol.Name);
 			}
 
 			propertyInfo = new PropertyInfo(
@@ -126,6 +133,7 @@ partial class BindablePropertyGenerator
 				propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations(),
 				propertySymbol.Name,
 				propertyModifiers.AsUnderlyingType(),
+				propertySyntax.Modifiers.ContainsAnyAccessibilityModifiers() ? propertySymbol.DeclaredAccessibility : Accessibility.NotApplicable,
 				AttributeInfo.Create(bindableAttrData));
 
 			diagnostics = diagnosticsBuilder.ToImmutable();
@@ -225,6 +233,11 @@ partial class BindablePropertyGenerator
 			{
 				bipCreateArgsBuilder.Add(Argument(NameColon(IdentifierName("defaultValue")), default, defaultArgInfo.GetSyntax()));
 			}
+			else if (propertyInfo.BindableAttribute.TryGetNamedArgumentInfo(BindableAttributeNaming.DefaultValueExpressionArg, out var defaultExprArgInfo)
+				&& defaultExprArgInfo is TypedConstantInfo.Primitive.String defaultCodeInfo)
+			{
+				bipCreateArgsBuilder.Add(Argument(NameColon(IdentifierName("defaultValue")), default, ParseExpression(defaultCodeInfo.Value)));
+			}
 
 			var bipCreateArgs = ArgumentList(SeparatedList(bipCreateArgsBuilder.AsEnumerable()));
 
@@ -252,7 +265,7 @@ partial class BindablePropertyGenerator
 			var propertyReference = PropertyDeclaration(propertyType, Identifier(propertyInfo.PropertyName))
 					.AddAttributeLists(genCodeAttrMarker)
 					.WithLeadingTrivia(TriviaList(Comment("/// <inheritdoc/>")))
-					.AddModifiers(Token(SyntaxKind.PartialKeyword))
+					.WithModifiers(GetPropertyModifiers(propertyInfo))
 					.AddAccessorListAccessors(
 						AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
 							.WithExpressionBody(ArrowExpressionClause(
@@ -274,6 +287,23 @@ partial class BindablePropertyGenerator
 							.WithSemicolonToken(Token(SyntaxKind.SemicolonToken)));
 
 			return [staticFiealdDeclaration, propertyReference];
+		}
+
+		/// <summary>
+		/// Gets all modifiers that need to be added to a generated property.
+		/// </summary>
+		/// <param name="propertyInfo">The input <see cref="PropertyInfo"/> instance to process.</param>
+		/// <returns>The list of necessary modifiers for <paramref name="propertyInfo"/>.</returns>
+		private static SyntaxTokenList GetPropertyModifiers(PropertyInfo propertyInfo)
+		{
+			SyntaxTokenList propertyModifiers = propertyInfo.PropertyAccessibility.ToSyntaxTokenList();
+			// Add all gathered modifiers
+			foreach (SyntaxKind modifier in propertyInfo.PropertyModifers.AsImmutableArray().FromUnderlyingType())
+			{
+				propertyModifiers = propertyModifiers.Add(Token(modifier));
+			}
+			propertyModifiers = propertyModifiers.Add(Token(SyntaxKind.PartialKeyword));
+			return propertyModifiers;
 		}
 	}
 }
