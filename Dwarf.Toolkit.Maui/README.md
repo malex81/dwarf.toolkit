@@ -1,4 +1,4 @@
-# dwarf.toolkit.maui
+# Dwarf.Toolkit.Maui
 
 Set of helpers for MAUI
 
