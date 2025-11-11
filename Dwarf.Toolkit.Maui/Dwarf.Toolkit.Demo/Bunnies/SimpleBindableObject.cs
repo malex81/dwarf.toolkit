@@ -19,9 +19,9 @@ internal partial class SimpleBindableObject : BindableObject
 	}
 
 	[BindableProperty]
-	partial string PropA { get; set; }
+	partial string TextProp { get; set; }
 
 	[BindableProperty(DefaultValue = 18)]
-	partial int PropB { get; set; }
+	partial int NumProp { get; set; }
 
 }
