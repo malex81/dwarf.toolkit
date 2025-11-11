@@ -27,15 +27,16 @@ internal partial class ExampleBindableObject : BindableObject
 This example will generate the following code
 
 ```c#
+/// <inheritdoc/>
 partial class ExampleBindableObject
 {
-	public static readonly BindableProperty TextPropProperty = BindableProperty.Create(nameof(TextProp), typeof(string), typeof(SimpleBindableObject));
+	public static readonly BindableProperty TextPropProperty = BindableProperty.Create(nameof(TextProp), typeof(string), typeof(ExampleBindableObject));
 	/// <inheritdoc/>
 	[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
 	[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 	partial string TextProp { get => (string)GetValue(TextPropProperty); set => SetValue(TextPropProperty, value); }
 
-	public static readonly BindableProperty NumPropProperty = BindableProperty.Create(nameof(NumProp), typeof(int), typeof(SimpleBindableObject), defaultValue: 18);
+	public static readonly BindableProperty NumPropProperty = BindableProperty.Create(nameof(NumProp), typeof(int), typeof(ExampleBindableObject), defaultValue: 18);
 	/// <inheritdoc/>
 	[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
 	[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
