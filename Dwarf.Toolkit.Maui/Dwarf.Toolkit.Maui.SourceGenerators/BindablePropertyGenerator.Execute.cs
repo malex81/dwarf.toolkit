@@ -78,12 +78,9 @@ partial class BindablePropertyGenerator
 		}
 
 		/// <summary>
-		/// Processes a given field or property.
+		/// Processes a given property.
 		/// </summary>
-		/// <param name="memberSyntax">The <see cref="MemberDeclarationSyntax"/> instance to process.</param>
-		/// <param name="memberSymbol">The input <see cref="ISymbol"/> instance to process.</param>
-		/// <param name="semanticModel">The <see cref="SemanticModel"/> instance for the current run.</param>
-		/// <param name="options">The options in use for the generator.</param>
+		/// <param name="context">The generator context.</param>
 		/// <param name="token">The cancellation token for the current operation.</param>
 		/// <param name="propertyInfo">The resulting <see cref="PropertyInfo"/> value, if successfully retrieved.</param>
 		/// <param name="diagnostics">The resulting diagnostics from the processing operation.</param>
@@ -191,6 +188,7 @@ partial class BindablePropertyGenerator
 		/// <summary>
 		/// Gets the <see cref="MemberDeclarationSyntax"/> instance for the input field.
 		/// </summary>
+		/// <param name="hInfo">Contains information about class name</param>
 		/// <param name="propertyInfo">The input <see cref="PropertyInfo"/> instance to process.</param>
 		/// <returns>The generated <see cref="MemberDeclarationSyntax"/> instance for <paramref name="propertyInfo"/>.</returns>
 		public static ImmutableArray<MemberDeclarationSyntax> GetPropertySyntax(HierarchyInfo hInfo, PropertyInfo propertyInfo)
