@@ -18,7 +18,7 @@ internal partial class ExampleBindableObject : BindableObject
 	{
 	}
 
-	[BindableProperty(DefaultValueExpression = "typeof(ExampleBindableObject)")]
+	[BindableProperty(DefaultValueExpression = "nameof(ExampleBindableObject)")]
 	public partial string TextProp { get; set; }
 
 	[BindableProperty(DefaultValueExpression = "24")]

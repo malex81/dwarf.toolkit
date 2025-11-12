@@ -2,13 +2,14 @@
 
 Set of helpers for MAUI
 
-[Nuget](https://www.nuget.org/packages/Dwarf.Toolkit.Maui/)
+- [Nuget package](https://www.nuget.org/packages/Dwarf.Toolkit.Maui/)
+- [Source code](https://github.com/malex81/dwarf.toolkit/tree/main/Dwarf.Toolkit.Maui)
+- [Documentation](https://github.com/malex81/dwarf.toolkit/blob/main/Dwarf.Toolkit.Maui/README.md)
 
 ## BindableProperty Generator
 
-Generate MAUI BindableProperty
+To generate a MAUI BindableProperty, apply the BindableProperty attribute to the partial property, as in the example below:
 
-Example of use:
 ```c#
 internal partial class ExampleBindableObject : BindableObject
 {
@@ -24,7 +25,7 @@ internal partial class ExampleBindableObject : BindableObject
 }
 ```
 
-This example will generate the following code
+This short snippet will generate the following code:
 
 ```c#
 /// <inheritdoc/>
