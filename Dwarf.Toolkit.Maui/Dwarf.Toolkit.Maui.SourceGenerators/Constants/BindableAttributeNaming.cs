@@ -1,4 +1,4 @@
-﻿namespace Dwarf.Toolkit.Maui.SourceGenerators.Models;
+﻿namespace Dwarf.Toolkit.Maui.SourceGenerators.Constants;
 
 static class BindableAttributeNaming
 {

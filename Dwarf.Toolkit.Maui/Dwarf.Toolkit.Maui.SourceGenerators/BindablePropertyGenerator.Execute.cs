@@ -1,4 +1,5 @@
-﻿using Dwarf.Toolkit.Maui.SourceGenerators.Diagnostics;
+﻿using Dwarf.Toolkit.Maui.SourceGenerators.Constants;
+using Dwarf.Toolkit.Maui.SourceGenerators.Diagnostics;
 using Dwarf.Toolkit.Maui.SourceGenerators.Models;
 using Dwarf.Toolkit.SourceGenerators.Extensions;
 using Dwarf.Toolkit.SourceGenerators.Helpers;
@@ -109,12 +110,12 @@ partial class BindablePropertyGenerator
 			out ImmutableArray<DiagnosticInfo> diagnostics)
 		{
 			propertyInfo = null;
-			diagnostics = [];
 
 			if (context.TargetNode is not PropertyDeclarationSyntax propertySyntax
 				|| context.TargetSymbol is not IPropertySymbol propertySymbol
 				|| !IsTargetTypeValid(propertySymbol))
 			{
+				diagnostics = [];
 				return false;
 			}
 
@@ -130,6 +131,7 @@ partial class BindablePropertyGenerator
 			var bindableAttrData = context.Attributes.FirstOrDefault(attr => attr.AttributeClass?.HasFullyQualifiedMetadataName(BindableAttributeNaming.FullyQualifiedName) == true);
 			if (bindableAttrData == null)
 			{
+				diagnostics = diagnosticsBuilder.ToImmutable();
 				return false;
 			}
 
@@ -143,6 +145,8 @@ partial class BindablePropertyGenerator
 			}
 
 			var bindableAttrInfo = AttributeInfo.Create(bindableAttrData);
+
+			token.ThrowIfCancellationRequested();
 
 			propertyInfo = new PropertyInfo(
 				propertySyntax.Kind(),
@@ -228,7 +232,9 @@ partial class BindablePropertyGenerator
 			//
 			TypeSyntax bipType = IdentifierName("BindableProperty");
 			var bipCreateAccess = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bipType, IdentifierName("Create"));
-
+			//
+			// Add arguments for BindableProperty.Create( ... )
+			//
 			using ImmutableArrayBuilder<ArgumentSyntax> bipCreateArgsBuilder = ImmutableArrayBuilder<ArgumentSyntax>.Rent();
 			bipCreateArgsBuilder.AddRange([
 				Argument(IdentifierName($"nameof({propertyInfo.PropertyName})")),
@@ -245,12 +251,35 @@ partial class BindablePropertyGenerator
 			{
 				bipCreateArgsBuilder.Add(Argument(NameColon(IdentifierName("defaultValue")), default, ParseExpression(defaultCodeInfo.Value)));
 			}
+			if (propertyInfo.ChangingMethodInfo.Exist1 != MethodExist.No || propertyInfo.ChangingMethodInfo.Exist2 != MethodExist.No)
+				bipCreateArgsBuilder.Add(Argument(NameColon(
+					IdentifierName("propertyChanging")),
+					default,
+					ParseExpression(string.Format(ServiceMembers.ChangingMethodFormat, propertyInfo.PropertyName))));
+			if (propertyInfo.ChangedMethodInfo.Exist1 != MethodExist.No || propertyInfo.ChangedMethodInfo.Exist2 != MethodExist.No)
+				bipCreateArgsBuilder.Add(Argument(NameColon(
+					IdentifierName("propertyChanged")),
+					default,
+					ParseExpression(string.Format(ServiceMembers.ChangedMethodFormat, propertyInfo.PropertyName))));
+			if (propertyInfo.BindableAttribute.TryGetNamedArgumentInfo(BindableAttributeNaming.ValidateMethodArg, out _))
+				bipCreateArgsBuilder.Add(Argument(NameColon(
+					IdentifierName("validateValue")),
+					default,
+					ParseExpression(string.Format(ServiceMembers.ValidateMethodFormat, propertyInfo.PropertyName))));
+			if (propertyInfo.BindableAttribute.TryGetNamedArgumentInfo(BindableAttributeNaming.CoerceMethodArg, out _))
+				bipCreateArgsBuilder.Add(Argument(NameColon(
+					IdentifierName("coerceValue")),
+					default,
+					ParseExpression(string.Format(ServiceMembers.CoerceMethodFormat, propertyInfo.PropertyName))));
 
 			var bipCreateArgs = ArgumentList(SeparatedList(bipCreateArgsBuilder.AsEnumerable()));
-
-			var bipEqualsClause = EqualsValueClause(InvocationExpression(bipCreateAccess, bipCreateArgs));
-			// static BindableProperty defenition:
 			//
+			// Generate right part:
+			//  = BindableProperty.Create( [arguments] )
+			//
+			var bipEqualsClause = EqualsValueClause(InvocationExpression(bipCreateAccess, bipCreateArgs));
+			//
+			// static BindableProperty defenition:
 			// public static readonly BindableProperty <PROPERY_NAME>Property = BindableProperty.Create(nameof(<PROPERY_NAME>), typeof(<PROPERY_TYPE>), typeof(<CLASS_NAME>), ...);
 			//
 			var staticFiealdDeclaration = FieldDeclaration(
