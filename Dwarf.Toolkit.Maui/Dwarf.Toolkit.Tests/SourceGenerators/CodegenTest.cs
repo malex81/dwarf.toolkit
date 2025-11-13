@@ -19,6 +19,8 @@ internal partial class CodegenTest
 			{
 				[BindableProperty]
 				partial string MyProp { get; set; }
+	
+				partial void OnMyPropChanged(string val) {}
 			}
 			""";
 

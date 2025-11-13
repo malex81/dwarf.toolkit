@@ -6,8 +6,12 @@ using Dwarf.Toolkit.SourceGenerators.Helpers;
 using Dwarf.Toolkit.SourceGenerators.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using System.Reflection;
 
 namespace Dwarf.Toolkit.Maui.SourceGenerators.Models;
+
+enum MethodExist { No, ExistPartial, ExistNoPartial }
+sealed record ChangeMethodInfo(string Name, MethodExist Exist1, MethodExist Exist2);
 
 /// <summary>
 /// A model representing an generated property
@@ -23,4 +27,11 @@ internal sealed record PropertyInfo(
 	string PropertyName,
 	EquatableArray<ushort> PropertyModifers,
 	Accessibility PropertyAccessibility,
-	AttributeInfo BindableAttribute);
+	AttributeInfo BindableAttribute,
+	ChangeMethodInfo ChangingMethodInfo,
+	ChangeMethodInfo ChangedMethodInfo)
+{
+
+	public string? ValidateMethodName => BindableAttribute.GetNamedTextArgumentValue(BindableAttributeNaming.ValidateMethodArg);
+	public string? CoerceMethodName => BindableAttribute.GetNamedTextArgumentValue(BindableAttributeNaming.CoerceMethodArg);
+}

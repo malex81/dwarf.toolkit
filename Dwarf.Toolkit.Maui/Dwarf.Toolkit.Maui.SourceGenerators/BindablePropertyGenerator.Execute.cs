@@ -77,6 +77,23 @@ partial class BindablePropertyGenerator
 			return true;
 		}
 
+		static ChangeMethodInfo ExploreMethod(GeneratorAttributeSyntaxContext context, string name)
+		{
+			static MethodExist CheckPartial(IMethodSymbol? m)
+			{
+				if (m == null) return MethodExist.No;
+				var hasPartial = m.DeclaringSyntaxReferences.Any(rs
+					=> rs.GetSyntax() is MethodDeclarationSyntax mSyntax && mSyntax.Modifiers.Any(SyntaxKind.PartialKeyword));
+				return hasPartial ? MethodExist.ExistPartial : MethodExist.ExistNoPartial;
+			}
+
+			var methods = context.TargetSymbol.ContainingType.GetMembers(name).Where(m => m is IMethodSymbol).Select(m => (IMethodSymbol)m).ToArray();
+			var method1 = methods.FirstOrDefault(m => m.Parameters.Length == 1);
+			var method2 = methods.FirstOrDefault(m => m.Parameters.Length == 2);
+
+			return new(name, CheckPartial(method1), CheckPartial(method2));
+		}
+
 		/// <summary>
 		/// Processes a given property.
 		/// </summary>
@@ -125,13 +142,17 @@ partial class BindablePropertyGenerator
 					   propertySymbol.Name);
 			}
 
+			var bindableAttrInfo = AttributeInfo.Create(bindableAttrData);
+
 			propertyInfo = new PropertyInfo(
 				propertySyntax.Kind(),
 				propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations(),
 				propertySymbol.Name,
 				propertyModifiers.AsUnderlyingType(),
 				propertySyntax.Modifiers.ContainsAnyAccessibilityModifiers() ? propertySymbol.DeclaredAccessibility : Accessibility.NotApplicable,
-				AttributeInfo.Create(bindableAttrData));
+				bindableAttrInfo,
+				ExploreMethod(context, bindableAttrInfo.GetNamedTextArgumentValue(BindableAttributeNaming.ChangingMethodArg) ?? $"On{propertySymbol.Name}Changing"),
+				ExploreMethod(context, bindableAttrInfo.GetNamedTextArgumentValue(BindableAttributeNaming.ChangedMethodArg) ?? $"On{propertySymbol.Name}Changed"));
 
 			diagnostics = diagnosticsBuilder.ToImmutable();
 
@@ -155,12 +176,6 @@ partial class BindablePropertyGenerator
 		/// <returns>The returned set of property modifiers, if any.</returns>
 		private static ImmutableArray<SyntaxKind> GetPropertyModifiers(MemberDeclarationSyntax memberSyntax)
 		{
-			// Fields never need to carry additional modifiers along
-			if (memberSyntax.IsKind(SyntaxKind.FieldDeclaration))
-			{
-				return [];
-			}
-
 			// We only allow a subset of all possible modifiers (aside from the accessibility modifiers)
 			ReadOnlySpan<SyntaxKind> candidateKinds =
 			[
