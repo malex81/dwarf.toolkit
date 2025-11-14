@@ -7,10 +7,8 @@ using Dwarf.Toolkit.SourceGenerators.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Dwarf.Toolkit.Maui.SourceGenerators;
@@ -425,12 +423,59 @@ partial class BindablePropertyGenerator
 			}
 		}
 
+		static IEnumerable<MemberDeclarationSyntax> GenerateValidateValueHandler(HierarchyInfo hInfo, PropertyInfo propertyInfo)
+		{
+			var validateMethodName = propertyInfo.ValidateMethodName;
+			if (validateMethodName == null)
+				yield break;
+
+			// Get the property type syntax
+			TypeSyntax parameterType = IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations);
+
+			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
+			// partial bool <VALIDATE_METHOD_MAME>(<PROPERTY_TYPE> value);
+			yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.BoolKeyword)), Identifier(validateMethodName))
+				.AddModifiers(Token(SyntaxKind.PartialKeyword))
+				.AddParameterListParameters(Parameter(Identifier("value")).WithType(parameterType))
+				.AddAttributeLists(GeneratedCodeAttrMarker)
+				.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+
+			//
+			// var instance = (MyClass)bindable;
+			//
+			var instanceVarDeclaration = LocalDeclarationStatement(
+				VariableDeclaration(ParseTypeName("var"))
+				.WithVariables(SingletonSeparatedList(
+					VariableDeclarator(Identifier("_instance"))
+					.WithInitializer(EqualsValueClause(
+						CastExpression(IdentifierName(hInfo.MetadataName), IdentifierName("bindable"))
+					)))));
+
+			yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(propertyInfo.Srv_ValidateValue))
+				.AddModifiers(Token(SyntaxKind.StaticKeyword))
+				.AddParameterListParameters(
+					Parameter(Identifier("bindable")).WithType(IdentifierName("BindableObject")),
+					Parameter(Identifier("value")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))))
+				.AddAttributeLists(GeneratedCodeAttrMarker)
+				.WithBody(Block(List<StatementSyntax>([
+					instanceVarDeclaration,
+					ReturnStatement(InvocationExpression(
+						MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+							IdentifierName("_instance"),
+							IdentifierName(validateMethodName)))
+						.WithArgumentList(ArgumentList([
+							Argument(CastExpression(IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations), IdentifierName("newValue")))
+						])))
+				])));
+		}
+
 		public static ImmutableArray<MemberDeclarationSyntax> GetOnPropertyChangeMethodsSyntax(HierarchyInfo hInfo, PropertyInfo propertyInfo)
 		{
 			var resultList = ImmutableArrayBuilder<MemberDeclarationSyntax>.Rent();
 
 			resultList.AddRange(GenerateChangeHandlers(hInfo, propertyInfo, propertyInfo.Srv_PropertyChanging, propertyInfo.ChangingMethodInfo).ToArray());
 			resultList.AddRange(GenerateChangeHandlers(hInfo, propertyInfo, propertyInfo.Srv_PropertyChanged, propertyInfo.ChangedMethodInfo).ToArray());
+			resultList.AddRange(GenerateValidateValueHandler(hInfo, propertyInfo).ToArray());
 
 			return resultList.ToImmutable();
 		}

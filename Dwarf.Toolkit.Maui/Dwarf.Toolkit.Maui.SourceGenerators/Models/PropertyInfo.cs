@@ -7,7 +7,6 @@ using Dwarf.Toolkit.SourceGenerators.Helpers;
 using Dwarf.Toolkit.SourceGenerators.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using System.Reflection;
 
 namespace Dwarf.Toolkit.Maui.SourceGenerators.Models;
 
