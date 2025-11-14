@@ -38,15 +38,15 @@ internal partial class CodegenTest
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 				partial string MyProp { get => (string)GetValue(MyPropProperty); set => SetValue(MyPropProperty, value); }
 
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnMyPropChanging(string value);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnMyPropChanging(string oldValue, string newValue);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnMyPropChanged(string value);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnMyPropChanged(string oldValue, string newValue);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				static void __MyProp_Changed(BindableObject bindable, object oldValue, object newValue)
 				{
 					var _instance = (Container)bindable;
@@ -98,21 +98,21 @@ internal partial class CodegenTest
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 				internal partial int? NumProp { get => (int?)GetValue(NumPropProperty); set => SetValue(NumPropProperty, value); }
 			
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnTextPropChanging(string value);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnTextPropChanging(string oldValue, string newValue);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnTextPropChanged(string value);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnTextPropChanged(string oldValue, string newValue);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnNumPropChanging(int? value);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnNumPropChanging(int? oldValue, int? newValue);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnNumPropChanged(int? value);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnNumPropChanged(int? oldValue, int? newValue);
 			}
 			""";
@@ -159,21 +159,21 @@ internal partial class CodegenTest
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 				public partial float FloatProp { get => (float)GetValue(FloatPropProperty); set => SetValue(FloatPropProperty, value); }
 
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnTextPropChanging(string value);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnTextPropChanging(string oldValue, string newValue);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnTextPropChanged(string value);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnTextPropChanged(string oldValue, string newValue);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnFloatPropChanging(float value);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnFloatPropChanging(float oldValue, float newValue);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnFloatPropChanged(float value);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnFloatPropChanged(float oldValue, float newValue);
 			}
 			""";
@@ -220,21 +220,21 @@ internal partial class CodegenTest
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 				public partial float FloatProp { get => (float)GetValue(FloatPropProperty); set => SetValue(FloatPropProperty, value); }
 
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnDateTimePropChanging(DateTime value);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnDateTimePropChanging(DateTime oldValue, DateTime newValue);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnDateTimePropChanged(DateTime value);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnDateTimePropChanged(DateTime oldValue, DateTime newValue);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnFloatPropChanging(float value);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnFloatPropChanging(float oldValue, float newValue);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnFloatPropChanged(float value);
-				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				partial void OnFloatPropChanged(float oldValue, float newValue);
 			}
 			""";
@@ -271,17 +271,35 @@ internal partial class CodegenTest
 			/// <inheritdoc/>
 			partial class Container
 			{
-				public static readonly BindableProperty MyPropProperty = BindableProperty.Create(nameof(MyProp), typeof(string), typeof(Container), propertyChanged: __MyProp_Changed);
+				public static readonly BindableProperty MyPropProperty = BindableProperty.Create(nameof(MyProp), typeof(string), typeof(Container), propertyChanging: __MyProp_Changing, propertyChanged: __MyProp_Changed, validateValue: __MyProp_Validate);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 				partial string MyProp { get => (string)GetValue(MyPropProperty); set => SetValue(MyPropProperty, value); }
-				
+
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				static void __MyProp_Changing(BindableObject bindable, object oldValue, object newValue)
+				{
+					var _instance = (Container)bindable;
+					_instance.OnMyPropChanging((string)newValue);
+					_instance.OnMyPropChanging((string)oldValue, (string)newValue);
+				}
+
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				static void __MyProp_Changed(BindableObject bindable, object oldValue, object newValue)
 				{
 					var _instance = (Container)bindable;
 					_instance.OnMyPropChanged((string)newValue);
 					_instance.OnMyPropChanged((string)oldValue, (string)newValue);
+				}
+
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				private partial bool MyPropValidation(string value);
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				static bool __MyProp_Validate(BindableObject bindable, object value)
+				{
+					var _instance = (Container)bindable;
+					return _instance.MyPropValidation((string)value);
 				}
 			}
 			""";

@@ -433,9 +433,9 @@ partial class BindablePropertyGenerator
 			TypeSyntax parameterType = IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations);
 
 			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
-			// partial bool <VALIDATE_METHOD_MAME>(<PROPERTY_TYPE> value);
+			// private partial bool <VALIDATE_METHOD_MAME>(<PROPERTY_TYPE> value);
 			yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.BoolKeyword)), Identifier(validateMethodName))
-				.AddModifiers(Token(SyntaxKind.PartialKeyword))
+				.AddModifiers(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.PartialKeyword))
 				.AddParameterListParameters(Parameter(Identifier("value")).WithType(parameterType))
 				.AddAttributeLists(GeneratedCodeAttrMarker)
 				.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
@@ -451,7 +451,7 @@ partial class BindablePropertyGenerator
 						CastExpression(IdentifierName(hInfo.MetadataName), IdentifierName("bindable"))
 					)))));
 
-			yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(propertyInfo.Srv_ValidateValue))
+			yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.BoolKeyword)), Identifier(propertyInfo.Srv_ValidateValue))
 				.AddModifiers(Token(SyntaxKind.StaticKeyword))
 				.AddParameterListParameters(
 					Parameter(Identifier("bindable")).WithType(IdentifierName("BindableObject")),
@@ -464,7 +464,7 @@ partial class BindablePropertyGenerator
 							IdentifierName("_instance"),
 							IdentifierName(validateMethodName)))
 						.WithArgumentList(ArgumentList([
-							Argument(CastExpression(IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations), IdentifierName("newValue")))
+							Argument(CastExpression(IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations), IdentifierName("value")))
 						])))
 				])));
 		}

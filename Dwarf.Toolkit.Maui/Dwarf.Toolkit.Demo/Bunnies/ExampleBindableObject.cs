@@ -29,10 +29,15 @@ internal partial class ExampleBindableObject : BindableObject
 	[BindableProperty(DefaultValueExpression = "nameof(ExampleBindableObject)")]
 	public partial string TextProp { get; set; }
 
-	[BindableProperty()]
+	[BindableProperty(ValidateMethod = "ValidateNumProp")]
 	internal partial int NumProp { get; set; }
 
-	void OnNumPropChanged(int oldValue, int newValue)
+	private partial bool ValidateNumProp(int value)
+	{
+		return true;
+	}
+
+	void OnNumPropChanged(int val)
 	{
 	}
 }
