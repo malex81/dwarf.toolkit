@@ -5,7 +5,15 @@ namespace Dwarf.Toolkit.Demo.Bunnies;
 internal partial class ExampleBindableObject : BindableObject
 {
 	#region Example property
-	public static readonly BindableProperty ExampleProperty = BindableProperty.Create(nameof(Example), typeof(int), typeof(ExampleBindableObject), defaultValue: 11);
+	public static readonly BindableProperty ExampleProperty
+		= BindableProperty.Create(nameof(Example), typeof(int), typeof(ExampleBindableObject), defaultValue: 11, propertyChanged: Example_Changed);
+
+	static void Example_Changed(BindableObject bindable, object oldValue, object newValue)
+	{
+		var _instance = (ExampleBindableObject)bindable;
+		//_instance.OnNumPropChanged((int)newValue);
+		//_instance.OnNumPropChanged((int)oldValue, (int)newValue);
+	}
 
 	public int Example
 	{
@@ -21,7 +29,10 @@ internal partial class ExampleBindableObject : BindableObject
 	[BindableProperty(DefaultValueExpression = "nameof(ExampleBindableObject)")]
 	public partial string TextProp { get; set; }
 
-	[BindableProperty(DefaultValueExpression = "24")]
-	partial int NumProp { get; set; }
+	[BindableProperty()]
+	internal partial int NumProp { get; set; }
 
+	void OnNumPropChanged(int oldValue, int newValue)
+	{
+	}
 }

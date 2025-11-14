@@ -35,4 +35,8 @@ internal sealed record PropertyInfo(
 
 	public string? ValidateMethodName => BindableAttribute.GetNamedTextArgumentValue(BindableAttributeNaming.ValidateMethodArg);
 	public string? CoerceMethodName => BindableAttribute.GetNamedTextArgumentValue(BindableAttributeNaming.CoerceMethodArg);
+	public string Srv_PropertyChanging => string.Format(ServiceMembers.ChangingMethodFormat, PropertyName);
+	public string Srv_PropertyChanged => string.Format(ServiceMembers.ChangedMethodFormat, PropertyName);
+	public string Srv_ValidateValue => string.Format(ServiceMembers.ValidateMethodFormat, PropertyName);
+	public string Srv_CoerceValue => string.Format(ServiceMembers.CoerceMethodFormat, PropertyName);
 }

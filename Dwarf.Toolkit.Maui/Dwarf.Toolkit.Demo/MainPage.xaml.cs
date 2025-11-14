@@ -1,4 +1,6 @@
-﻿namespace Dwarf.Toolkit.Demo;
+﻿using Dwarf.Toolkit.Demo.Bunnies;
+
+namespace Dwarf.Toolkit.Demo;
 
 public partial class MainPage : ContentPage
 {
@@ -7,6 +9,9 @@ public partial class MainPage : ContentPage
 	public MainPage()
 	{
 		InitializeComponent();
+
+		ExampleBindableObject example = new();
+		example.NumProp = 11;
 	}
 
 	private void OnCounterClicked(object sender, EventArgs e)

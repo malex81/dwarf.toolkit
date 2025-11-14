@@ -255,22 +255,22 @@ partial class BindablePropertyGenerator
 				bipCreateArgsBuilder.Add(Argument(NameColon(
 					IdentifierName("propertyChanging")),
 					default,
-					ParseExpression(string.Format(ServiceMembers.ChangingMethodFormat, propertyInfo.PropertyName))));
+					ParseExpression(propertyInfo.Srv_PropertyChanging)));
 			if (propertyInfo.ChangedMethodInfo.Exist1 != MethodExist.No || propertyInfo.ChangedMethodInfo.Exist2 != MethodExist.No)
 				bipCreateArgsBuilder.Add(Argument(NameColon(
 					IdentifierName("propertyChanged")),
 					default,
-					ParseExpression(string.Format(ServiceMembers.ChangedMethodFormat, propertyInfo.PropertyName))));
+					ParseExpression(propertyInfo.Srv_PropertyChanged)));
 			if (propertyInfo.BindableAttribute.TryGetNamedArgumentInfo(BindableAttributeNaming.ValidateMethodArg, out _))
 				bipCreateArgsBuilder.Add(Argument(NameColon(
 					IdentifierName("validateValue")),
 					default,
-					ParseExpression(string.Format(ServiceMembers.ValidateMethodFormat, propertyInfo.PropertyName))));
+					ParseExpression(propertyInfo.Srv_ValidateValue)));
 			if (propertyInfo.BindableAttribute.TryGetNamedArgumentInfo(BindableAttributeNaming.CoerceMethodArg, out _))
 				bipCreateArgsBuilder.Add(Argument(NameColon(
 					IdentifierName("coerceValue")),
 					default,
-					ParseExpression(string.Format(ServiceMembers.CoerceMethodFormat, propertyInfo.PropertyName))));
+					ParseExpression(propertyInfo.Srv_CoerceValue)));
 
 			var bipCreateArgs = ArgumentList(SeparatedList(bipCreateArgsBuilder.AsEnumerable()));
 			//
@@ -342,167 +342,97 @@ partial class BindablePropertyGenerator
 			return propertyModifiers;
 		}
 
-		public static ImmutableArray<MemberDeclarationSyntax> GetOnPropertyChangeMethodsSyntax(HierarchyInfo hInfo, PropertyInfo propertyInfo)
-		{
-			// Mark with GeneratedCode attribute
-			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
-			AttributeListSyntax genCodeAttrMarker = AttributeList(SingletonSeparatedList(
-							Attribute(IdentifierName("global::System.CodeDom.Compiler.GeneratedCode"))
-								.AddArgumentListArguments(
-									AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(BindablePropertyGenerator).FullName))),
-									AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(BindablePropertyGenerator).Assembly.GetName().Version.ToString()))))
-								));
-			//
+		// Mark with GeneratedCode attribute
+		// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
+		readonly static AttributeListSyntax GeneratedCodeAttrMarker = AttributeList(SingletonSeparatedList(
+						Attribute(IdentifierName("global::System.CodeDom.Compiler.GeneratedCode"))
+							.AddArgumentListArguments(
+								AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(BindablePropertyGenerator).FullName))),
+								AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(BindablePropertyGenerator).Assembly.GetName().Version.ToString()))))
+							));
 
+		static IEnumerable<MemberDeclarationSyntax> GenerateChangeHandlers(
+			HierarchyInfo hInfo,
+			PropertyInfo propertyInfo,
+			string serviceMethodName,
+			ChangeMethodInfo methodInfo)
+		{
 			// Get the property type syntax
 			TypeSyntax parameterType = IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations);
 
-			string onPropertyChangingHandlerName = $"On{propertyInfo.PropertyName}Changing";
-			string onPropertyChangedHandlerName = $"On{propertyInfo.PropertyName}Changed";
+			if (methodInfo.Exist1 != MethodExist.ExistNoPartial)
+			{
+				// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
+				// partial void On<PROPERTY_NAME><Changing/Changed>(<PROPERTY_TYPE> value);
+				yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(methodInfo.Name))
+					.AddModifiers(Token(SyntaxKind.PartialKeyword))
+					.AddParameterListParameters(Parameter(Identifier("value")).WithType(parameterType))
+					.AddAttributeLists(GeneratedCodeAttrMarker)
+					.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+			}
 
-			var instanceVarDeclaration = LocalDeclarationStatement(
-				VariableDeclaration(ParseTypeName("var"))
-				.WithVariables(SingletonSeparatedList(
-					VariableDeclarator(Identifier("_instance"))
-					.WithInitializer(EqualsValueClause(
-						CastExpression(IdentifierName(hInfo.MetadataName), IdentifierName("bindable"))
-					)))));
+			if (methodInfo.Exist2 != MethodExist.ExistNoPartial)
+			{
+				// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
+				// partial void On<PROPERTY_NAME><Changing/Changed>(<OLD_VALUE_TYPE> oldValue, <PROPERTY_TYPE> newValue);
+				yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(methodInfo.Name))
+					.AddModifiers(Token(SyntaxKind.PartialKeyword))
+					.AddParameterListParameters(
+						Parameter(Identifier("oldValue")).WithType(parameterType),
+						Parameter(Identifier("newValue")).WithType(parameterType))
+					.AddAttributeLists(GeneratedCodeAttrMarker)
+					.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+			}
 
-			MemberDeclarationSyntax staticPropertyChangingDeclaration =
-				MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier($"__{propertyInfo.PropertyName}_Changing"))
-				.AddModifiers(Token(SyntaxKind.StaticKeyword))
-				.AddParameterListParameters(
-					Parameter(Identifier("bindable")).WithType(IdentifierName("BindableProperty")),
-					Parameter(Identifier("oldValue")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))),
-					Parameter(Identifier("newValue")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))))
-				.AddAttributeLists(genCodeAttrMarker)
-				.WithBody(Block(List<StatementSyntax>([
-					instanceVarDeclaration,
-					ExpressionStatement(InvocationExpression(
-						MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-							IdentifierName("_instance"),
-							IdentifierName(onPropertyChangingHandlerName)))
-						.WithArgumentList(ArgumentList([
-							Argument(IdentifierName("newValue"))
-						]))),
-					ExpressionStatement(InvocationExpression(
-						MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-							IdentifierName("_instance"),
-							IdentifierName(onPropertyChangingHandlerName)))
-						.WithArgumentList(ArgumentList([
-							Argument(IdentifierName("oldValue")),
-							Argument(IdentifierName("newValue"))
-						])))
+			if (methodInfo.Exist1 != MethodExist.No || methodInfo.Exist2 != MethodExist.No)
+			{
+				//
+				// var instance = (MyClass)bindable;
+				//
+				var instanceVarDeclaration = LocalDeclarationStatement(
+					VariableDeclaration(ParseTypeName("var"))
+					.WithVariables(SingletonSeparatedList(
+						VariableDeclarator(Identifier("_instance"))
+						.WithInitializer(EqualsValueClause(
+							CastExpression(IdentifierName(hInfo.MetadataName), IdentifierName("bindable"))
+						)))));
+
+				yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(serviceMethodName))
+					.AddModifiers(Token(SyntaxKind.StaticKeyword))
+					.AddParameterListParameters(
+						Parameter(Identifier("bindable")).WithType(IdentifierName("BindableObject")),
+						Parameter(Identifier("oldValue")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))),
+						Parameter(Identifier("newValue")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))))
+					.AddAttributeLists(GeneratedCodeAttrMarker)
+					.WithBody(Block(List<StatementSyntax>([
+						instanceVarDeclaration,
+						ExpressionStatement(InvocationExpression(
+							MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+								IdentifierName("_instance"),
+								IdentifierName(methodInfo.Name)))
+							.WithArgumentList(ArgumentList([
+								Argument(CastExpression(IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations), IdentifierName("newValue")))
+							]))),
+						ExpressionStatement(InvocationExpression(
+							MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+								IdentifierName("_instance"),
+								IdentifierName(methodInfo.Name)))
+							.WithArgumentList(ArgumentList([
+								Argument(CastExpression(IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations), IdentifierName("oldValue"))),
+								Argument(CastExpression(IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations), IdentifierName("newValue")))
+							])))
 					])));
+			}
+		}
 
-			MemberDeclarationSyntax staticPropertyChangedDeclaration =
-				MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier($"__{propertyInfo.PropertyName}_Changed"))
-				.AddModifiers(Token(SyntaxKind.StaticKeyword))
-				.AddParameterListParameters(
-					Parameter(Identifier("bindable")).WithType(IdentifierName("BindableProperty")),
-					Parameter(Identifier("oldValue")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))),
-					Parameter(Identifier("newValue")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))))
-				.AddAttributeLists(genCodeAttrMarker)
-				.WithBody(Block(List<StatementSyntax>([
-					instanceVarDeclaration,
-					ExpressionStatement(InvocationExpression(
-						MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-							IdentifierName("_instance"),
-							IdentifierName(onPropertyChangedHandlerName)))
-						.WithArgumentList(ArgumentList([
-							Argument(IdentifierName("newValue"))
-						]))),
-					ExpressionStatement(InvocationExpression(
-						MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-							IdentifierName("_instance"),
-							IdentifierName(onPropertyChangedHandlerName)))
-						.WithArgumentList(ArgumentList([
-							Argument(IdentifierName("oldValue")),
-							Argument(IdentifierName("newValue"))
-						])))
-					])));
+		public static ImmutableArray<MemberDeclarationSyntax> GetOnPropertyChangeMethodsSyntax(HierarchyInfo hInfo, PropertyInfo propertyInfo)
+		{
+			var resultList = ImmutableArrayBuilder<MemberDeclarationSyntax>.Rent();
 
-			// Construct the generated method as follows:
-			//
-			// /// <summary>Executes the logic for when <see cref="<PROPERTY_NAME>"/> is changing.</summary>
-			// /// <param name="value">The new property value being set.</param>
-			// /// <remarks>This method is invoked right before the value of <see cref="<PROPERTY_NAME>"/> is changed.</remarks>
-			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
-			// partial void On<PROPERTY_NAME>Changing(<PROPERTY_TYPE> value);
-			MemberDeclarationSyntax onPropertyChangingDeclaration =
-				MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(onPropertyChangingHandlerName))
-				.AddModifiers(Token(SyntaxKind.PartialKeyword))
-				.AddParameterListParameters(Parameter(Identifier("value")).WithType(parameterType))
-				.AddAttributeLists(genCodeAttrMarker
-					.WithOpenBracketToken(Token(TriviaList(
-						Comment($"/// <summary>Executes the logic for when <see cref=\"{propertyInfo.PropertyName}\"/> is changing.</summary>"),
-						Comment("/// <param name=\"value\">The new property value being set.</param>"),
-						Comment($"/// <remarks>This method is invoked right before the value of <see cref=\"{propertyInfo.PropertyName}\"/> is changed.</remarks>")), SyntaxKind.OpenBracketToken, TriviaList())))
-				.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+			resultList.AddRange(GenerateChangeHandlers(hInfo, propertyInfo, propertyInfo.Srv_PropertyChanging, propertyInfo.ChangingMethodInfo).ToArray());
+			resultList.AddRange(GenerateChangeHandlers(hInfo, propertyInfo, propertyInfo.Srv_PropertyChanged, propertyInfo.ChangedMethodInfo).ToArray());
 
-			// Construct the generated method as follows:
-			//
-			// /// <summary>Executes the logic for when <see cref="<PROPERTY_NAME>"/> is changing.</summary>
-			// /// <param name="oldValue">The previous property value that is being replaced.</param>
-			// /// <param name="newValue">The new property value being set.</param>
-			// /// <remarks>This method is invoked right before the value of <see cref="<PROPERTY_NAME>"/> is changed.</remarks>
-			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
-			// partial void On<PROPERTY_NAME>Changing(<OLD_VALUE_TYPE> oldValue, <PROPERTY_TYPE> newValue);
-			MemberDeclarationSyntax onPropertyChanging2Declaration =
-				MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(onPropertyChangingHandlerName))
-				.AddModifiers(Token(SyntaxKind.PartialKeyword))
-				.AddParameterListParameters(
-					Parameter(Identifier("oldValue")).WithType(parameterType),
-					Parameter(Identifier("newValue")).WithType(parameterType))
-				.AddAttributeLists(genCodeAttrMarker
-					.WithOpenBracketToken(Token(TriviaList(
-						Comment($"/// <summary>Executes the logic for when <see cref=\"{propertyInfo.PropertyName}\"/> is changing.</summary>"),
-						Comment("/// <param name=\"oldValue\">The previous property value that is being replaced.</param>"),
-						Comment("/// <param name=\"newValue\">The new property value being set.</param>"),
-						Comment($"/// <remarks>This method is invoked right before the value of <see cref=\"{propertyInfo.PropertyName}\"/> is changed.</remarks>")), SyntaxKind.OpenBracketToken, TriviaList())))
-				.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
-
-			// Construct the generated method as follows:
-			//
-			// /// <summary>Executes the logic for when <see cref="<PROPERTY_NAME>"/> ust changed.</summary>
-			// /// <param name="value">The new property value that was set.</param>
-			// /// <remarks>This method is invoked right after the value of <see cref="<PROPERTY_NAME>"/> is changed.</remarks>
-			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
-			// partial void On<PROPERTY_NAME>Changed(<PROPERTY_TYPE> value);
-			MemberDeclarationSyntax onPropertyChangedDeclaration =
-				MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(onPropertyChangedHandlerName))
-				.AddModifiers(Token(SyntaxKind.PartialKeyword))
-				.AddParameterListParameters(Parameter(Identifier("value")).WithType(parameterType))
-				.AddAttributeLists(genCodeAttrMarker
-					.WithOpenBracketToken(Token(TriviaList(
-						Comment($"/// <summary>Executes the logic for when <see cref=\"{propertyInfo.PropertyName}\"/> just changed.</summary>"),
-						Comment("/// <param name=\"value\">The new property value that was set.</param>"),
-						Comment($"/// <remarks>This method is invoked right after the value of <see cref=\"{propertyInfo.PropertyName}\"/> is changed.</remarks>")), SyntaxKind.OpenBracketToken, TriviaList())))
-				.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
-
-			// Construct the generated method as follows:
-			//
-			// /// <summary>Executes the logic for when <see cref="<PROPERTY_NAME>"/> ust changed.</summary>
-			// /// <param name="oldValue">The previous property value that was replaced.</param>
-			// /// <param name="newValue">The new property value that was set.</param>
-			// /// <remarks>This method is invoked right after the value of <see cref="<PROPERTY_NAME>"/> is changed.</remarks>
-			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
-			// partial void On<PROPERTY_NAME>Changed(<OLD_VALUE_TYPE> oldValue, <PROPERTY_TYPE> newValue);
-			MemberDeclarationSyntax onPropertyChanged2Declaration =
-				MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(onPropertyChangedHandlerName))
-				.AddModifiers(Token(SyntaxKind.PartialKeyword))
-				.AddParameterListParameters(
-					Parameter(Identifier("oldValue")).WithType(parameterType),
-					Parameter(Identifier("newValue")).WithType(parameterType))
-				.AddAttributeLists(genCodeAttrMarker
-					.WithOpenBracketToken(Token(TriviaList(
-						Comment($"/// <summary>Executes the logic for when <see cref=\"{propertyInfo.PropertyName}\"/> just changed.</summary>"),
-						Comment("/// <param name=\"oldValue\">The previous property value that was replaced.</param>"),
-						Comment("/// <param name=\"newValue\">The new property value that was set.</param>"),
-						Comment($"/// <remarks>This method is invoked right after the value of <see cref=\"{propertyInfo.PropertyName}\"/> is changed.</remarks>")), SyntaxKind.OpenBracketToken, TriviaList())))
-				.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
-
-			return [staticPropertyChangingDeclaration, staticPropertyChangedDeclaration, onPropertyChangingDeclaration, onPropertyChanging2Declaration, onPropertyChangedDeclaration, onPropertyChanged2Declaration];
+			return resultList.ToImmutable();
 		}
 	}
 }
