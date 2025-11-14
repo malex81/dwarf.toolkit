@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
@@ -147,4 +148,8 @@ internal sealed record AttributeInfo(
 				.Select(na => na.Value).FirstOrDefault();
 		return argInfo != null;
 	}
+
+	public string? GetNamedTextArgumentValue(string argName)
+		=> (TryGetNamedArgumentInfo(argName, out var argInfo) && argInfo is TypedConstantInfo.Primitive.String textInfo) ? textInfo.Value : null;
+
 }
