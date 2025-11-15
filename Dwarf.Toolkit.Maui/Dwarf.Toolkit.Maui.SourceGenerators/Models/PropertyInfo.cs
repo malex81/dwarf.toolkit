@@ -29,7 +29,9 @@ internal sealed record PropertyInfo(
 	Accessibility PropertyAccessibility,
 	AttributeInfo BindableAttribute,
 	ChangeMethodInfo ChangingMethodInfo,
-	ChangeMethodInfo ChangedMethodInfo)
+	ChangeMethodInfo ChangedMethodInfo,
+	bool NeedGeneratePartialValidation,
+	bool NeedGeneratePartialCoerce)
 {
 
 	public string? ValidateMethodName => BindableAttribute.GetNamedTextArgumentValue(BindableAttributeNaming.ValidateMethodArg);

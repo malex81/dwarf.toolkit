@@ -81,8 +81,7 @@ partial class BindablePropertyGenerator
 			static MethodExist CheckPartial(IMethodSymbol? m)
 			{
 				if (m == null) return MethodExist.No;
-				var hasPartial = m.DeclaringSyntaxReferences.Any(rs
-					=> rs.GetSyntax() is MethodDeclarationSyntax mSyntax && mSyntax.Modifiers.Any(SyntaxKind.PartialKeyword));
+				var hasPartial = m.HasPartialModifier();
 				return hasPartial ? MethodExist.ExistPartial : MethodExist.ExistNoPartial;
 			}
 
@@ -93,6 +92,25 @@ partial class BindablePropertyGenerator
 			return new(name, CheckPartial(method1), CheckPartial(method2));
 		}
 
+		static bool FindNoPartialMethod(GeneratorAttributeSyntaxContext context, string name, string returnType, params string[] prmTypes)
+			=> context.TargetSymbol.ContainingType.GetMembers(name)
+				.Any(s =>
+				{
+					if (s is not IMethodSymbol m || m.HasPartialModifier())
+						return false;
+
+					if (!m.ReturnType.HasFullyQualifiedName(returnType))
+						return false;
+
+					if (m.Parameters.Length != prmTypes.Length)
+						return false;
+
+					for (int i = 0; i < prmTypes.Length; i++)
+						if (!m.Parameters[i].Type.HasFullyQualifiedName(prmTypes[i]))
+							return false;
+
+					return true;
+				});
 		/// <summary>
 		/// Processes a given property.
 		/// </summary>
@@ -146,15 +164,31 @@ partial class BindablePropertyGenerator
 
 			token.ThrowIfCancellationRequested();
 
+			string fullyPropertyTypeName = propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
+
+			var needGeneratePartialValidation
+				= bindableAttrData.TryGetNamedArgument<string>(BindableAttributeNaming.ValidateMethodArg, out var validateMethodName)
+					&& validateMethodName != null
+					&& !FindNoPartialMethod(context, validateMethodName, "bool", fullyPropertyTypeName);
+
+			token.ThrowIfCancellationRequested();
+
+			var needGeneratePartialCoerce
+				= bindableAttrData.TryGetNamedArgument<string>(BindableAttributeNaming.CoerceMethodArg, out var coerceMethodName)
+					&& validateMethodName != null
+					&& !FindNoPartialMethod(context, validateMethodName, fullyPropertyTypeName, fullyPropertyTypeName);
+
 			propertyInfo = new PropertyInfo(
 				propertySyntax.Kind(),
-				propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations(),
+				fullyPropertyTypeName,
 				propertySymbol.Name,
 				propertyModifiers.AsUnderlyingType(),
 				propertySyntax.Modifiers.ContainsAnyAccessibilityModifiers() ? propertySymbol.DeclaredAccessibility : Accessibility.NotApplicable,
 				bindableAttrInfo,
 				ExploreMethod(context, bindableAttrInfo.GetNamedTextArgumentValue(BindableAttributeNaming.ChangingMethodArg) ?? $"On{propertySymbol.Name}Changing"),
-				ExploreMethod(context, bindableAttrInfo.GetNamedTextArgumentValue(BindableAttributeNaming.ChangedMethodArg) ?? $"On{propertySymbol.Name}Changed"));
+				ExploreMethod(context, bindableAttrInfo.GetNamedTextArgumentValue(BindableAttributeNaming.ChangedMethodArg) ?? $"On{propertySymbol.Name}Changed"),
+				needGeneratePartialValidation,
+				needGeneratePartialCoerce);
 
 			diagnostics = diagnosticsBuilder.ToImmutable();
 
@@ -349,6 +383,14 @@ partial class BindablePropertyGenerator
 								AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(BindablePropertyGenerator).Assembly.GetName().Version.ToString()))))
 							));
 
+		/// <summary>
+		/// Generate code for On<PropertyName>Changing and On<PropertyName>Changed handlers
+		/// </summary>
+		/// <param name="hInfo"></param>
+		/// <param name="propertyInfo"></param>
+		/// <param name="serviceMethodName"></param>
+		/// <param name="methodInfo"></param>
+		/// <returns></returns>
 		static IEnumerable<MemberDeclarationSyntax> GenerateChangeHandlers(
 			HierarchyInfo hInfo,
 			PropertyInfo propertyInfo,
@@ -423,6 +465,12 @@ partial class BindablePropertyGenerator
 			}
 		}
 
+		/// <summary>
+		/// Generate code for ValidateValue
+		/// </summary>
+		/// <param name="hInfo"></param>
+		/// <param name="propertyInfo"></param>
+		/// <returns></returns>
 		static IEnumerable<MemberDeclarationSyntax> GenerateValidateValueHandler(HierarchyInfo hInfo, PropertyInfo propertyInfo)
 		{
 			var validateMethodName = propertyInfo.ValidateMethodName;
@@ -432,14 +480,16 @@ partial class BindablePropertyGenerator
 			// Get the property type syntax
 			TypeSyntax parameterType = IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations);
 
-			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
-			// private partial bool <VALIDATE_METHOD_MAME>(<PROPERTY_TYPE> value);
-			yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.BoolKeyword)), Identifier(validateMethodName))
-				.AddModifiers(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.PartialKeyword))
-				.AddParameterListParameters(Parameter(Identifier("value")).WithType(parameterType))
-				.AddAttributeLists(GeneratedCodeAttrMarker)
-				.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
-
+			if (propertyInfo.NeedGeneratePartialValidation)
+			{
+				// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
+				// private partial bool <VALIDATE_METHOD_MAME>(<PROPERTY_TYPE> value);
+				yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.BoolKeyword)), Identifier(validateMethodName))
+					.AddModifiers(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.PartialKeyword))
+					.AddParameterListParameters(Parameter(Identifier("value")).WithType(parameterType))
+					.AddAttributeLists(GeneratedCodeAttrMarker)
+					.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+			}
 			//
 			// var instance = (MyClass)bindable;
 			//

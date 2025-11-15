@@ -4,19 +4,19 @@ namespace Dwarf.Toolkit.Demo;
 
 public partial class MainPage : ContentPage
 {
-	int count = 0;
+	readonly ExampleBindableObject sample = new();
 
 	public MainPage()
 	{
 		InitializeComponent();
-
-		ExampleBindableObject example = new();
-		example.NumProp = 11;
 	}
 
 	private void OnCounterClicked(object sender, EventArgs e)
 	{
-		count++;
+		textLabel.Text = $"{sample.TextProp} - {sample.CustomProp.Text} ({sample.CustomProp.Num})";
+
+		sample.NumProp++;
+		var count = sample.NumProp;
 
 		if (count == 1)
 			CounterBtn.Text = $"Clicked {count} time";
