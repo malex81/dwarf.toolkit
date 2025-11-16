@@ -175,8 +175,8 @@ partial class BindablePropertyGenerator
 
 			var needGeneratePartialCoerce
 				= bindableAttrData.TryGetNamedArgument<string>(BindableAttributeNaming.CoerceMethodArg, out var coerceMethodName)
-					&& validateMethodName != null
-					&& !FindNoPartialMethod(context, validateMethodName, fullyPropertyTypeName, fullyPropertyTypeName);
+					&& coerceMethodName != null
+					&& !FindNoPartialMethod(context, coerceMethodName, fullyPropertyTypeName, fullyPropertyTypeName);
 
 			propertyInfo = new PropertyInfo(
 				propertySyntax.Kind(),
@@ -519,6 +519,60 @@ partial class BindablePropertyGenerator
 				])));
 		}
 
+		/// <summary>
+		/// Generate code for CoerceValue
+		/// </summary>
+		/// <param name="hInfo"></param>
+		/// <param name="propertyInfo"></param>
+		/// <returns></returns>
+		static IEnumerable<MemberDeclarationSyntax> GenerateCoerceValueHandler(HierarchyInfo hInfo, PropertyInfo propertyInfo)
+		{
+			var coerceMethodName = propertyInfo.CoerceMethodName;
+			if (coerceMethodName == null)
+				yield break;
+
+			// Get the property type syntax
+			TypeSyntax parameterType = IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations);
+
+			if (propertyInfo.NeedGeneratePartialCoerce)
+			{
+				// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
+				// private partial <PROPERTY_TYPE> <COERCE_METHOD_MAME>(<PROPERTY_TYPE> value);
+				yield return MethodDeclaration(parameterType, Identifier(coerceMethodName))
+					.AddModifiers(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.PartialKeyword))
+					.AddParameterListParameters(Parameter(Identifier("value")).WithType(parameterType))
+					.AddAttributeLists(GeneratedCodeAttrMarker)
+					.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+			}
+			//
+			// var instance = (MyClass)bindable;
+			//
+			var instanceVarDeclaration = LocalDeclarationStatement(
+				VariableDeclaration(ParseTypeName("var"))
+				.WithVariables(SingletonSeparatedList(
+					VariableDeclarator(Identifier("_instance"))
+					.WithInitializer(EqualsValueClause(
+						CastExpression(IdentifierName(hInfo.MetadataName), IdentifierName("bindable"))
+					)))));
+
+			yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.ObjectKeyword)), Identifier(propertyInfo.Srv_CoerceValue))
+				.AddModifiers(Token(SyntaxKind.StaticKeyword))
+				.AddParameterListParameters(
+					Parameter(Identifier("bindable")).WithType(IdentifierName("BindableObject")),
+					Parameter(Identifier("value")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))))
+				.AddAttributeLists(GeneratedCodeAttrMarker)
+				.WithBody(Block(List<StatementSyntax>([
+					instanceVarDeclaration,
+					ReturnStatement(InvocationExpression(
+						MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+							IdentifierName("_instance"),
+							IdentifierName(coerceMethodName)))
+						.WithArgumentList(ArgumentList([
+							Argument(CastExpression(IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations), IdentifierName("value")))
+						])))
+				])));
+		}
+
 		public static ImmutableArray<MemberDeclarationSyntax> GetOnPropertyChangeMethodsSyntax(HierarchyInfo hInfo, PropertyInfo propertyInfo)
 		{
 			var resultList = ImmutableArrayBuilder<MemberDeclarationSyntax>.Rent();
@@ -526,6 +580,7 @@ partial class BindablePropertyGenerator
 			resultList.AddRange(GenerateChangeHandlers(hInfo, propertyInfo, propertyInfo.Srv_PropertyChanging, propertyInfo.ChangingMethodInfo).ToArray());
 			resultList.AddRange(GenerateChangeHandlers(hInfo, propertyInfo, propertyInfo.Srv_PropertyChanged, propertyInfo.ChangedMethodInfo).ToArray());
 			resultList.AddRange(GenerateValidateValueHandler(hInfo, propertyInfo).ToArray());
+			resultList.AddRange(GenerateCoerceValueHandler(hInfo, propertyInfo).ToArray());
 
 			return resultList.ToImmutable();
 		}

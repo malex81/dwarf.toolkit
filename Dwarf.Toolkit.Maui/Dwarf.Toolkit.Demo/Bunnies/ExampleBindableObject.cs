@@ -39,7 +39,7 @@ internal partial class ExampleBindableObject : BindableObject
 	[BindableProperty(DefaultValue = "Здравствуй, товарищь")]
 	public partial string TextProp { get; set; }
 
-	[BindableProperty(ValidateMethod = nameof(ValidateNumProp))]
+	[BindableProperty(ValidateMethod = nameof(ValidateNumProp), CoerceMethod = "CoerceNumProp")]
 	internal partial int NumProp { get; set; }
 
 	private bool ValidateNumProp(int value)
@@ -50,6 +50,11 @@ internal partial class ExampleBindableObject : BindableObject
 			return false;
 		}
 		return true;
+	}
+
+	private partial int CoerceNumProp(int value)
+	{
+		return value - 3;
 	}
 
 	void OnNumPropChanged(int val)
