@@ -8,7 +8,7 @@ Set of helpers for MAUI
 
 ## BindableProperty Generator
 
-To generate a MAUI BindableProperty, apply the BindableProperty attribute to the partial property, as in the example below:
+To generate a MAUI `BindableProperty`, apply the `BindableProperty` attribute to the partial property, as in the example below:
 
 ```c#
 internal partial class ExampleBindableObject : BindableObject
