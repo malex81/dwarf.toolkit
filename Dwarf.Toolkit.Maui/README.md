@@ -17,35 +17,43 @@ internal partial class ExampleBindableObject : BindableObject
 	{
 	}
 
-	[BindableProperty]
+	[BindableProperty(DefaultValue = "Hello world ", DefaultBindingMode = BindingModeDef.OneTime)]
 	partial string TextProp { get; set; }
 
-	[BindableProperty(DefaultValue = 18)]
+	[BindableProperty(DefaultValue = 18, ValidateMethod = nameof(ValidateNumProp))]
 	partial int NumProp { get; set; }
 }
 ```
 
-This short snippet will generate the following code:
+This short snippet will generate the code for `BindableProperty.Create( ... )`, property wrapper like this:
 
 ```c#
-/// <inheritdoc/>
-partial class ExampleBindableObject
+partial string TextProp
 {
-	public static readonly BindableProperty TextPropProperty = BindableProperty.Create(nameof(TextProp), typeof(string), typeof(ExampleBindableObject));
-	/// <inheritdoc/>
-	[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
-	[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-	partial string TextProp { get => (string)GetValue(TextPropProperty); set => SetValue(TextPropProperty, value); }
-
-	public static readonly BindableProperty NumPropProperty = BindableProperty.Create(nameof(NumProp), typeof(int), typeof(ExampleBindableObject), defaultValue: 18);
-	/// <inheritdoc/>
-	[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", "0.1.1.0")]
-	[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-	partial int NumProp { get => (int)GetValue(NumPropProperty); set => SetValue(NumPropProperty, value); }
+	get => (string)GetValue(TextPropProperty);
+	set => SetValue(TextPropProperty, value);
 }
 ```
 
+And necessary triggers for  `PropertyChanging`, `PropertyChanged`, `ValidateValue` and `CoerceValue`.
+
+### Supported arguments
+
+| Name                   | Description       |
+|------------------------|-------------------|
+| DefaultValue           | The value that passed directly to `defaultValue` of `BindableProperty.Create` method. |
+| DefaultValueExpression | An expression, represented as a string, that the generator will extract and passed to `defaultValue` of `BindableProperty.Create` method. |
+| DefaultBindingMode     | The `defaultBindingMode`. To avoid direct reference to Microsoft.Maui ecosystem, local enum `BindingModeDef` is added. Generator translate it value to `Microsoft.Maui.Controls.BindingMode`. |
+| ChangingMethod         | The name of method for property changing callback. This method not static and takes one (new value) or two (old value and new value) parameters of correct property type. The generator will prepare static handler and perform the necessary type casts. If this argument is not set, generator will create partial method with `On<PropertyName>Changing` name. This method can be implemented in the future. |
+| ChangedMethod          | The name of method for property changed callback. This method not static and takes one (new value) or two (old value and new value) parameters of correct property type. The generator will prepare static handler and perform the necessary type casts. If this argument is not set, generator will create partial method with `On<PropertyName>Changed` name. This method can be implemented in the future. |
+| ValidateMethod         | The name of method for validate value. This method not static, takes one parameter of property type and returns boolean result. The generator will prepare static handler and perform the necessary type casts. |
+| CoerceMethod           | The name of method for coerce value. This method not static, takes one parameter of property type and returns a new value of the same type. The generator will prepare static handler and perform the necessary type casts. |
+
 ## Change Log
+
+### 0.1.2 - 20125.11.18
+
+- Add `DefaultBindingMode`, `ChangingMethod`, `ChangedMethod`, `ValidateMethod` and `CoerceMethod` properties to `BindablePropertyAttribute`
 
 ### 0.1.1 - 2025.11.12
 
