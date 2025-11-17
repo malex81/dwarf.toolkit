@@ -131,7 +131,7 @@ internal partial class CodegenTest
 
 			partial class Container : BindableObject
 			{
-				[BindableProperty(DefaultValue="Привет, Вася!")]
+				[BindableProperty(DefaultValue="Привет, Вася!", DefaultBindingMode=BindingModeDef.OneWayToSource)]
 				public partial string TextProp { get; set; }
 
 				[BindableProperty(DefaultValue=3.14159f)]
@@ -147,7 +147,7 @@ internal partial class CodegenTest
 			/// <inheritdoc/>
 			partial class Container
 			{
-				public static readonly BindableProperty TextPropProperty = BindableProperty.Create(nameof(TextProp), typeof(string), typeof(Container), defaultValue: "Привет, Вася!");
+				public static readonly BindableProperty TextPropProperty = BindableProperty.Create(nameof(TextProp), typeof(string), typeof(Container), defaultValue: "Привет, Вася!", defaultBindingMode: (global::Microsoft.Maui.Controls.BindingMode)3);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]

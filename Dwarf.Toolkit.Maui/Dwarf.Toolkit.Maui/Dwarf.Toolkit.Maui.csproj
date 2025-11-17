@@ -20,7 +20,7 @@
 			<BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))"/>
 		</ItemGroup>
 	</Target>
-	
+
 	<ItemGroup>
 		<None Include="..\..\LICENSE" Pack="true" PackagePath="" Visible="false"/>
 		<None Include="..\README.md" Pack="true" PackagePath="" Visible="false"/>
@@ -30,7 +30,7 @@
 		<ProjectReference Include="..\..\Dwarf.Toolkit.Base\Dwarf.Toolkit.Base.csproj" ReferenceOutputAssembly="true" IncludeAssets="Dwarf.Toolkit.Base.dll"/>
 		<ProjectReference Include="..\Dwarf.Toolkit.Maui.SourceGenerators\Dwarf.Toolkit.Maui.SourceGenerators.csproj" ReferenceOutputAssembly="false" />
 	</ItemGroup>
-	
+
 	<ItemGroup Label="Package">
 		<None Include="..\Dwarf.Toolkit.Maui.SourceGenerators\bin\$(Configuration)\netstandard2.0\Dwarf.Toolkit.Maui.SourceGenerators.dll" PackagePath="analyzers" Pack="true" Visible="false" />
 	</ItemGroup>

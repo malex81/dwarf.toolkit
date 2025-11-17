@@ -36,7 +36,7 @@ internal partial class ExampleBindableObject : BindableObject
 		return true;
 	}
 
-	[BindableProperty(DefaultValue = "Здравствуй, товарищь")]
+	[BindableProperty(DefaultValue = "Здравствуй, товарищь", DefaultBindingMode = BindingModeDef.OneTime)]
 	public partial string TextProp { get; set; }
 
 	[BindableProperty(ValidateMethod = nameof(ValidateNumProp), CoerceMethod = "CoerceNumProp")]
@@ -52,9 +52,9 @@ internal partial class ExampleBindableObject : BindableObject
 		return true;
 	}
 
-	private partial int CoerceNumProp(int value)
+	private int CoerceNumProp(int value)
 	{
-		return value - 3;
+		return value - 2;
 	}
 
 	void OnNumPropChanged(int val)

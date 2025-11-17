@@ -283,6 +283,15 @@ partial class BindablePropertyGenerator
 			{
 				bipCreateArgsBuilder.Add(Argument(NameColon(IdentifierName("defaultValue")), default, ParseExpression(defaultCodeInfo.Value)));
 			}
+			if (propertyInfo.BindableAttribute.TryGetNamedArgumentInfo(BindableAttributeNaming.DefaultBindingModeArg, out var defBindModeInfo)
+				&& defBindModeInfo is TypedConstantInfo.Enum bindingModeEnum)
+			{
+				var bindingModeMauiEnum = new TypedConstantInfo.Enum("global::Microsoft.Maui.Controls.BindingMode", bindingModeEnum.Value);
+				bipCreateArgsBuilder.Add(Argument(NameColon(
+					IdentifierName("defaultBindingMode")),
+					default,
+					bindingModeMauiEnum.GetSyntax()));
+			}
 			if (propertyInfo.ChangingMethodInfo.Exist1 != MethodExist.No || propertyInfo.ChangingMethodInfo.Exist2 != MethodExist.No)
 				bipCreateArgsBuilder.Add(Argument(NameColon(
 					IdentifierName("propertyChanging")),
