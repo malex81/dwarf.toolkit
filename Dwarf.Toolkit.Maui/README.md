@@ -51,6 +51,11 @@ And necessary triggers for  `PropertyChanging`, `PropertyChanged`, `ValidateValu
 
 ## Change Log
 
+### 0.1.3 - 20125.11.19
+
+- Fix nullable annotation of reference types
+- Add some attributes to mark service methods
+
 ### 0.1.2 - 20125.11.18
 
 - Add `DefaultBindingMode`, `ChangingMethod`, `ChangedMethod`, `ValidateMethod` and `CoerceMethod` properties to `BindablePropertyAttribute`

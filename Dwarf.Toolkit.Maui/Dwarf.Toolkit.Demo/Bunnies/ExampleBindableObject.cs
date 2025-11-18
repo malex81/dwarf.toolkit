@@ -8,24 +8,33 @@ internal partial class ExampleBindableObject : BindableObject
 
 	#region Example property
 	public static readonly BindableProperty ExampleProperty
-		= BindableProperty.Create(nameof(Example), typeof(int), typeof(ExampleBindableObject), defaultValue: 11, propertyChanged: Example_Changed);
+		= BindableProperty.Create(nameof(Example), typeof(string), typeof(ExampleBindableObject), defaultValue: null, propertyChanged: Example_Changed);
 
 	static void Example_Changed(BindableObject bindable, object oldValue, object newValue)
 	{
 		var _instance = (ExampleBindableObject)bindable;
-		//_instance.OnNumPropChanged((int)newValue);
-		//_instance.OnNumPropChanged((int)oldValue, (int)newValue);
+		var v0 = (string)oldValue;
+		var v1 = (string)newValue;
+		_instance.OnExampleChanged(v1);
 	}
 
-	public int Example
+	void OnExampleChanged(string? value)
 	{
-		get => (int)GetValue(ExampleProperty);
+	}
+
+	public string? Example
+	{
+		get => (string)GetValue(ExampleProperty);
 		set => SetValue(ExampleProperty, value);
 	}
 	#endregion
 
 	public ExampleBindableObject()
 	{
+		var example = Example;
+		Example = "12321";
+		Example = null;
+		example = Example;
 	}
 
 	[BindableProperty(DefaultValueExpression = "new CustomType(12, \"Настя и Даша\")", ValidateMethod = "ValidateCustomType")]
@@ -37,7 +46,7 @@ internal partial class ExampleBindableObject : BindableObject
 	}
 
 	[BindableProperty(DefaultValue = "Здравствуй, товарищь", DefaultBindingMode = BindingModeDef.OneTime)]
-	public partial string TextProp { get; set; }
+	public partial string? TextProp { get; set; }
 
 	[BindableProperty(ValidateMethod = nameof(ValidateNumProp), CoerceMethod = "CoerceNumProp")]
 	internal partial int NumProp { get; set; }

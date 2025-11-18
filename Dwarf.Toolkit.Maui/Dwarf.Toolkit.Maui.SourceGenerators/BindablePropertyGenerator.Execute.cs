@@ -165,6 +165,7 @@ partial class BindablePropertyGenerator
 			token.ThrowIfCancellationRequested();
 
 			string fullyPropertyTypeName = propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
+			string realPropertyTypeName = propertySymbol.Type.GetFullyQualifiedName();
 
 			var needGeneratePartialValidation
 				= bindableAttrData.TryGetNamedArgument<string>(BindableAttributeNaming.ValidateMethodArg, out var validateMethodName)
@@ -181,6 +182,7 @@ partial class BindablePropertyGenerator
 			propertyInfo = new PropertyInfo(
 				propertySyntax.Kind(),
 				fullyPropertyTypeName,
+				realPropertyTypeName,
 				propertySymbol.Name,
 				propertyModifiers.AsUnderlyingType(),
 				propertySyntax.Modifiers.ContainsAnyAccessibilityModifiers() ? propertySymbol.DeclaredAccessibility : Accessibility.NotApplicable,
@@ -245,7 +247,8 @@ partial class BindablePropertyGenerator
 		public static ImmutableArray<MemberDeclarationSyntax> GetPropertySyntax(HierarchyInfo hInfo, PropertyInfo propertyInfo)
 		{
 			// Get the property type syntax
-			TypeSyntax propertyType = IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations);
+			TypeSyntax fullyPropertyType = IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations);
+			TypeSyntax realPropertyType = IdentifierName(propertyInfo.RealTypeName);
 
 			// Mark with GeneratedCode attribute
 			//
@@ -270,7 +273,7 @@ partial class BindablePropertyGenerator
 			using ImmutableArrayBuilder<ArgumentSyntax> bipCreateArgsBuilder = ImmutableArrayBuilder<ArgumentSyntax>.Rent();
 			bipCreateArgsBuilder.AddRange([
 				Argument(IdentifierName($"nameof({propertyInfo.PropertyName})")),
-				Argument(IdentifierName($"typeof({propertyInfo.TypeNameWithNullabilityAnnotations})")),
+				Argument(IdentifierName($"typeof({propertyInfo.RealTypeName})")),
 				Argument(IdentifierName($"typeof({hInfo.MetadataName})"))
 			]);
 
@@ -339,14 +342,14 @@ partial class BindablePropertyGenerator
 			//		get => (<PROPERY_TYPE>)GetValue(<PROPERY_NAME>Property);
 			//		set => SetValue(<PROPERY_NAME>Property, value);
 			// }
-			var propertyReference = PropertyDeclaration(propertyType, Identifier(propertyInfo.PropertyName))
+			var propertyReference = PropertyDeclaration(fullyPropertyType, Identifier(propertyInfo.PropertyName))
 					.AddAttributeLists(genCodeAttrMarker)
 					.WithLeadingTrivia(TriviaList(Comment("/// <inheritdoc/>")))
 					.WithModifiers(GetPropertyModifiers(propertyInfo))
 					.AddAccessorListAccessors(
 						AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
 							.WithExpressionBody(ArrowExpressionClause(
-								CastExpression(propertyType,
+								CastExpression(realPropertyType,
 									InvocationExpression(IdentifierName($"GetValue"),
 									ArgumentList(SeparatedList([
 										Argument(IdentifierName($"{propertyInfo.PropertyName}Property"))
@@ -383,14 +386,26 @@ partial class BindablePropertyGenerator
 			return propertyModifiers;
 		}
 
-		// Mark with GeneratedCode attribute
+		// Attribute markers for service generated code
 		// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
 		readonly static AttributeListSyntax GeneratedCodeAttrMarker = AttributeList(SingletonSeparatedList(
-						Attribute(IdentifierName("global::System.CodeDom.Compiler.GeneratedCode"))
-							.AddArgumentListArguments(
-								AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(BindablePropertyGenerator).FullName))),
-								AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(BindablePropertyGenerator).Assembly.GetName().Version.ToString()))))
-							));
+				Attribute(IdentifierName("global::System.CodeDom.Compiler.GeneratedCode"))
+					.AddArgumentListArguments(
+						AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(BindablePropertyGenerator).FullName))),
+						AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(BindablePropertyGenerator).Assembly.GetName().Version.ToString()))))
+					));
+		// [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+		readonly static AttributeListSyntax ExcludeFromCodeCoverageAttrMarker = AttributeList(SingletonSeparatedList(
+				Attribute(IdentifierName("global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage"))));
+		// [global::System.Diagnostics.DebuggerNonUserCode]
+		readonly static AttributeListSyntax NonUserCodeAttrMarker = AttributeList(SingletonSeparatedList(
+				Attribute(IdentifierName("global::System.Diagnostics.DebuggerNonUserCode"))));
+		// [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+		readonly static AttributeListSyntax NeverBrowsableAttrMarker = AttributeList(SingletonSeparatedList(
+				Attribute(IdentifierName("global::System.ComponentModel.EditorBrowsable"))
+					.AddArgumentListArguments(
+						AttributeArgument(ParseExpression("global::System.ComponentModel.EditorBrowsableState.Never")))
+					));
 
 		/// <summary>
 		/// Generate code for On<PropertyName>Changing and On<PropertyName>Changed handlers
@@ -452,7 +467,10 @@ partial class BindablePropertyGenerator
 						Parameter(Identifier("bindable")).WithType(IdentifierName("BindableObject")),
 						Parameter(Identifier("oldValue")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))),
 						Parameter(Identifier("newValue")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))))
-					.AddAttributeLists(GeneratedCodeAttrMarker)
+					.AddAttributeLists(GeneratedCodeAttrMarker,
+									ExcludeFromCodeCoverageAttrMarker,
+									NonUserCodeAttrMarker,
+									NeverBrowsableAttrMarker)
 					.WithBody(Block(List<StatementSyntax>([
 						instanceVarDeclaration,
 						ExpressionStatement(InvocationExpression(
@@ -460,15 +478,15 @@ partial class BindablePropertyGenerator
 								IdentifierName("_instance"),
 								IdentifierName(methodInfo.Name)))
 							.WithArgumentList(ArgumentList([
-								Argument(CastExpression(IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations), IdentifierName("newValue")))
+								Argument(CastExpression(IdentifierName(propertyInfo.RealTypeName), IdentifierName("newValue")))
 							]))),
 						ExpressionStatement(InvocationExpression(
 							MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
 								IdentifierName("_instance"),
 								IdentifierName(methodInfo.Name)))
 							.WithArgumentList(ArgumentList([
-								Argument(CastExpression(IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations), IdentifierName("oldValue"))),
-								Argument(CastExpression(IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations), IdentifierName("newValue")))
+								Argument(CastExpression(IdentifierName(propertyInfo.RealTypeName), IdentifierName("oldValue"))),
+								Argument(CastExpression(IdentifierName(propertyInfo.RealTypeName), IdentifierName("newValue")))
 							])))
 					])));
 			}
@@ -515,7 +533,10 @@ partial class BindablePropertyGenerator
 				.AddParameterListParameters(
 					Parameter(Identifier("bindable")).WithType(IdentifierName("BindableObject")),
 					Parameter(Identifier("value")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))))
-				.AddAttributeLists(GeneratedCodeAttrMarker)
+				.AddAttributeLists(GeneratedCodeAttrMarker,
+								ExcludeFromCodeCoverageAttrMarker,
+								NonUserCodeAttrMarker,
+								NeverBrowsableAttrMarker)
 				.WithBody(Block(List<StatementSyntax>([
 					instanceVarDeclaration,
 					ReturnStatement(InvocationExpression(
@@ -523,7 +544,7 @@ partial class BindablePropertyGenerator
 							IdentifierName("_instance"),
 							IdentifierName(validateMethodName)))
 						.WithArgumentList(ArgumentList([
-							Argument(CastExpression(IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations), IdentifierName("value")))
+							Argument(CastExpression(IdentifierName(propertyInfo.RealTypeName), IdentifierName("value")))
 						])))
 				])));
 		}
@@ -569,7 +590,10 @@ partial class BindablePropertyGenerator
 				.AddParameterListParameters(
 					Parameter(Identifier("bindable")).WithType(IdentifierName("BindableObject")),
 					Parameter(Identifier("value")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))))
-				.AddAttributeLists(GeneratedCodeAttrMarker)
+				.AddAttributeLists(GeneratedCodeAttrMarker,
+								ExcludeFromCodeCoverageAttrMarker,
+								NonUserCodeAttrMarker,
+								NeverBrowsableAttrMarker)
 				.WithBody(Block(List<StatementSyntax>([
 					instanceVarDeclaration,
 					ReturnStatement(InvocationExpression(
@@ -577,7 +601,7 @@ partial class BindablePropertyGenerator
 							IdentifierName("_instance"),
 							IdentifierName(coerceMethodName)))
 						.WithArgumentList(ArgumentList([
-							Argument(CastExpression(IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations), IdentifierName("value")))
+							Argument(CastExpression(IdentifierName(propertyInfo.RealTypeName), IdentifierName("value")))
 						])))
 				])));
 		}

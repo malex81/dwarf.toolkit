@@ -18,7 +18,7 @@ internal partial class CodegenTest
 			partial class Container : BindableObject
 			{
 				[BindableProperty]
-				partial string MyProp { get; set; }
+				partial string? MyProp { get; set; }
 	
 				partial void OnMyPropChanged(string val) {}
 			}
@@ -36,17 +36,20 @@ internal partial class CodegenTest
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-				partial string MyProp { get => (string)GetValue(MyPropProperty); set => SetValue(MyPropProperty, value); }
+				partial string? MyProp { get => (string)GetValue(MyPropProperty); set => SetValue(MyPropProperty, value); }
 
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
-				partial void OnMyPropChanging(string value);
+				partial void OnMyPropChanging(string? value);
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
-				partial void OnMyPropChanging(string oldValue, string newValue);
+				partial void OnMyPropChanging(string? oldValue, string? newValue);
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
-				partial void OnMyPropChanged(string value);
+				partial void OnMyPropChanged(string? value);
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
-				partial void OnMyPropChanged(string oldValue, string newValue);
+				partial void OnMyPropChanged(string? oldValue, string? newValue);
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				[global::System.Diagnostics.DebuggerNonUserCode]
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp_Changed(BindableObject bindable, object oldValue, object newValue)
 				{
 					var _instance = (Container)bindable;
@@ -278,6 +281,9 @@ internal partial class CodegenTest
 				partial string MyProp { get => (string)GetValue(MyPropProperty); set => SetValue(MyPropProperty, value); }
 
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				[global::System.Diagnostics.DebuggerNonUserCode]
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp_Changing(BindableObject bindable, object oldValue, object newValue)
 				{
 					var _instance = (Container)bindable;
@@ -286,6 +292,9 @@ internal partial class CodegenTest
 				}
 
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				[global::System.Diagnostics.DebuggerNonUserCode]
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp_Changed(BindableObject bindable, object oldValue, object newValue)
 				{
 					var _instance = (Container)bindable;
@@ -296,6 +305,9 @@ internal partial class CodegenTest
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				private partial bool MyPropValidation(string value);
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				[global::System.Diagnostics.DebuggerNonUserCode]
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static bool __MyProp_Validate(BindableObject bindable, object value)
 				{
 					var _instance = (Container)bindable;
@@ -345,6 +357,9 @@ internal partial class CodegenTest
 				partial string MyProp { get => (string)GetValue(MyPropProperty); set => SetValue(MyPropProperty, value); }
 
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				[global::System.Diagnostics.DebuggerNonUserCode]
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp_Changing(BindableObject bindable, object oldValue, object newValue)
 				{
 					var _instance = (Container)bindable;
@@ -353,6 +368,9 @@ internal partial class CodegenTest
 				}
 
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				[global::System.Diagnostics.DebuggerNonUserCode]
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp_Changed(BindableObject bindable, object oldValue, object newValue)
 				{
 					var _instance = (Container)bindable;
@@ -361,6 +379,9 @@ internal partial class CodegenTest
 				}
 
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				[global::System.Diagnostics.DebuggerNonUserCode]
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static bool __MyProp_Validate(BindableObject bindable, object value)
 				{
 					var _instance = (Container)bindable;
@@ -424,6 +445,9 @@ internal partial class CodegenTest
 				partial string MyProp2 { get => (string)GetValue(MyProp2Property); set => SetValue(MyProp2Property, value); }
 			
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				[global::System.Diagnostics.DebuggerNonUserCode]
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp_Changing(BindableObject bindable, object oldValue, object newValue)
 				{
 					var _instance = (Container)bindable;
@@ -432,6 +456,9 @@ internal partial class CodegenTest
 				}
 
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				[global::System.Diagnostics.DebuggerNonUserCode]
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp_Changed(BindableObject bindable, object oldValue, object newValue)
 				{
 					var _instance = (Container)bindable;
@@ -440,6 +467,9 @@ internal partial class CodegenTest
 				}
 
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				[global::System.Diagnostics.DebuggerNonUserCode]
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static object __MyProp_Coerce(BindableObject bindable, object value)
 				{
 					var _instance = (Container)bindable;
@@ -447,6 +477,9 @@ internal partial class CodegenTest
 				}
 
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				[global::System.Diagnostics.DebuggerNonUserCode]
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp2_Changing(BindableObject bindable, object oldValue, object newValue)
 				{
 					var _instance = (Container)bindable;
@@ -455,6 +488,9 @@ internal partial class CodegenTest
 				}
 
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				[global::System.Diagnostics.DebuggerNonUserCode]
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp2_Changed(BindableObject bindable, object oldValue, object newValue)
 				{
 					var _instance = (Container)bindable;
@@ -465,6 +501,9 @@ internal partial class CodegenTest
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				private partial string MyProp2Coerce(string value);
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				[global::System.Diagnostics.DebuggerNonUserCode]
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static object __MyProp2_Coerce(BindableObject bindable, object value)
 				{
 					var _instance = (Container)bindable;

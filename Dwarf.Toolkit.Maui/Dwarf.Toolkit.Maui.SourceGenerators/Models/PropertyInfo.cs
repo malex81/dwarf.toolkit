@@ -24,6 +24,7 @@ sealed record ChangeMethodInfo(string Name, MethodExist Exist1, MethodExist Exis
 internal sealed record PropertyInfo(
 	SyntaxKind AnnotatedMemberKind,
 	string TypeNameWithNullabilityAnnotations,
+	string RealTypeName,
 	string PropertyName,
 	EquatableArray<ushort> PropertyModifers,
 	Accessibility PropertyAccessibility,
