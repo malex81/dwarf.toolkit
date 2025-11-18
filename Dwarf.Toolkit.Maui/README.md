@@ -1,6 +1,6 @@
 # Dwarf.Toolkit.Maui
 
-Set of helpers for MAUI
+Helper for MAUI BindablePropery
 
 - [Nuget package](https://www.nuget.org/packages/Dwarf.Toolkit.Maui/)
 - [Source code](https://github.com/malex81/dwarf.toolkit/tree/main/Dwarf.Toolkit.Maui)
