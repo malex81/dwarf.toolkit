@@ -29,6 +29,8 @@ internal partial class ExampleBindableObject : BindableObject
 	}
 	#endregion
 
+	//public static partial string? GetOuterText(Label target);
+
 	public ExampleBindableObject()
 	{
 		var example = Example;
@@ -43,6 +45,13 @@ internal partial class ExampleBindableObject : BindableObject
 	private bool ValidateCustomType(CustomType value)
 	{
 		return true;
+	}
+
+	[BindableProperty]
+	partial object ObjProp { get; set; }
+
+	partial void OnObjPropChanged(object oldValue, object newValue)
+	{
 	}
 
 	[BindableProperty(DefaultValue = "Здравствуй, товарищь", DefaultBindingMode = BindingModeDef.OneTime)]
@@ -63,7 +72,7 @@ internal partial class ExampleBindableObject : BindableObject
 
 	private int CoerceNumProp(int value)
 	{
-		return value - 2;
+		return value + 1;
 	}
 
 	void OnNumPropChanged(int val)

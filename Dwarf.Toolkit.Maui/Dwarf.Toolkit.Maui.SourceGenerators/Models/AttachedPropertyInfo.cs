@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Dwarf.Toolkit.Maui.SourceGenerators.Models;
 
+
 /// <summary>
 /// A model representing an generated property
 /// </summary>
@@ -17,14 +18,14 @@ namespace Dwarf.Toolkit.Maui.SourceGenerators.Models;
 /// <param name="TypeNameWithNullabilityAnnotations">The type name for the generated property, including nullability annotations.</param>
 /// <param name="PropertyName">The generated property name.</param>
 /// <param name="PropertyModifers">The list of additional modifiers for the property (they are <see cref="SyntaxKind"/> values).</param>
-/// <param name="PropertyAccessibility">The accessibility of the property.</param>
-internal sealed record PropertyInfo(
+/// <param name="GetMethodAccessibility">The accessibility of the property.</param>
+internal sealed record AttachedPropertyInfo(
 	SyntaxKind AnnotatedMemberKind,
 	string TypeNameWithNullabilityAnnotations,
 	string RealTypeName,
 	string PropertyName,
 	EquatableArray<ushort> PropertyModifers,
-	Accessibility PropertyAccessibility,
+	Accessibility GetMethodAccessibility,
 	AttributeInfo BindableAttribute,
 	ChangeMethodInfo ChangingMethodInfo,
 	ChangeMethodInfo ChangedMethodInfo,

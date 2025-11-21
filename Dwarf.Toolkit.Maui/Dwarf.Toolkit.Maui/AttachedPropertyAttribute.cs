@@ -1,9 +1,10 @@
 ﻿namespace Dwarf.Toolkit.Maui;
 /// <summary>
-/// Attribute must be applied to partial property
+/// Attribute must be applied to a static partial method with signature
+/// [public] static partial <valueType> GetPropertyName(BindableObject target);
 /// </summary>
-[AttributeUsage(AttributeTargets.Property)]
-public sealed class BindablePropertyAttribute : Attribute
+[AttributeUsage(AttributeTargets.Method)]
+public sealed class AttachedPropertyAttribute : Attribute
 {
 	public object? DefaultValue { get; set; }
 	public string? DefaultValueExpression { get; set; }

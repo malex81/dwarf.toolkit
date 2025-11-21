@@ -3,6 +3,7 @@
 static class BindableAttributeNaming
 {
 	public const string FullyQualifiedName = "Dwarf.Toolkit.Maui.BindablePropertyAttribute";
+	public const string AttachedFullyQualifiedName = "Dwarf.Toolkit.Maui.AttachedPropertyAttribute";
 	public const string DefaultValueArg = "DefaultValue";
 	public const string DefaultValueExpressionArg = "DefaultValueExpression";
 	public const string DefaultBindingModeArg = "DefaultBindingMode";

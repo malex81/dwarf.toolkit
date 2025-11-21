@@ -349,12 +349,10 @@ partial class BindablePropertyGenerator
 					.AddAccessorListAccessors(
 						AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
 							.WithExpressionBody(ArrowExpressionClause(
-								CastExpression(realPropertyType,
-									InvocationExpression(IdentifierName($"GetValue"),
+								InvocationExpression(IdentifierName($"GetValue"),
 									ArgumentList(SeparatedList([
 										Argument(IdentifierName($"{propertyInfo.PropertyName}Property"))
-										]))
-								))))
+									]))).CastIfNeed(propertyInfo.RealTypeName, CommonTypes.Object)))
 							.WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
 						AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
 							.WithExpressionBody(ArrowExpressionClause(
@@ -478,15 +476,15 @@ partial class BindablePropertyGenerator
 								IdentifierName("_instance"),
 								IdentifierName(methodInfo.Name)))
 							.WithArgumentList(ArgumentList([
-								Argument(CastExpression(IdentifierName(propertyInfo.RealTypeName), IdentifierName("newValue")))
+								Argument(IdentifierName("newValue").CastIfNeed(propertyInfo.RealTypeName, CommonTypes.Object))
 							]))),
 						ExpressionStatement(InvocationExpression(
 							MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
 								IdentifierName("_instance"),
 								IdentifierName(methodInfo.Name)))
 							.WithArgumentList(ArgumentList([
-								Argument(CastExpression(IdentifierName(propertyInfo.RealTypeName), IdentifierName("oldValue"))),
-								Argument(CastExpression(IdentifierName(propertyInfo.RealTypeName), IdentifierName("newValue")))
+								Argument(IdentifierName("oldValue").CastIfNeed(propertyInfo.RealTypeName, CommonTypes.Object)),
+								Argument(IdentifierName("newValue").CastIfNeed(propertyInfo.RealTypeName, CommonTypes.Object))
 							])))
 					])));
 			}
@@ -544,7 +542,7 @@ partial class BindablePropertyGenerator
 							IdentifierName("_instance"),
 							IdentifierName(validateMethodName)))
 						.WithArgumentList(ArgumentList([
-							Argument(CastExpression(IdentifierName(propertyInfo.RealTypeName), IdentifierName("value")))
+							Argument(IdentifierName("value").CastIfNeed(propertyInfo.RealTypeName, CommonTypes.Object))
 						])))
 				])));
 		}
@@ -601,7 +599,7 @@ partial class BindablePropertyGenerator
 							IdentifierName("_instance"),
 							IdentifierName(coerceMethodName)))
 						.WithArgumentList(ArgumentList([
-							Argument(CastExpression(IdentifierName(propertyInfo.RealTypeName), IdentifierName("value")))
+							Argument(IdentifierName("value").CastIfNeed(propertyInfo.RealTypeName, CommonTypes.Object))
 						])))
 				])));
 		}
