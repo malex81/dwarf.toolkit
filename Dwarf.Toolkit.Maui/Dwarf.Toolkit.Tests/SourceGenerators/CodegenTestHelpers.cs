@@ -9,7 +9,7 @@ using Microsoft.Maui.Controls;
 
 namespace Dwarf.Toolkit.Tests.SourceGenerators;
 
-partial class CodegenTest
+static class CodegenTestHelpers
 {
 	const string TestOutputDirectory = "../../GeneratingTestOutput";
 
@@ -19,7 +19,7 @@ partial class CodegenTest
 	/// <param name="source">The input source to process.</param>
 	/// <param name="generators">The generators to apply to the input syntax tree.</param>
 	/// <param name="results">The source files to compare.</param>
-	private static void VerifyGenerateSources(string source, IIncrementalGenerator[] generators, params (string filename, string? text)[] results)
+	public static void VerifyGenerateSources(string source, IIncrementalGenerator[] generators, params (string filename, string? text)[] results)
 	{
 		VerifyGenerateSources(source, generators, LanguageVersion.CSharp13, results);
 	}
@@ -31,7 +31,7 @@ partial class CodegenTest
 	/// <param name="generators">The generators to apply to the input syntax tree.</param>
 	/// <param name="languageVersion">The language version to use.</param>
 	/// <param name="results">The source files to compare.</param>
-	private static void VerifyGenerateSources(string source, IIncrementalGenerator[] generators, LanguageVersion languageVersion, params (string filename, string? text)[] results)
+	public static void VerifyGenerateSources(string source, IIncrementalGenerator[] generators, LanguageVersion languageVersion, params (string filename, string? text)[] results)
 	{
 		// Ensure CommunityToolkit.Mvvm and System.ComponentModel.DataAnnotations are loaded
 		Type bindableObjectType = typeof(BindableObject);

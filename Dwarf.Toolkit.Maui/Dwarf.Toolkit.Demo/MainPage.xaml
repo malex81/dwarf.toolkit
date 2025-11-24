@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 xmlns:bunny="clr-namespace:Dwarf.Toolkit.Demo.Bunnies"
              x:Class="Dwarf.Toolkit.Demo.MainPage">
 
     <ScrollView>
@@ -13,7 +14,7 @@
                 Aspect="AspectFit"
                 SemanticProperties.Description="dot net bot in a race car number eight" />
 
-            <Label
+			<Label bunny:StaticBox.RegularGlyph="CirclePlay"
                 Text="Hello, World!"
                 Style="{StaticResource Headline}"
                 SemanticProperties.HeadingLevel="Level1" />

@@ -7,4 +7,5 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-DTKM0001 | Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator | Warning | `DefaultValueExprassion used with DefaultValue`
+DTKM0001 | BindablePropertyGenerator | Warning | `DefaultValueExprassion used with DefaultValue`
+DTKM0002 | BindablePropertyGenerator | Error | `Invalid method notation used with [AttachedProperty] attribute`

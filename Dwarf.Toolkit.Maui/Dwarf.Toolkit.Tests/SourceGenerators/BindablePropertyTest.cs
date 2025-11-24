@@ -2,9 +2,10 @@
 using NUnit.Framework;
 
 namespace Dwarf.Toolkit.Tests.SourceGenerators;
+using static CodegenTestHelpers;
 
 [TestFixture]
-internal partial class CodegenTest
+internal class BindablePropertyTest
 {
 	[TestCase]
 	public void SimpleBindableProperty()

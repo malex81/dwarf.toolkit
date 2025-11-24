@@ -4,7 +4,7 @@ internal static class CommonTypes
 {
 	public const string Object = "object";
 	public const string String = "string";
-	public const string Boolean = "boolean";
+	public const string Boolean = "bool";
 	public const string BindableObject = "Microsoft.Maui.Controls.BindableObject";
 	public const string BindableProperty = "Microsoft.Maui.Controls.BindableProperty";
 }
