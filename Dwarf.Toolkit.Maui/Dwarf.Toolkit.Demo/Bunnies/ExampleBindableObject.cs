@@ -2,7 +2,7 @@
 
 namespace Dwarf.Toolkit.Demo.Bunnies;
 
-internal partial class ExampleBindableObject : BindableObject
+internal sealed partial class ExampleBindableObject : BindableObject
 {
 	public record CustomType(int Num, string Text);
 
@@ -67,6 +67,7 @@ internal partial class ExampleBindableObject : BindableObject
 			CustomProp = CustomProp with { Num = value };
 			return false;
 		}
+		TextProp = StaticBox.GetOuterText(this);
 		return true;
 	}
 

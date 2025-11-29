@@ -246,10 +246,6 @@ partial class BindablePropertyGenerator
 		/// <returns>The generated <see cref="MemberDeclarationSyntax"/> instance for <paramref name="propertyInfo"/>.</returns>
 		public static ImmutableArray<MemberDeclarationSyntax> GetPropertySyntax(HierarchyInfo hInfo, PropertyInfo propertyInfo)
 		{
-			// Get the property type syntax
-			TypeSyntax fullyPropertyType = IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations);
-			TypeSyntax realPropertyType = IdentifierName(propertyInfo.RealTypeName);
-
 			// Mark with GeneratedCode attribute
 			//
 			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
@@ -330,7 +326,12 @@ partial class BindablePropertyGenerator
 					VariableDeclaration(bipType, SingletonSeparatedList(
 						VariableDeclarator(Identifier($"{propertyInfo.PropertyName}Property"), null, bipEqualsClause)
 						)))
-				.AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.ReadOnlyKeyword));
+				.AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.ReadOnlyKeyword))
+				.WithLeadingTrivia(TriviaList(
+						Comment("/// <summary>"),
+						Comment($"/// Creates a bindable property named {propertyInfo.PropertyName}, of type <see cref=\"{propertyInfo.RealTypeName}\"/>"),
+						Comment("/// </summary>")));
+
 
 			// Construct the generated property as follows:
 			//
@@ -342,7 +343,8 @@ partial class BindablePropertyGenerator
 			//		get => (<PROPERY_TYPE>)GetValue(<PROPERY_NAME>Property);
 			//		set => SetValue(<PROPERY_NAME>Property, value);
 			// }
-			var propertyReference = PropertyDeclaration(fullyPropertyType, Identifier(propertyInfo.PropertyName))
+			var propertyReference = PropertyDeclaration(IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations),
+															Identifier(propertyInfo.PropertyName))
 					.AddAttributeLists(genCodeAttrMarker)
 					.WithLeadingTrivia(TriviaList(Comment("/// <inheritdoc/>")))
 					.WithModifiers(GetPropertyModifiers(propertyInfo))
@@ -436,7 +438,7 @@ partial class BindablePropertyGenerator
 			if (methodInfo.Exist2 != MethodExist.ExistNoPartial)
 			{
 				// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
-				// partial void On<PROPERTY_NAME><Changing/Changed>(<OLD_VALUE_TYPE> oldValue, <PROPERTY_TYPE> newValue);
+				// partial void On<PROPERTY_NAME><Changing/Changed>(<PROPERTY_TYPE> oldValue, <PROPERTY_TYPE> newValue);
 				yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(methodInfo.Name))
 					.AddModifiers(Token(SyntaxKind.PartialKeyword))
 					.AddParameterListParameters(

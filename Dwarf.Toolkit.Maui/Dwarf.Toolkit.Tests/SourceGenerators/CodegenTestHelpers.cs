@@ -13,6 +13,20 @@ static class CodegenTestHelpers
 {
 	const string TestOutputDirectory = "../../GeneratingTestOutput";
 
+	public static void ClearOutputDirectory()
+	{
+		Directory.CreateDirectory(TestOutputDirectory);
+		var dir = new DirectoryInfo(TestOutputDirectory);
+		foreach (FileInfo file in dir.GetFiles())
+		{
+			try { file.Delete(); }
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Не удалось удалить файл {file.FullName}: {ex.Message}");
+			}
+		}
+	}
+
 	/// <summary>
 	/// Generates the requested sources
 	/// </summary>
@@ -74,13 +88,7 @@ static class CodegenTestHelpers
 				var testFilePath = Path.Combine(TestOutputDirectory, fileName);
 				if (expectedText != generatedCode)
 				{
-					Directory.CreateDirectory(TestOutputDirectory);
 					File.WriteAllText(testFilePath, generatedCode);
-				}
-				else
-				{
-					if (File.Exists(testFilePath))
-						File.Delete(testFilePath);
 				}
 				Assert.That(expectedText, Is.EqualTo(generatedCode));
 			}

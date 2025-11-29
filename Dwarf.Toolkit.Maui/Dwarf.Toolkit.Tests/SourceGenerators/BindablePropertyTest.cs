@@ -33,6 +33,9 @@ internal class BindablePropertyTest
 			/// <inheritdoc/>
 			partial class Container
 			{
+				/// <summary>
+				/// Creates a bindable property named MyProp, of type <see cref="string"/>
+				/// </summary>
 				public static readonly BindableProperty MyPropProperty = BindableProperty.Create(nameof(MyProp), typeof(string), typeof(Container), propertyChanged: __MyProp_Changed);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
@@ -90,12 +93,18 @@ internal class BindablePropertyTest
 			/// <inheritdoc/>
 			partial class Container
 			{
+				/// <summary>
+				/// Creates a bindable property named TextProp, of type <see cref="string"/>
+				/// </summary>
 				public static readonly BindableProperty TextPropProperty = BindableProperty.Create(nameof(TextProp), typeof(string), typeof(Container));
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 				public partial string TextProp { get => (string)GetValue(TextPropProperty); set => SetValue(TextPropProperty, value); }
 			
+				/// <summary>
+				/// Creates a bindable property named NumProp, of type <see cref="int?"/>
+				/// </summary>
 				public static readonly BindableProperty NumPropProperty = BindableProperty.Create(nameof(NumProp), typeof(int?), typeof(Container));
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
@@ -151,12 +160,18 @@ internal class BindablePropertyTest
 			/// <inheritdoc/>
 			partial class Container
 			{
+				/// <summary>
+				/// Creates a bindable property named TextProp, of type <see cref="string"/>
+				/// </summary>
 				public static readonly BindableProperty TextPropProperty = BindableProperty.Create(nameof(TextProp), typeof(string), typeof(Container), defaultValue: "Привет, Вася!", defaultBindingMode: (global::Microsoft.Maui.Controls.BindingMode)3);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 				public partial string TextProp { get => (string)GetValue(TextPropProperty); set => SetValue(TextPropProperty, value); }
 			
+				/// <summary>
+				/// Creates a bindable property named FloatProp, of type <see cref="float"/>
+				/// </summary>
 				public static readonly BindableProperty FloatPropProperty = BindableProperty.Create(nameof(FloatProp), typeof(float), typeof(Container), defaultValue: 3.14159F);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
@@ -212,12 +227,18 @@ internal class BindablePropertyTest
 			/// <inheritdoc/>
 			partial class Container
 			{
+				/// <summary>
+				/// Creates a bindable property named DateTimeProp, of type <see cref="DateTime"/>
+				/// </summary>
 				public static readonly BindableProperty DateTimePropProperty = BindableProperty.Create(nameof(DateTimeProp), typeof(DateTime), typeof(Container), defaultValue: DateTime.Now);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 				public partial DateTime DateTimeProp { get => (DateTime)GetValue(DateTimePropProperty); set => SetValue(DateTimePropProperty, value); }
 			
+				/// <summary>
+				/// Creates a bindable property named FloatProp, of type <see cref="float"/>
+				/// </summary>
 				public static readonly BindableProperty FloatPropProperty = BindableProperty.Create(nameof(FloatProp), typeof(float), typeof(Container), defaultValue: 3.14159);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
@@ -275,6 +296,9 @@ internal class BindablePropertyTest
 			/// <inheritdoc/>
 			partial class Container
 			{
+				/// <summary>
+				/// Creates a bindable property named MyProp, of type <see cref="string"/>
+				/// </summary>
 				public static readonly BindableProperty MyPropProperty = BindableProperty.Create(nameof(MyProp), typeof(string), typeof(Container), propertyChanging: __MyProp_Changing, propertyChanged: __MyProp_Changed, validateValue: __MyProp_Validate);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
@@ -351,6 +375,9 @@ internal class BindablePropertyTest
 			/// <inheritdoc/>
 			partial class Container
 			{
+				/// <summary>
+				/// Creates a bindable property named MyProp, of type <see cref="string"/>
+				/// </summary>
 				public static readonly BindableProperty MyPropProperty = BindableProperty.Create(nameof(MyProp), typeof(string), typeof(Container), propertyChanging: __MyProp_Changing, propertyChanged: __MyProp_Changed, validateValue: __MyProp_Validate);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
@@ -433,12 +460,18 @@ internal class BindablePropertyTest
 			/// <inheritdoc/>
 			partial class Container
 			{
+				/// <summary>
+				/// Creates a bindable property named MyProp, of type <see cref="string"/>
+				/// </summary>
 				public static readonly BindableProperty MyPropProperty = BindableProperty.Create(nameof(MyProp), typeof(string), typeof(Container), propertyChanging: __MyProp_Changing, propertyChanged: __MyProp_Changed, coerceValue: __MyProp_Coerce);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 				partial string MyProp { get => (string)GetValue(MyPropProperty); set => SetValue(MyPropProperty, value); }
 
+				/// <summary>
+				/// Creates a bindable property named MyProp2, of type <see cref="string"/>
+				/// </summary>
 				public static readonly BindableProperty MyProp2Property = BindableProperty.Create(nameof(MyProp2), typeof(string), typeof(Container), propertyChanging: __MyProp2_Changing, propertyChanged: __MyProp2_Changed, coerceValue: __MyProp2_Coerce);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]

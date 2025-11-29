@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Dwarf.Toolkit.Maui.SourceGenerators;
@@ -74,6 +75,8 @@ partial class AttachedPropertyGenerator
 			// We assume all other cases are supported (other failure cases will be detected later)
 			return true;
 		}
+		static bool IsBindableObjectFirstParameter(IMethodSymbol method)
+			=> method.Parameters.Any() && method.Parameters[0].Type.HasOrInheritsFromFullyQualifiedMetadataName(CommonTypes.BindableObject);
 		/// <summary>
 		/// Used for Changing and Changed methods
 		/// </summary>
@@ -89,9 +92,12 @@ partial class AttachedPropertyGenerator
 				return hasPartial ? MethodExist.ExistPartial : MethodExist.ExistNoPartial;
 			}
 
-			var methods = context.TargetSymbol.ContainingType.GetMembers(name).Where(m => m is IMethodSymbol).Select(m => (IMethodSymbol)m).ToArray();
-			var method1 = methods.FirstOrDefault(m => m.Parameters.Length == 1);
-			var method2 = methods.FirstOrDefault(m => m.Parameters.Length == 2);
+			var methods = context.TargetSymbol.ContainingType
+				.GetMembers(name)
+				.Where(m => m.IsStatic && m is IMethodSymbol mth && mth.Parameters.Length is (2 or 3) && IsBindableObjectFirstParameter(mth))
+				.Select(m => (IMethodSymbol)m).ToArray();
+			var method1 = methods.FirstOrDefault(m => m.Parameters.Length == 2);
+			var method2 = methods.FirstOrDefault(m => m.Parameters.Length == 3);
 
 			return new(name, CheckPartial(method1), CheckPartial(method2));
 		}
@@ -107,17 +113,17 @@ partial class AttachedPropertyGenerator
 			=> context.TargetSymbol.ContainingType.GetMembers(name)
 				.Any(s =>
 				{
-					if (s is not IMethodSymbol m || m.HasPartialModifier())
+					if (s is not IMethodSymbol m || !m.IsStatic || m.HasPartialModifier())
 						return false;
 
 					if (!m.ReturnType.HasFullyQualifiedName(returnType))
 						return false;
 
-					if (m.Parameters.Length != prmTypes.Length)
+					if (!IsBindableObjectFirstParameter(m) || m.Parameters.Length != prmTypes.Length + 1)
 						return false;
 
 					for (int i = 0; i < prmTypes.Length; i++)
-						if (!m.Parameters[i].Type.HasFullyQualifiedName(prmTypes[i]))
+						if (!m.Parameters[i + 1].Type.HasFullyQualifiedName(prmTypes[i]))
 							return false;
 
 					return true;
@@ -158,7 +164,7 @@ partial class AttachedPropertyGenerator
 				return false;
 			}
 			targetType = method.Parameters[0].Type.GetFullyQualifiedName();
-			if (!method.Parameters[0].Type.HasOrInheritsFromFullyQualifiedMetadataName(CommonTypes.BindableObject))
+			if (!IsBindableObjectFirstParameter(method))
 			{
 				diagnostics.Add(
 					   DiagnosticDescriptors.InvalidGetMethodForAttachedProperty_Error,
@@ -221,7 +227,7 @@ partial class AttachedPropertyGenerator
 
 			token.ThrowIfCancellationRequested();
 
-			if(!TryParseSourceMethod(methodSymbol, diagnosticsBuilder, out var propertyName, out var targetTypeName))
+			if (!TryParseSourceMethod(methodSymbol, diagnosticsBuilder, out var propertyName, out var targetTypeName))
 			{
 				diagnostics = diagnosticsBuilder.ToImmutable();
 				return false;
@@ -292,6 +298,24 @@ partial class AttachedPropertyGenerator
 		}
 
 		/// <summary>
+		/// Gets all modifiers that need to be added to a generated methods.
+		/// </summary>
+		/// <param name="propertyInfo">The input <see cref="AttachedPropertyInfo"/> instance to process.</param>
+		/// <returns>The list of necessary modifiers for <paramref name="propertyInfo"/>.</returns>
+		private static SyntaxTokenList GetMethodModifiers(AttachedPropertyInfo propertyInfo, bool withPartial)
+		{
+			SyntaxTokenList propertyModifiers = propertyInfo.GetMethodAccessibility.ToSyntaxTokenList();
+			// Add all gathered modifiers
+			foreach (SyntaxKind modifier in propertyInfo.GetMethodModifers.AsImmutableArray().FromUnderlyingType())
+			{
+				propertyModifiers = propertyModifiers.Add(Token(modifier));
+			}
+			if (withPartial)
+				propertyModifiers = propertyModifiers.Add(Token(SyntaxKind.PartialKeyword));
+			return propertyModifiers;
+		}
+
+		/// <summary>
 		/// Gets the <see cref="MemberDeclarationSyntax"/> instance for the input field.
 		/// </summary>
 		/// <param name="hInfo">Contains information about class name</param>
@@ -299,10 +323,6 @@ partial class AttachedPropertyGenerator
 		/// <returns>The generated <see cref="MemberDeclarationSyntax"/> instance for <paramref name="propertyInfo"/>.</returns>
 		public static ImmutableArray<MemberDeclarationSyntax> GetPropertySyntax(HierarchyInfo hInfo, AttachedPropertyInfo propertyInfo)
 		{
-			// Get the property type syntax
-			TypeSyntax fullyPropertyType = IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations);
-			TypeSyntax realPropertyType = IdentifierName(propertyInfo.RealTypeName);
-
 			// Mark with GeneratedCode attribute
 			//
 			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
@@ -318,27 +338,26 @@ partial class AttachedPropertyGenerator
 			//
 			// Prepare for construct static BindableProperty:
 			//
-			TypeSyntax bipType = IdentifierName("BindableProperty");
-			var bipCreateAccess = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bipType, IdentifierName("Create"));
+			TypeSyntax bipType = IdentifierName(CommonTypes.BindableProperty);
+			var bipCreateAccess = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bipType, IdentifierName("CreateAttached"));
 			//
 			// Add arguments for BindableProperty.Create( ... )
 			//
 			using ImmutableArrayBuilder<ArgumentSyntax> bipCreateArgsBuilder = ImmutableArrayBuilder<ArgumentSyntax>.Rent();
+
+			var propDefaultExpressionSyntax
+				= propertyInfo.BindableAttribute.TryGetNamedArgumentInfo(BindableAttributeNaming.DefaultValueArg, out var defaultArgInfo) ? defaultArgInfo.GetSyntax()
+				: propertyInfo.BindableAttribute.TryGetNamedArgumentInfo(BindableAttributeNaming.DefaultValueExpressionArg, out var defaultExprArgInfo)
+					&& defaultExprArgInfo is TypedConstantInfo.Primitive.String defaultCodeInfo ? ParseExpression(defaultCodeInfo.Value)
+				: IdentifierName("default");
+
 			bipCreateArgsBuilder.AddRange([
-				Argument(IdentifierName($"nameof({propertyInfo.PropertyName})")),
+				Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(propertyInfo.PropertyName))),
 				Argument(IdentifierName($"typeof({propertyInfo.RealTypeName})")),
-				Argument(IdentifierName($"typeof({hInfo.MetadataName})"))
+				Argument(IdentifierName($"typeof({hInfo.MetadataName})")),
+				Argument(propDefaultExpressionSyntax)
 			]);
 
-			if (propertyInfo.BindableAttribute.TryGetNamedArgumentInfo(BindableAttributeNaming.DefaultValueArg, out var defaultArgInfo))
-			{
-				bipCreateArgsBuilder.Add(Argument(NameColon(IdentifierName("defaultValue")), default, defaultArgInfo.GetSyntax()));
-			}
-			else if (propertyInfo.BindableAttribute.TryGetNamedArgumentInfo(BindableAttributeNaming.DefaultValueExpressionArg, out var defaultExprArgInfo)
-				&& defaultExprArgInfo is TypedConstantInfo.Primitive.String defaultCodeInfo)
-			{
-				bipCreateArgsBuilder.Add(Argument(NameColon(IdentifierName("defaultValue")), default, ParseExpression(defaultCodeInfo.Value)));
-			}
 			if (propertyInfo.BindableAttribute.TryGetNamedArgumentInfo(BindableAttributeNaming.DefaultBindingModeArg, out var defBindModeInfo)
 				&& defBindModeInfo is TypedConstantInfo.Enum bindingModeEnum)
 			{
@@ -383,58 +402,57 @@ partial class AttachedPropertyGenerator
 					VariableDeclaration(bipType, SingletonSeparatedList(
 						VariableDeclarator(Identifier($"{propertyInfo.PropertyName}Property"), null, bipEqualsClause)
 						)))
-				.AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.ReadOnlyKeyword));
+				.AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.ReadOnlyKeyword))
+				.WithLeadingTrivia(TriviaList(
+						Comment("/// <summary>"),
+						Comment($"/// Creates an attached property named {propertyInfo.PropertyName}, of type <see cref=\"{propertyInfo.RealTypeName}\"/>"),
+						Comment("/// </summary>")));
 
-			// Construct the generated property as follows:
+			// Construct methods Get<PROPERTY_NAME>:
 			//
 			// /// <inheritdoc/>
 			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
 			// [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-			// partial <PROPERY_TYPE> <PROPERTY_NAME>
-			// {
-			//		get => (<PROPERY_TYPE>)GetValue(<PROPERY_NAME>Property);
-			//		set => SetValue(<PROPERY_NAME>Property, value);
-			// }
-			var propertyReference = PropertyDeclaration(fullyPropertyType, Identifier(propertyInfo.PropertyName))
+			// public partial <PROPERY_TYPE> Get<PROPERTY_NAME>(BindableObject target) => (<PROPERY_TYPE>)target.GetValue(<PROPERY_NAME>Property);
+			var getMethodDeclaration = MethodDeclaration(IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations), $"Get{propertyInfo.PropertyName}")
 					.AddAttributeLists(genCodeAttrMarker)
 					.WithLeadingTrivia(TriviaList(Comment("/// <inheritdoc/>")))
-					.WithModifiers(GetMethodModifiers(propertyInfo))
-					.AddAccessorListAccessors(
-						AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-							.WithExpressionBody(ArrowExpressionClause(
-								InvocationExpression(IdentifierName($"GetValue"),
-									ArgumentList(SeparatedList([
-										Argument(IdentifierName($"{propertyInfo.PropertyName}Property"))
-									]))).CastIfNeed(propertyInfo.RealTypeName, CommonTypes.Object)))
-							.WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
-						AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-							.WithExpressionBody(ArrowExpressionClause(
-								InvocationExpression(IdentifierName($"SetValue"),
-								ArgumentList(SeparatedList([
+					.WithModifiers(GetMethodModifiers(propertyInfo, true))
+					.AddParameterListParameters(Parameter(Identifier("target")).WithType(IdentifierName(propertyInfo.TargetTypeName)))
+					.WithExpressionBody(ArrowExpressionClause(
+						InvocationExpression(
+							MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+									IdentifierName("target"),
+									IdentifierName("GetValue")),
+							ArgumentList(SeparatedList([
+									Argument(IdentifierName($"{propertyInfo.PropertyName}Property"))
+								]))).CastIfNeed(propertyInfo.RealTypeName, CommonTypes.Object)))
+					.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+
+			// Construct methods Set<PROPERTY_NAME>:
+			//
+			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
+			// [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+			// public static void Set<PROPERTY_NAME>(BindableObject target, <PROPERY_TYPE> value) => target.SetValue(<PROPERY_NAME>Property, value);
+			var setMethodDeclaration = MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), $"Set{propertyInfo.PropertyName}")
+					.AddAttributeLists(genCodeAttrMarker)
+					.WithModifiers(GetMethodModifiers(propertyInfo, false))
+					.AddParameterListParameters(
+						Parameter(Identifier("target")).WithType(IdentifierName(propertyInfo.TargetTypeName)),
+						Parameter(Identifier("value")).WithType(IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations)))
+					.WithExpressionBody(ArrowExpressionClause(
+						InvocationExpression(
+							MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+									IdentifierName("target"),
+									IdentifierName("SetValue")),
+							ArgumentList(SeparatedList([
 									Argument(IdentifierName($"{propertyInfo.PropertyName}Property")),
 									Argument(IdentifierName("value"))
-									]))
-								)))
-							.WithSemicolonToken(Token(SyntaxKind.SemicolonToken)));
+								]))
+							)))
+					.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 
-			return [staticFiealdDeclaration, propertyReference];
-		}
-
-		/// <summary>
-		/// Gets all modifiers that need to be added to a generated methods.
-		/// </summary>
-		/// <param name="propertyInfo">The input <see cref="AttachedPropertyInfo"/> instance to process.</param>
-		/// <returns>The list of necessary modifiers for <paramref name="propertyInfo"/>.</returns>
-		private static SyntaxTokenList GetMethodModifiers(AttachedPropertyInfo propertyInfo)
-		{
-			SyntaxTokenList propertyModifiers = propertyInfo.GetMethodAccessibility.ToSyntaxTokenList();
-			// Add all gathered modifiers
-			foreach (SyntaxKind modifier in propertyInfo.GetMethodModifers.AsImmutableArray().FromUnderlyingType())
-			{
-				propertyModifiers = propertyModifiers.Add(Token(modifier));
-			}
-			propertyModifiers = propertyModifiers.Add(Token(SyntaxKind.PartialKeyword));
-			return propertyModifiers;
+			return [staticFiealdDeclaration, getMethodDeclaration, setMethodDeclaration];
 		}
 
 		// Attribute markers for service generated code
@@ -478,10 +496,12 @@ partial class AttachedPropertyGenerator
 			if (methodInfo.Exist1 != MethodExist.ExistNoPartial)
 			{
 				// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
-				// partial void On<PROPERTY_NAME><Changing/Changed>(<PROPERTY_TYPE> value);
+				// partial void On<PROPERTY_NAME><Changing/Changed>(BindableObject target, <PROPERTY_TYPE> value);
 				yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(methodInfo.Name))
-					.AddModifiers(Token(SyntaxKind.PartialKeyword))
-					.AddParameterListParameters(Parameter(Identifier("value")).WithType(parameterType))
+					.AddModifiers(Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.PartialKeyword))
+					.AddParameterListParameters(
+						Parameter(Identifier("target")).WithType(IdentifierName(propertyInfo.TargetTypeName)),
+						Parameter(Identifier("value")).WithType(parameterType))
 					.AddAttributeLists(GeneratedCodeAttrMarker)
 					.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 			}
@@ -489,10 +509,11 @@ partial class AttachedPropertyGenerator
 			if (methodInfo.Exist2 != MethodExist.ExistNoPartial)
 			{
 				// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
-				// partial void On<PROPERTY_NAME><Changing/Changed>(<OLD_VALUE_TYPE> oldValue, <PROPERTY_TYPE> newValue);
+				// partial void On<PROPERTY_NAME><Changing/Changed>(BindableObject target, <PROPERTY_TYPE> oldValue, <PROPERTY_TYPE> newValue);
 				yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(methodInfo.Name))
-					.AddModifiers(Token(SyntaxKind.PartialKeyword))
+					.AddModifiers(Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.PartialKeyword))
 					.AddParameterListParameters(
+						Parameter(Identifier("target")).WithType(IdentifierName(propertyInfo.TargetTypeName)),
 						Parameter(Identifier("oldValue")).WithType(parameterType),
 						Parameter(Identifier("newValue")).WithType(parameterType))
 					.AddAttributeLists(GeneratedCodeAttrMarker)

@@ -33,5 +33,7 @@ internal static partial class StaticBox
 			return;
 	}
 
+	public static partial string? GetOuterText(BindableObject target);
+
 	#endregion
 }
