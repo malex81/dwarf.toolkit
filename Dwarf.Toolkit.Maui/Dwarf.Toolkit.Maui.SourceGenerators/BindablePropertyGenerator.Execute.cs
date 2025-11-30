@@ -451,7 +451,7 @@ partial class BindablePropertyGenerator
 			if (methodInfo.Exist1 != MethodExist.No || methodInfo.Exist2 != MethodExist.No)
 			{
 				//
-				// var instance = (MyClass)bindable;
+				// var _instance = (MyClass)bindable;
 				//
 				var instanceVarDeclaration = LocalDeclarationStatement(
 					VariableDeclaration(ParseTypeName("var"))

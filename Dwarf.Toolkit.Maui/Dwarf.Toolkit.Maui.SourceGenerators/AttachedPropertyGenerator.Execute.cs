@@ -485,7 +485,6 @@ partial class AttachedPropertyGenerator
 		/// <param name="methodInfo"></param>
 		/// <returns></returns>
 		static IEnumerable<MemberDeclarationSyntax> GenerateChangeHandlers(
-			HierarchyInfo hInfo,
 			AttachedPropertyInfo propertyInfo,
 			string serviceMethodName,
 			ChangeMethodInfo methodInfo)
@@ -522,17 +521,6 @@ partial class AttachedPropertyGenerator
 
 			if (methodInfo.Exist1 != MethodExist.No || methodInfo.Exist2 != MethodExist.No)
 			{
-				//
-				// var instance = (MyClass)bindable;
-				//
-				var instanceVarDeclaration = LocalDeclarationStatement(
-					VariableDeclaration(ParseTypeName("var"))
-					.WithVariables(SingletonSeparatedList(
-						VariableDeclarator(Identifier("_instance"))
-						.WithInitializer(EqualsValueClause(
-							CastExpression(IdentifierName(hInfo.MetadataName), IdentifierName("bindable"))
-						)))));
-
 				yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(serviceMethodName))
 					.AddModifiers(Token(SyntaxKind.StaticKeyword))
 					.AddParameterListParameters(
@@ -544,19 +532,14 @@ partial class AttachedPropertyGenerator
 									NonUserCodeAttrMarker,
 									NeverBrowsableAttrMarker)
 					.WithBody(Block(List<StatementSyntax>([
-						instanceVarDeclaration,
-						ExpressionStatement(InvocationExpression(
-							MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-								IdentifierName("_instance"),
-								IdentifierName(methodInfo.Name)))
+						ExpressionStatement(InvocationExpression(IdentifierName(methodInfo.Name))
 							.WithArgumentList(ArgumentList([
+								Argument(IdentifierName("bindable").CastIfNeed(propertyInfo.TargetTypeName, CommonTypes.BindableObject)),
 								Argument(IdentifierName("newValue").CastIfNeed(propertyInfo.RealTypeName, CommonTypes.Object))
 							]))),
-						ExpressionStatement(InvocationExpression(
-							MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-								IdentifierName("_instance"),
-								IdentifierName(methodInfo.Name)))
+						ExpressionStatement(InvocationExpression(IdentifierName(methodInfo.Name))
 							.WithArgumentList(ArgumentList([
+								Argument(IdentifierName("bindable").CastIfNeed(propertyInfo.TargetTypeName, CommonTypes.BindableObject)),
 								Argument(IdentifierName("oldValue").CastIfNeed(propertyInfo.RealTypeName, CommonTypes.Object)),
 								Argument(IdentifierName("newValue").CastIfNeed(propertyInfo.RealTypeName, CommonTypes.Object))
 							])))
@@ -682,8 +665,8 @@ partial class AttachedPropertyGenerator
 		{
 			var resultList = ImmutableArrayBuilder<MemberDeclarationSyntax>.Rent();
 
-			resultList.AddRange(GenerateChangeHandlers(hInfo, propertyInfo, propertyInfo.Srv_PropertyChanging, propertyInfo.ChangingMethodInfo).ToArray());
-			resultList.AddRange(GenerateChangeHandlers(hInfo, propertyInfo, propertyInfo.Srv_PropertyChanged, propertyInfo.ChangedMethodInfo).ToArray());
+			resultList.AddRange(GenerateChangeHandlers(propertyInfo, propertyInfo.Srv_PropertyChanging, propertyInfo.ChangingMethodInfo).ToArray());
+			resultList.AddRange(GenerateChangeHandlers(propertyInfo, propertyInfo.Srv_PropertyChanged, propertyInfo.ChangedMethodInfo).ToArray());
 			resultList.AddRange(GenerateValidateValueHandler(hInfo, propertyInfo).ToArray());
 			resultList.AddRange(GenerateCoerceValueHandler(hInfo, propertyInfo).ToArray());
 
