@@ -280,7 +280,8 @@ partial class AttachedPropertyGenerator
 				SyntaxKind.VirtualKeyword,
 				SyntaxKind.SealedKeyword,
 				SyntaxKind.OverrideKeyword,
-				SyntaxKind.RequiredKeyword
+				SyntaxKind.RequiredKeyword,
+				SyntaxKind.StaticKeyword,
 			];
 
 			using ImmutableArrayBuilder<SyntaxKind> builder = ImmutableArrayBuilder<SyntaxKind>.Rent();
@@ -338,7 +339,7 @@ partial class AttachedPropertyGenerator
 			//
 			// Prepare for construct static BindableProperty:
 			//
-			TypeSyntax bipType = IdentifierName(CommonTypes.BindableProperty);
+			TypeSyntax bipType = IdentifierName(CommonTypes.BindablePropertyGlob);
 			var bipCreateAccess = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bipType, IdentifierName("CreateAttached"));
 			//
 			// Add arguments for BindableProperty.Create( ... )
@@ -361,7 +362,7 @@ partial class AttachedPropertyGenerator
 			if (propertyInfo.BindableAttribute.TryGetNamedArgumentInfo(BindableAttributeNaming.DefaultBindingModeArg, out var defBindModeInfo)
 				&& defBindModeInfo is TypedConstantInfo.Enum bindingModeEnum)
 			{
-				var bindingModeMauiEnum = new TypedConstantInfo.Enum("global::Microsoft.Maui.Controls.BindingMode", bindingModeEnum.Value);
+				var bindingModeMauiEnum = new TypedConstantInfo.Enum(CommonTypes.BindingModeGlob, bindingModeEnum.Value);
 				bipCreateArgsBuilder.Add(Argument(NameColon(
 					IdentifierName("defaultBindingMode")),
 					default,
@@ -413,7 +414,7 @@ partial class AttachedPropertyGenerator
 			// /// <inheritdoc/>
 			// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
 			// [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-			// public partial <PROPERY_TYPE> Get<PROPERTY_NAME>(BindableObject target) => (<PROPERY_TYPE>)target.GetValue(<PROPERY_NAME>Property);
+			// public static partial <PROPERY_TYPE> Get<PROPERTY_NAME>(BindableObject target) => (<PROPERY_TYPE>)target.GetValue(<PROPERY_NAME>Property);
 			var getMethodDeclaration = MethodDeclaration(IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations), $"Get{propertyInfo.PropertyName}")
 					.AddAttributeLists(genCodeAttrMarker)
 					.WithLeadingTrivia(TriviaList(Comment("/// <inheritdoc/>")))
@@ -495,7 +496,7 @@ partial class AttachedPropertyGenerator
 			if (methodInfo.Exist1 != MethodExist.ExistNoPartial)
 			{
 				// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
-				// partial void On<PROPERTY_NAME><Changing/Changed>(BindableObject target, <PROPERTY_TYPE> value);
+				// static partial void On<PROPERTY_NAME><Changing/Changed>(BindableObject target, <PROPERTY_TYPE> value);
 				yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(methodInfo.Name))
 					.AddModifiers(Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.PartialKeyword))
 					.AddParameterListParameters(
@@ -508,7 +509,7 @@ partial class AttachedPropertyGenerator
 			if (methodInfo.Exist2 != MethodExist.ExistNoPartial)
 			{
 				// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
-				// partial void On<PROPERTY_NAME><Changing/Changed>(BindableObject target, <PROPERTY_TYPE> oldValue, <PROPERTY_TYPE> newValue);
+				// static partial void On<PROPERTY_NAME><Changing/Changed>(BindableObject target, <PROPERTY_TYPE> oldValue, <PROPERTY_TYPE> newValue);
 				yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(methodInfo.Name))
 					.AddModifiers(Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.PartialKeyword))
 					.AddParameterListParameters(
@@ -524,7 +525,7 @@ partial class AttachedPropertyGenerator
 				yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(serviceMethodName))
 					.AddModifiers(Token(SyntaxKind.StaticKeyword))
 					.AddParameterListParameters(
-						Parameter(Identifier("bindable")).WithType(IdentifierName("BindableObject")),
+						Parameter(Identifier("bindable")).WithType(IdentifierName(CommonTypes.BindableObjectGlob)),
 						Parameter(Identifier("oldValue")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))),
 						Parameter(Identifier("newValue")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))))
 					.AddAttributeLists(GeneratedCodeAttrMarker,
@@ -553,7 +554,7 @@ partial class AttachedPropertyGenerator
 		/// <param name="hInfo"></param>
 		/// <param name="propertyInfo"></param>
 		/// <returns></returns>
-		static IEnumerable<MemberDeclarationSyntax> GenerateValidateValueHandler(HierarchyInfo hInfo, AttachedPropertyInfo propertyInfo)
+		static IEnumerable<MemberDeclarationSyntax> GenerateValidateValueHandler(AttachedPropertyInfo propertyInfo)
 		{
 			var validateMethodName = propertyInfo.ValidateMethodName;
 			if (validateMethodName == null)
@@ -565,43 +566,33 @@ partial class AttachedPropertyGenerator
 			if (propertyInfo.NeedGeneratePartialValidation)
 			{
 				// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
-				// private partial bool <VALIDATE_METHOD_MAME>(<PROPERTY_TYPE> value);
+				// private static partial bool <VALIDATE_METHOD_MAME>(<PROPERTY_TYPE> value);
 				yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.BoolKeyword)), Identifier(validateMethodName))
-					.AddModifiers(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.PartialKeyword))
-					.AddParameterListParameters(Parameter(Identifier("value")).WithType(parameterType))
+					.AddModifiers(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.PartialKeyword))
+					.AddParameterListParameters(
+						Parameter(Identifier("target")).WithType(IdentifierName(propertyInfo.TargetTypeName)),
+						Parameter(Identifier("value")).WithType(parameterType))
 					.AddAttributeLists(GeneratedCodeAttrMarker)
 					.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 			}
-			//
-			// var instance = (MyClass)bindable;
-			//
-			var instanceVarDeclaration = LocalDeclarationStatement(
-				VariableDeclaration(ParseTypeName("var"))
-				.WithVariables(SingletonSeparatedList(
-					VariableDeclarator(Identifier("_instance"))
-					.WithInitializer(EqualsValueClause(
-						CastExpression(IdentifierName(hInfo.MetadataName), IdentifierName("bindable"))
-					)))));
 
 			yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.BoolKeyword)), Identifier(propertyInfo.Srv_ValidateValue))
 				.AddModifiers(Token(SyntaxKind.StaticKeyword))
 				.AddParameterListParameters(
-					Parameter(Identifier("bindable")).WithType(IdentifierName("BindableObject")),
+					Parameter(Identifier("bindable")).WithType(IdentifierName(CommonTypes.BindableObjectGlob)),
 					Parameter(Identifier("value")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))))
 				.AddAttributeLists(GeneratedCodeAttrMarker,
 								ExcludeFromCodeCoverageAttrMarker,
 								NonUserCodeAttrMarker,
 								NeverBrowsableAttrMarker)
-				.WithBody(Block(List<StatementSyntax>([
-					instanceVarDeclaration,
-					ReturnStatement(InvocationExpression(
-						MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-							IdentifierName("_instance"),
-							IdentifierName(validateMethodName)))
-						.WithArgumentList(ArgumentList([
-							Argument(IdentifierName("value").CastIfNeed(propertyInfo.RealTypeName, CommonTypes.Object))
-						])))
-				])));
+				.WithExpressionBody(ArrowExpressionClause(
+						InvocationExpression(IdentifierName(validateMethodName),
+							ArgumentList(SeparatedList([
+								Argument(IdentifierName("bindable").CastIfNeed(propertyInfo.TargetTypeName, CommonTypes.BindableObject)),
+								Argument(IdentifierName("value").CastIfNeed(propertyInfo.RealTypeName, CommonTypes.Object))
+							])))
+						))
+				.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 		}
 
 		/// <summary>
@@ -610,7 +601,7 @@ partial class AttachedPropertyGenerator
 		/// <param name="hInfo"></param>
 		/// <param name="propertyInfo"></param>
 		/// <returns></returns>
-		static IEnumerable<MemberDeclarationSyntax> GenerateCoerceValueHandler(HierarchyInfo hInfo, AttachedPropertyInfo propertyInfo)
+		static IEnumerable<MemberDeclarationSyntax> GenerateCoerceValueHandler(AttachedPropertyInfo propertyInfo)
 		{
 			var coerceMethodName = propertyInfo.CoerceMethodName;
 			if (coerceMethodName == null)
@@ -622,53 +613,43 @@ partial class AttachedPropertyGenerator
 			if (propertyInfo.NeedGeneratePartialCoerce)
 			{
 				// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
-				// private partial <PROPERTY_TYPE> <COERCE_METHOD_MAME>(<PROPERTY_TYPE> value);
+				// private static partial <PROPERTY_TYPE> <COERCE_METHOD_MAME>(<PROPERTY_TYPE> value);
 				yield return MethodDeclaration(parameterType, Identifier(coerceMethodName))
-					.AddModifiers(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.PartialKeyword))
-					.AddParameterListParameters(Parameter(Identifier("value")).WithType(parameterType))
+					.AddModifiers(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.PartialKeyword))
+					.AddParameterListParameters(
+						Parameter(Identifier("target")).WithType(IdentifierName(propertyInfo.TargetTypeName)),
+						Parameter(Identifier("value")).WithType(parameterType))
 					.AddAttributeLists(GeneratedCodeAttrMarker)
 					.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 			}
-			//
-			// var instance = (MyClass)bindable;
-			//
-			var instanceVarDeclaration = LocalDeclarationStatement(
-				VariableDeclaration(ParseTypeName("var"))
-				.WithVariables(SingletonSeparatedList(
-					VariableDeclarator(Identifier("_instance"))
-					.WithInitializer(EqualsValueClause(
-						CastExpression(IdentifierName(hInfo.MetadataName), IdentifierName("bindable"))
-					)))));
 
 			yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.ObjectKeyword)), Identifier(propertyInfo.Srv_CoerceValue))
 				.AddModifiers(Token(SyntaxKind.StaticKeyword))
 				.AddParameterListParameters(
-					Parameter(Identifier("bindable")).WithType(IdentifierName("BindableObject")),
+					Parameter(Identifier("bindable")).WithType(IdentifierName(CommonTypes.BindableObjectGlob)),
 					Parameter(Identifier("value")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))))
 				.AddAttributeLists(GeneratedCodeAttrMarker,
 								ExcludeFromCodeCoverageAttrMarker,
 								NonUserCodeAttrMarker,
 								NeverBrowsableAttrMarker)
-				.WithBody(Block(List<StatementSyntax>([
-					instanceVarDeclaration,
-					ReturnStatement(InvocationExpression(
-						MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-							IdentifierName("_instance"),
-							IdentifierName(coerceMethodName)))
-						.WithArgumentList(ArgumentList([
-							Argument(IdentifierName("value").CastIfNeed(propertyInfo.RealTypeName, CommonTypes.Object))
-						])))
-				])));
+				.WithExpressionBody(ArrowExpressionClause(
+						InvocationExpression(IdentifierName(coerceMethodName),
+							ArgumentList(SeparatedList([
+								Argument(IdentifierName("bindable").CastIfNeed(propertyInfo.TargetTypeName, CommonTypes.BindableObject)),
+								Argument(IdentifierName("value").CastIfNeed(propertyInfo.RealTypeName, CommonTypes.Object))
+							])))
+						))
+				.WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 		}
 
-		public static ImmutableArray<MemberDeclarationSyntax> GetOnPropertyChangeMethodsSyntax(HierarchyInfo hInfo, AttachedPropertyInfo propertyInfo)
+		public static ImmutableArray<MemberDeclarationSyntax> GetOnPropertyChangeMethodsSyntax(AttachedPropertyInfo propertyInfo)
 		{
 			var resultList = ImmutableArrayBuilder<MemberDeclarationSyntax>.Rent();
 
 			resultList.AddRange(GenerateChangeHandlers(propertyInfo, propertyInfo.Srv_PropertyChanging, propertyInfo.ChangingMethodInfo).ToArray());
 			resultList.AddRange(GenerateChangeHandlers(propertyInfo, propertyInfo.Srv_PropertyChanged, propertyInfo.ChangedMethodInfo).ToArray());
-			resultList.AddRange(GenerateValidateValueHandler(hInfo, propertyInfo).ToArray());
-			resultList.AddRange(GenerateCoerceValueHandler(hInfo, propertyInfo).ToArray());
+			resultList.AddRange(GenerateValidateValueHandler(propertyInfo).ToArray());
+			resultList.AddRange(GenerateCoerceValueHandler(propertyInfo).ToArray());
 
 			return resultList.ToImmutable();
 		}

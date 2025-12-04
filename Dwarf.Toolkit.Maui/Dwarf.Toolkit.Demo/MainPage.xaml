@@ -4,22 +4,24 @@
 			 xmlns:bunny="clr-namespace:Dwarf.Toolkit.Demo.Bunnies"
              x:Class="Dwarf.Toolkit.Demo.MainPage">
 
-    <ScrollView>
-        <VerticalStackLayout
+	<ScrollView>
+		<VerticalStackLayout
             Padding="30,0"
             Spacing="25">
-            <Image
+			<Image
                 Source="dotnet_bot.png"
                 HeightRequest="185"
                 Aspect="AspectFit"
                 SemanticProperties.Description="dot net bot in a race car number eight" />
 
-			<Label bunny:StaticBox.RegularGlyph="CirclePlay"
+			<Label
+				bunny:StaticBox.RegularGlyph="CirclePlay"
+				bunny:StaticBox.OuterText="Это пример для Attached свойства"
                 Text="Hello, World!"
                 Style="{StaticResource Headline}"
                 SemanticProperties.HeadingLevel="Level1" />
 
-            <Label
+			<Label
                 Text="Welcome to &#10;.NET Multi-platform App UI"
                 Style="{StaticResource SubHeadline}"
                 SemanticProperties.HeadingLevel="Level2"
@@ -32,7 +34,7 @@
                 SemanticProperties.Hint="Counts the number of times you click"
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />
-        </VerticalStackLayout>
-    </ScrollView>
+		</VerticalStackLayout>
+	</ScrollView>
 
 </ContentPage>

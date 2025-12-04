@@ -204,7 +204,7 @@ partial class BindablePropertyGenerator
 		/// <returns>Whether or not the containing type for <paramref name="memberSymbol"/> is valid.</returns>
 		private static bool IsTargetTypeValid(ISymbol memberSymbol)
 		{
-			return memberSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("Microsoft.Maui.Controls.BindableObject");
+			return memberSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName(CommonTypes.BindableObject);
 		}
 
 		/// <summary>
@@ -261,7 +261,7 @@ partial class BindablePropertyGenerator
 			//
 			// Prepare for construct static BindableProperty:
 			//
-			TypeSyntax bipType = IdentifierName("BindableProperty");
+			TypeSyntax bipType = IdentifierName(CommonTypes.BindablePropertyGlob);
 			var bipCreateAccess = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bipType, IdentifierName("Create"));
 			//
 			// Add arguments for BindableProperty.Create( ... )
@@ -285,7 +285,7 @@ partial class BindablePropertyGenerator
 			if (propertyInfo.BindableAttribute.TryGetNamedArgumentInfo(BindableAttributeNaming.DefaultBindingModeArg, out var defBindModeInfo)
 				&& defBindModeInfo is TypedConstantInfo.Enum bindingModeEnum)
 			{
-				var bindingModeMauiEnum = new TypedConstantInfo.Enum("global::Microsoft.Maui.Controls.BindingMode", bindingModeEnum.Value);
+				var bindingModeMauiEnum = new TypedConstantInfo.Enum(CommonTypes.BindingModeGlob, bindingModeEnum.Value);
 				bipCreateArgsBuilder.Add(Argument(NameColon(
 					IdentifierName("defaultBindingMode")),
 					default,
@@ -464,7 +464,7 @@ partial class BindablePropertyGenerator
 				yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(serviceMethodName))
 					.AddModifiers(Token(SyntaxKind.StaticKeyword))
 					.AddParameterListParameters(
-						Parameter(Identifier("bindable")).WithType(IdentifierName("BindableObject")),
+						Parameter(Identifier("bindable")).WithType(IdentifierName(CommonTypes.BindableObjectGlob)),
 						Parameter(Identifier("oldValue")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))),
 						Parameter(Identifier("newValue")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))))
 					.AddAttributeLists(GeneratedCodeAttrMarker,
@@ -531,7 +531,7 @@ partial class BindablePropertyGenerator
 			yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.BoolKeyword)), Identifier(propertyInfo.Srv_ValidateValue))
 				.AddModifiers(Token(SyntaxKind.StaticKeyword))
 				.AddParameterListParameters(
-					Parameter(Identifier("bindable")).WithType(IdentifierName("BindableObject")),
+					Parameter(Identifier("bindable")).WithType(IdentifierName(CommonTypes.BindableObjectGlob)),
 					Parameter(Identifier("value")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))))
 				.AddAttributeLists(GeneratedCodeAttrMarker,
 								ExcludeFromCodeCoverageAttrMarker,
@@ -588,7 +588,7 @@ partial class BindablePropertyGenerator
 			yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.ObjectKeyword)), Identifier(propertyInfo.Srv_CoerceValue))
 				.AddModifiers(Token(SyntaxKind.StaticKeyword))
 				.AddParameterListParameters(
-					Parameter(Identifier("bindable")).WithType(IdentifierName("BindableObject")),
+					Parameter(Identifier("bindable")).WithType(IdentifierName(CommonTypes.BindableObjectGlob)),
 					Parameter(Identifier("value")).WithType(PredefinedType(Token(SyntaxKind.ObjectKeyword))))
 				.AddAttributeLists(GeneratedCodeAttrMarker,
 								ExcludeFromCodeCoverageAttrMarker,

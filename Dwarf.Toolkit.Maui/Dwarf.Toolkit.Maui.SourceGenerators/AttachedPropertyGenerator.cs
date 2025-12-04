@@ -66,7 +66,7 @@ public sealed partial class AttachedPropertyGenerator : IIncrementalGenerator
 			ImmutableArray<MemberDeclarationSyntax> memberDeclarations
 				= item.Properties
 					.SelectMany(p => Execute.GetPropertySyntax(item.Hierarchy, p))
-					.Concat(item.Properties.SelectMany(p => Execute.GetOnPropertyChangeMethodsSyntax(item.Hierarchy, p)))
+					.Concat(item.Properties.SelectMany(p => Execute.GetOnPropertyChangeMethodsSyntax(p)))
 					.ToImmutableArray();
 
 			// Insert all members into the same partial type declaration

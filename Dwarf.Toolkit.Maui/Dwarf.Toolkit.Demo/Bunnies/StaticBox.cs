@@ -1,4 +1,6 @@
-﻿namespace Dwarf.Toolkit.Demo.Bunnies;
+﻿using Dwarf.Toolkit.Maui;
+
+namespace Dwarf.Toolkit.Demo.Bunnies;
 
 public enum FARegularGlyphs
 {
@@ -33,7 +35,12 @@ internal static partial class StaticBox
 			return;
 	}
 
+	[AttachedProperty]
 	public static partial string? GetOuterText(BindableObject target);
+
+	static partial void OnOuterTextChanged(BindableObject target, string? oldValue, string? newValue)
+	{
+	}
 
 	#endregion
 }

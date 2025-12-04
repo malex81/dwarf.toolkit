@@ -71,12 +71,10 @@ internal sealed partial class ExampleBindableObject : BindableObject
 		return true;
 	}
 
-	private int CoerceNumProp(int value)
-	{
-		return value + 1;
-	}
+	private partial int CoerceNumProp(int value) => value + 1;
 
 	void OnNumPropChanged(int val)
 	{
+		StaticBox.SetOuterText(this, $"Num prop={val}");
 	}
 }
