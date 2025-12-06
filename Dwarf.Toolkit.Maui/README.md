@@ -13,10 +13,6 @@ To generate a MAUI `BindableProperty`, apply the `BindableProperty` attribute to
 ```c#
 internal partial class ExampleBindableObject : BindableObject
 {
-	public SimpleBindableObject()
-	{
-	}
-
 	[BindableProperty(DefaultValue = "Hello world ", DefaultBindingMode = BindingModeDef.OneTime)]
 	partial string TextProp { get; set; }
 
@@ -48,6 +44,44 @@ And necessary triggers for  `PropertyChanging`, `PropertyChanged`, `ValidateValu
 | ChangedMethod          | The name of method for property changed callback. This method not static and takes one (new value) or two (old value and new value) parameters of correct property type. The generator will prepare static handler and perform the necessary type casts. If this argument is not set, generator will create partial method with `On<PropertyName>Changed` name. This method can be implemented in the future. |
 | ValidateMethod         | The name of method for validate value. This method not static, takes one parameter of property type and returns boolean result. The generator will prepare static handler and perform the necessary type casts. |
 | CoerceMethod           | The name of method for coerce value. This method not static, takes one parameter of property type and returns a new value of the same type. The generator will prepare static handler and perform the necessary type casts. |
+
+
+## AttachedProperty Generator
+
+To generate a MAUI attached property, apply the `AttachedProperty` attribute to the static partial method conform to the signature Get<PropertyName>(), as in the example below:
+
+```c#
+public static partial class ExampleBindableObject : BindableObject
+{
+	[AttachedProperty(DefaultValue = "Hello world", CoerceMethod = "CoerceExampleText", ValidateMethod = "ValidateExampleText")]
+	public static partial string? GetExampleText(BindableObject target);
+}
+```
+
+This short snippet will generate the code for `BindableProperty.Create( ... )`, property wrapper like this:
+
+```c#
+partial string TextProp
+{
+	get => (string)GetValue(TextPropProperty);
+	set => SetValue(TextPropProperty, value);
+}
+```
+
+And necessary triggers for  `PropertyChanging`, `PropertyChanged`, `ValidateValue` and `CoerceValue`.
+
+### Supported arguments
+
+| Name                   | Description       |
+|------------------------|-------------------|
+| DefaultValue           | The value that passed directly to `defaultValue` of `BindableProperty.Create` method. |
+| DefaultValueExpression | An expression, represented as a string, that the generator will extract and passed to `defaultValue` of `BindableProperty.Create` method. |
+| DefaultBindingMode     | The `defaultBindingMode`. To avoid direct reference to Microsoft.Maui ecosystem, local enum `BindingModeDef` is added. Generator translate it value to `Microsoft.Maui.Controls.BindingMode`. |
+| ChangingMethod         | The name of method for property changing callback. This method not static and takes one (new value) or two (old value and new value) parameters of correct property type. The generator will prepare static handler and perform the necessary type casts. If this argument is not set, generator will create partial method with `On<PropertyName>Changing` name. This method can be implemented in the future. |
+| ChangedMethod          | The name of method for property changed callback. This method not static and takes one (new value) or two (old value and new value) parameters of correct property type. The generator will prepare static handler and perform the necessary type casts. If this argument is not set, generator will create partial method with `On<PropertyName>Changed` name. This method can be implemented in the future. |
+| ValidateMethod         | The name of method for validate value. This method not static, takes one parameter of property type and returns boolean result. The generator will prepare static handler and perform the necessary type casts. |
+| CoerceMethod           | The name of method for coerce value. This method not static, takes one parameter of property type and returns a new value of the same type. The generator will prepare static handler and perform the necessary type casts. |
+
 
 ## Change Log
 

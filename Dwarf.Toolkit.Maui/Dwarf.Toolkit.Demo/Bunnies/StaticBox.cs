@@ -35,11 +35,24 @@ internal static partial class StaticBox
 			return;
 	}
 
-	[AttachedProperty]
+	const string DefaultOuterText = "Первичное значение";
+
+	[AttachedProperty(DefaultValueExpression = nameof(DefaultOuterText), CoerceMethod = "CoerceOuterText", ValidateMethod = "ValidateOuterText")]
 	public static partial string? GetOuterText(BindableObject target);
 
 	static partial void OnOuterTextChanged(BindableObject target, string? oldValue, string? newValue)
 	{
+	}
+
+	private static partial bool ValidateOuterText(BindableObject target, string? value)
+	{
+		return value != null && !string.IsNullOrEmpty(value);
+	}
+
+	private static partial string? CoerceOuterText(BindableObject target, string? value)
+	{
+		if(value != DefaultOuterText) return value + " - новое значение";
+		return value;
 	}
 
 	#endregion
