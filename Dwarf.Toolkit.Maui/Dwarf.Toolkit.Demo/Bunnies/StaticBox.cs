@@ -55,5 +55,8 @@ internal static partial class StaticBox
 		return value;
 	}
 
+	//[AttachedProperty(DefaultValue = "Hello world", CoerceMethod = "CoerceExampleText", ValidateMethod = "ValidateExampleText")]
+	//public static partial string? GetExampleText(BindableObject target);
+
 	#endregion
 }

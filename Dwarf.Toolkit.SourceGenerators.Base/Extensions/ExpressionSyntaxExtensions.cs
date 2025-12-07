@@ -5,6 +5,9 @@ namespace Dwarf.Toolkit.SourceGenerators.Extensions;
 
 internal static class ExpressionSyntaxExtensions
 {
+	static string TrimStart(this string src, string start) => src.StartsWith(start) ? src[start.Length..] : src;
+	static string TrimGlobalPrefix(this string src) => src.TrimStart("global::");
+
 	public static ExpressionSyntax CastIfNeed(this ExpressionSyntax expression, string needType, string hasType)
-		=> needType == hasType ? expression : CastExpression(IdentifierName(needType), expression);
+		=> needType.TrimGlobalPrefix() == hasType.TrimGlobalPrefix() ? expression : CastExpression(IdentifierName(needType), expression);
 }
