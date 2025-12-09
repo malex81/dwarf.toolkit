@@ -163,7 +163,7 @@ internal class BindablePropertyTest
 				/// <summary>
 				/// Creates a bindable property named TextProp, of type <see cref="string"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(TextProp), typeof(string), typeof(Container), defaultValue: "Привет, Вася!", defaultBindingMode: (global::Microsoft.Maui.Controls.BindingMode)3);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(TextProp), typeof(string), typeof(Container), defaultValue: "Привет, Вася!", defaultBindingMode: global::Microsoft.Maui.Controls.BindingMode.OneWayToSource);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]

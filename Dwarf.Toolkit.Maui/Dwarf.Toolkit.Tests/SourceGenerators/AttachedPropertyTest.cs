@@ -109,7 +109,7 @@ internal sealed class AttachedPropertyTest
 
 			static partial class Container
 			{
-				[AttachedProperty(DefaultValue="Привет, Вася!", DefaultBindingMode=BindingModeDef.OneWayToSource))]
+				[AttachedProperty(DefaultValue="Привет, Вася!", DefaultBindingMode=BindingModeDef.Default))]
 				public static partial string? GetTextSample(Label target);
 				[AttachedProperty(DefaultValueExpression="3.14159")]
 				internal static partial float? GetFloatNum(BindableObject target);
@@ -131,7 +131,7 @@ internal sealed class AttachedPropertyTest
 				/// <summary>
 				/// Creates an attached property named TextSample, of type <see cref="string"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextSampleProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("TextSample", typeof(string), typeof(Container), "Привет, Вася!", defaultBindingMode: (global::Microsoft.Maui.Controls.BindingMode)3, propertyChanging: __TextSample_Changing);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextSampleProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("TextSample", typeof(string), typeof(Container), "Привет, Вася!", defaultBindingMode: global::Microsoft.Maui.Controls.BindingMode.Default, propertyChanging: __TextSample_Changing);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
