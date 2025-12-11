@@ -1,3 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<Import Project="..\build\PackageCandidate.props" />
+
+	<ItemGroup>
+		<PackageReference Include="Castle.Core" Version="5.2.1" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.1" />
+		<!--<PackageReference Include="Nullable" Version="1.3.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+		</PackageReference>-->
+	</ItemGroup>
+
+	<ItemGroup>
+		<Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="DiHelpers\ServiceCollectionExtensions.Gen.tt">
+			<LastGenOutput>ServiceCollectionExtensions.Gen.cs</LastGenOutput>
+			<Generator>TextTemplatingFileGenerator</Generator>
+		</None>
+		<Compile Update="DiHelpers\ServiceCollectionExtensions.Gen.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>ServiceCollectionExtensions.Gen.tt</DependentUpon>
+		</Compile>
+	</ItemGroup>
 </Project>

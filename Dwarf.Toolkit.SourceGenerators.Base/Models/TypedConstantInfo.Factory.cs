@@ -55,7 +55,8 @@ partial record TypedConstantInfo
                 _ => throw new ArgumentException("Invalid primitive type")
             },
             (TypedConstantKind.Type, ITypeSymbol type) => new Type(type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)),
-            (TypedConstantKind.Enum, object value) => new Enum(arg.Type!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), value),
+            (TypedConstantKind.Enum, object value) => Enum.Create(arg.Type!, value),
+									//  new Enum(arg.Type!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), value),
             _ => throw new ArgumentException("Invalid typed constant type"),
         };
     }
