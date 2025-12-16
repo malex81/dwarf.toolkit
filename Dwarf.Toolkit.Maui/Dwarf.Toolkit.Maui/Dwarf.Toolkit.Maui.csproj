@@ -21,14 +21,19 @@
 			<BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))"/>
 		</ItemGroup>
 	</Target>
-
+	
+	<ItemGroup>
+		<PackageReference Include="Castle.Core" />
+	</ItemGroup>
+	
 	<ItemGroup>
 		<None Include="..\..\LICENSE" Pack="true" PackagePath="" Visible="false"/>
 		<None Include="..\README.md" Pack="true" PackagePath="" Visible="false"/>
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Dwarf.Toolkit.Base\Dwarf.Toolkit.Base.csproj" ReferenceOutputAssembly="true" IncludeAssets="Dwarf.Toolkit.Base.dll"/>
+		<!--<ProjectReference Include="..\..\Dwarf.Toolkit.Base\Dwarf.Toolkit.Base.csproj" ReferenceOutputAssembly="true" IncludeAssets="Dwarf.Toolkit.Base.dll"/>-->
+		<ProjectReference Include="..\..\Dwarf.Toolkit.Base\Dwarf.Toolkit.Base.csproj" ReferenceOutputAssembly="true" PrivateAssets="all"/>
 		<ProjectReference Include="..\Dwarf.Toolkit.Maui.SourceGenerators\Dwarf.Toolkit.Maui.SourceGenerators.csproj" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
