@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\build\PackageCandidate.props" />
+	<Import Project="..\build\NUnit.Tests.targets" />
+
+	<PropertyGroup>
+		<!--<TargetFramework>netstandard2.1</TargetFramework>-->
+		<Company>Dwarf holl</Company>
+		<Copyright>Copyright Dwarf holl © 2025</Copyright>
+		<Description>Basic set of helpers for different tasks</Description>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<PackageOutputPath>$(MSBuildThisFileDirectory)\..\..\LocalPackages\</PackageOutputPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\LICENSE" Pack="true" PackagePath="" Visible="false"/>
+		<None Include="README.md" Pack="true" PackagePath="" Visible="true"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Castle.Core" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+		<PackageReference Include="Nullable">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="DiHelpers\ServiceCollectionExtensions.Gen.tt">
+			<LastGenOutput>ServiceCollectionExtensions.Gen.cs</LastGenOutput>
+			<Generator>TextTemplatingFileGenerator</Generator>
+		</None>
+		<Compile Update="DiHelpers\ServiceCollectionExtensions.Gen.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>ServiceCollectionExtensions.Gen.tt</DependentUpon>
+		</Compile>
+	</ItemGroup>
+</Project>

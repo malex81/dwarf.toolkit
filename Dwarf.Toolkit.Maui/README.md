@@ -1,6 +1,6 @@
 # Dwarf.Toolkit.Maui
 
-This package contains a set of primitive helpers and generators for MAUI `BindablePropery`.
+This package contains generators for MAUI `BindableProperty`.
 
 - [Nuget package](https://www.nuget.org/packages/Dwarf.Toolkit.Maui/)
 - [Source code](https://github.com/malex81/dwarf.toolkit/tree/main/Dwarf.Toolkit.Maui)
@@ -101,7 +101,6 @@ static object __ExampleText_Coerce(global::Microsoft.Maui.Controls.BindableObjec
 ### 0.1.5
 
 - Convert BindingMode to readable view like this `global::Microsoft.Maui.Controls.BindingMode.OneWayToSource` instead of number representation like this `(global::Microsoft.Maui.Controls.BindingMode)3`
-- Several useful helpers have been added
 
 ### 0.1.4 - 2025.12.07
 

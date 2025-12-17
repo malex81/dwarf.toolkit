@@ -1,0 +1,78 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.36105.23
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+		build\Netstandard.props = build\Netstandard.props
+		build\NUnit.Tests.targets = build\NUnit.Tests.targets
+		build\PackageCandidate.props = build\PackageCandidate.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dwarf.Toolkit.Basic", "Dwarf.Toolkit.Basic\Dwarf.Toolkit.Basic.csproj", "{5A48BE44-45A9-727A-9A92-4B5FE4D31E99}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Dwarf.Toolkit.SourceGenerators.Base", "Dwarf.Toolkit.SourceGenerators.Base\Dwarf.Toolkit.SourceGenerators.Base.shproj", "{A4ACA2E4-8B21-44D2-AE40-702AA273D9D2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dwarf.Toolkit.Demo", "Dwarf.Toolkit.Maui\Dwarf.Toolkit.Demo\Dwarf.Toolkit.Demo.csproj", "{CA3A50FD-159F-E2B3-AB91-E0C6017852A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dwarf.Toolkit.Maui", "Dwarf.Toolkit.Maui\Dwarf.Toolkit.Maui\Dwarf.Toolkit.Maui.csproj", "{FDD29287-3114-CCFA-DCCB-62C327E2A1C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dwarf.Toolkit.Maui.SourceGenerators", "Dwarf.Toolkit.Maui\Dwarf.Toolkit.Maui.SourceGenerators\Dwarf.Toolkit.Maui.SourceGenerators.csproj", "{98F8366D-2D5B-96D9-3E82-861A6BA5AC5C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dwarf.Toolkit.Tests", "Dwarf.Toolkit.Maui\Dwarf.Toolkit.Tests\Dwarf.Toolkit.Tests.csproj", "{2279C2CA-5608-70D5-9D81-1667DDDE75B0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+		Tests|Any CPU = Tests|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5A48BE44-45A9-727A-9A92-4B5FE4D31E99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A48BE44-45A9-727A-9A92-4B5FE4D31E99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A48BE44-45A9-727A-9A92-4B5FE4D31E99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A48BE44-45A9-727A-9A92-4B5FE4D31E99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A48BE44-45A9-727A-9A92-4B5FE4D31E99}.Tests|Any CPU.ActiveCfg = Tests|Any CPU
+		{5A48BE44-45A9-727A-9A92-4B5FE4D31E99}.Tests|Any CPU.Build.0 = Tests|Any CPU
+		{CA3A50FD-159F-E2B3-AB91-E0C6017852A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA3A50FD-159F-E2B3-AB91-E0C6017852A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA3A50FD-159F-E2B3-AB91-E0C6017852A9}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{CA3A50FD-159F-E2B3-AB91-E0C6017852A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA3A50FD-159F-E2B3-AB91-E0C6017852A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA3A50FD-159F-E2B3-AB91-E0C6017852A9}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{CA3A50FD-159F-E2B3-AB91-E0C6017852A9}.Tests|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA3A50FD-159F-E2B3-AB91-E0C6017852A9}.Tests|Any CPU.Build.0 = Debug|Any CPU
+		{CA3A50FD-159F-E2B3-AB91-E0C6017852A9}.Tests|Any CPU.Deploy.0 = Debug|Any CPU
+		{FDD29287-3114-CCFA-DCCB-62C327E2A1C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDD29287-3114-CCFA-DCCB-62C327E2A1C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDD29287-3114-CCFA-DCCB-62C327E2A1C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDD29287-3114-CCFA-DCCB-62C327E2A1C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDD29287-3114-CCFA-DCCB-62C327E2A1C2}.Tests|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDD29287-3114-CCFA-DCCB-62C327E2A1C2}.Tests|Any CPU.Build.0 = Debug|Any CPU
+		{98F8366D-2D5B-96D9-3E82-861A6BA5AC5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98F8366D-2D5B-96D9-3E82-861A6BA5AC5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98F8366D-2D5B-96D9-3E82-861A6BA5AC5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98F8366D-2D5B-96D9-3E82-861A6BA5AC5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98F8366D-2D5B-96D9-3E82-861A6BA5AC5C}.Tests|Any CPU.ActiveCfg = Debug|Any CPU
+		{98F8366D-2D5B-96D9-3E82-861A6BA5AC5C}.Tests|Any CPU.Build.0 = Debug|Any CPU
+		{2279C2CA-5608-70D5-9D81-1667DDDE75B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2279C2CA-5608-70D5-9D81-1667DDDE75B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2279C2CA-5608-70D5-9D81-1667DDDE75B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2279C2CA-5608-70D5-9D81-1667DDDE75B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2279C2CA-5608-70D5-9D81-1667DDDE75B0}.Tests|Any CPU.ActiveCfg = Debug|Any CPU
+		{2279C2CA-5608-70D5-9D81-1667DDDE75B0}.Tests|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FAAC34E0-9180-4E0C-9087-81DBC43318B3}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Dwarf.Toolkit.SourceGenerators.Base\Dwarf.Toolkit.SourceGenerators.Base.projitems*{98f8366d-2d5b-96d9-3e82-861a6ba5ac5c}*SharedItemsImports = 5
+		Dwarf.Toolkit.SourceGenerators.Base\Dwarf.Toolkit.SourceGenerators.Base.projitems*{a4aca2e4-8b21-44d2-ae40-702aa273d9d2}*SharedItemsImports = 13
+	EndGlobalSection
+EndGlobal
