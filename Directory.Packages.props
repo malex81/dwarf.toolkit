@@ -1,6 +1,7 @@
 <Project>
 	<PropertyGroup>
 		<CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+		<CentralPackageFloatingVersionsEnabled>true</CentralPackageFloatingVersionsEnabled>
 		<EnablePackageVersionOverride>false</EnablePackageVersionOverride>
 	</PropertyGroup>
 
