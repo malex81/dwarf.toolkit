@@ -6,7 +6,7 @@
 
 	<!-- General Packages -->
 	<ItemGroup>
-		<PackageVersion Include="Castle.Core" Version="5.0.0" />
+		<PackageVersion Include="Castle.Core" Version="5.2.*" />
 		<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.0.0" />
 		<PackageVersion Include="Nullable" Version="1.3.1" />
 	</ItemGroup>
