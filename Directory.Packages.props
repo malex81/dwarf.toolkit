@@ -16,4 +16,10 @@
 		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
 		<PackageVersion Include="PolySharp" Version="1.15.0" />
 	</ItemGroup>
+	<!-- Packages for tests -->
+	<ItemGroup>
+		<PackageVersion Include="nunit" Version="4.4.*" />
+		<PackageVersion Include="NUnit3TestAdapter" Version="6.0.*" />
+		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+	</ItemGroup>
 </Project>

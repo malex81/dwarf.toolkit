@@ -1,6 +1,6 @@
 <Project>
 	<PropertyGroup>
-		<Version>0.1.5-dev.1</Version>
+		<Version>0.1.5-dev.2</Version>
 		<SignAssembly>True</SignAssembly>
 		<AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\keys\Dwarf.snk</AssemblyOriginatorKeyFile>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
