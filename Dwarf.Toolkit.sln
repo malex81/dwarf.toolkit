@@ -5,7 +5,6 @@ VisualStudioVersion = 17.13.36105.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 	ProjectSection(SolutionItems) = preProject
-		Directory.Build.props = Directory.Build.props
 		Directory.Packages.props = Directory.Packages.props
 		build\Netstandard.props = build\Netstandard.props
 		build\NUnit.Tests.targets = build\NUnit.Tests.targets
@@ -23,6 +22,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dwarf.Toolkit.Maui.SourceGenerators", "Dwarf.Toolkit.Maui\Dwarf.Toolkit.Maui.SourceGenerators\Dwarf.Toolkit.Maui.SourceGenerators.csproj", "{98F8366D-2D5B-96D9-3E82-861A6BA5AC5C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dwarf.Toolkit.Tests", "Dwarf.Toolkit.Maui\Dwarf.Toolkit.Tests\Dwarf.Toolkit.Tests.csproj", "{2279C2CA-5608-70D5-9D81-1667DDDE75B0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Maui", "Maui", "{ACE8CB22-F923-4B44-82A7-5E67A6731129}"
+	ProjectSection(SolutionItems) = preProject
+		Dwarf.Toolkit.Maui\MauiPackage.props = Dwarf.Toolkit.Maui\MauiPackage.props
+		Dwarf.Toolkit.Maui\README.md = Dwarf.Toolkit.Maui\README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +72,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{ACE8CB22-F923-4B44-82A7-5E67A6731129} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FAAC34E0-9180-4E0C-9087-81DBC43318B3}

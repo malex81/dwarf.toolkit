@@ -3,6 +3,7 @@
 public class InvalidatorConfig
 {
 	public int Delay { get; set; } = 1;
+	public bool ThrowExceptions { get; set; } = true;
 
 	public static implicit operator InvalidatorConfig(int delay) => new() { Delay = delay };
 	public static implicit operator InvalidatorConfig(TimeSpan time) => new() { Delay = (int)time.TotalMilliseconds };
@@ -10,7 +11,7 @@ public class InvalidatorConfig
 
 public static class ActionFlow
 {
-	public static Action CreateInvalidator(Action callback, InvalidatorConfig? config = null)
+	public static Func<Task> CreateInvalidator(Action callback, InvalidatorConfig? config = null)
 	{
 		Task? currentTask = null;
 		var _config = config ?? new InvalidatorConfig();
@@ -24,14 +25,20 @@ public static class ActionFlow
 					lock (callback)
 					{
 						currentTask = null;
-						callback();
+						try { callback(); }
+						catch
+						{
+							if (_config.ThrowExceptions)
+								throw;
+						}
 					}
 				});
+				return currentTask;
 			}
 		};
 	}
 
-	public static Action CreateInvalidator(Func<Task> callback, InvalidatorConfig? config = null)
+	public static Func<Task> CreateInvalidatorAsync(Func<Task> callback, InvalidatorConfig? config = null)
 	{
 		Task? currentTask = null;
 		bool validState = true;
@@ -48,7 +55,11 @@ public static class ActionFlow
 						await Task.Delay(_config.Delay);
 						validState = true;
 						try { await callback(); }
-						catch { }
+						catch
+						{
+							if (_config.ThrowExceptions)
+								throw;
+						}
 						lock (callback)
 						{
 							if (validState)
@@ -59,6 +70,7 @@ public static class ActionFlow
 						}
 					}
 				});
+				return currentTask;
 			}
 		};
 	}
@@ -76,7 +88,7 @@ public static class ActionFlow
 				{
 					while (DateTime.Now - lastTime < delay)
 					{
-						await Task.Delay(delay / 2);
+						await Task.Delay((int)(delay.TotalMilliseconds / 2));
 					}
 					lock (action)
 					{
@@ -105,7 +117,7 @@ public static class ActionFlow
 				{
 					while (DateTime.Now - lastTime < delay)
 					{
-						await Task.Delay(delay / 2);
+						await Task.Delay((int)(delay.TotalMilliseconds / 2));
 					}
 					lock (syncObject)
 					{

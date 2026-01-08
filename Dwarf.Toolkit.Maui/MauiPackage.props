@@ -1,0 +1,7 @@
+<Project>
+	<Import Project="..\build\PackageCandidate.props" />
+	
+	<PropertyGroup>
+		<Version>$(MajorVersion)-dev.3</Version>
+	</PropertyGroup>
+</Project>

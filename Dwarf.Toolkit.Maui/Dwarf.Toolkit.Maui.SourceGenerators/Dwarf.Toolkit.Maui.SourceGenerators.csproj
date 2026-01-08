@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<Import Project="..\..\Dwarf.Toolkit.SourceGenerators.Base\Dwarf.Toolkit.SourceGenerators.Base.projitems" Label="Shared" />
-	<Import Project="..\..\build\PackageCandidate.props" />
+	<Import Project="..\MauiPackage.props" />
 
 	<PropertyGroup>
 		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>

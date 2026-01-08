@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<Import Project="..\..\build\PackageCandidate.props" />
+	<Import Project="..\MauiPackage.props" />
 
 	<PropertyGroup>
-		<Company>Dwarf holl</Company>
-		<Copyright>Copyright Dwarf holl © 2025</Copyright>
 		<Description>Generate MAUI BindablePropery</Description>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>

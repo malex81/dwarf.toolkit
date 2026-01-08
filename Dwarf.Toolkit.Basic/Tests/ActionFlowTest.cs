@@ -95,15 +95,16 @@ internal sealed class ActionFlowTest
 		int num = 0;
 		var res = new List<int>();
 		var invalid = ActionFlow.CreateInvalidator(() => res.Add(num), TimeSpan.FromMilliseconds(DDeleay));
+		Task lastTask = Task.CompletedTask;
 		var sw = Stopwatch.StartNew();
 		for (int i = 0; i < COUNT; i++)
 		{
 			num = i;
-			invalid();
+			lastTask = invalid();
 			await Task.Delay(delay);
 		}
 		sw.Stop();
-		await Task.Delay(DDeleay);
+		await lastTask;
 		Console.WriteLine(string.Join(',', res));
 		if (delay < DDeleay)
 		{
@@ -113,5 +114,97 @@ internal sealed class ActionFlowTest
 		else
 			Assert.That(res.Count, Is.EqualTo(COUNT));
 		Assert.That(res.Last(), Is.EqualTo(COUNT - 1));
+	}
+
+	[TestCase(10)]
+	[TestCase(40)]
+	[TestCase(120)]
+	public async Task InvalidatorAsync(int delay)
+	{
+		int DDeleay = 50;
+		int COUNT = 20;
+		int num = 0;
+		var res = new List<int>();
+		var invalid = ActionFlow.CreateInvalidatorAsync(async () =>
+		{
+			res.Add(num);
+			await Task.Delay(DDeleay);
+			throw new Exception("This error should be caught");
+		}, new() { Delay = DDeleay, ThrowExceptions = false });
+		Task lastTask = Task.CompletedTask;
+		var sw = Stopwatch.StartNew();
+		for (int i = 0; i < COUNT; i++)
+		{
+			num = i;
+			lastTask = invalid();
+			await Task.Delay(delay);
+		}
+		sw.Stop();
+		await lastTask;
+		Console.WriteLine(string.Join(',', res));
+		var dd2 = 2 * DDeleay;
+		if (delay < dd2)
+		{
+			var _delay = sw.ElapsedMilliseconds / COUNT;
+			Assert.That(res.Count, Is.InRange(COUNT / (dd2 / _delay + 1), COUNT / (DDeleay / _delay + 1)));
+		}
+		else
+			Assert.That(res.Count, Is.EqualTo(COUNT));
+		Assert.That(res.Last(), Is.EqualTo(COUNT - 1));
+	}
+
+	[TestCase(20)]
+	[TestCase(40)]
+	public async Task InvalidatorWithException(int delay)
+	{
+		int DDeleay = 65;
+		int COUNT = 20;
+		int num = 0;
+		var res = new List<int>();
+		var invalid = ActionFlow.CreateInvalidator(() =>
+		{
+			if (num > 10)
+				throw new InvalidOperationException("Num must be less than 10");
+			res.Add(num);
+		}, TimeSpan.FromMilliseconds(DDeleay));
+		Task lastTask = Task.CompletedTask;
+		var sw = Stopwatch.StartNew();
+		for (int i = 0; i < COUNT; i++)
+		{
+			num = i;
+			lastTask = invalid();
+			await Task.Delay(delay);
+		}
+		sw.Stop();
+		Assert.That(async () => await lastTask, Throws.Exception);
+		Console.WriteLine(string.Join(',', res));		
+	}
+
+	[TestCase(20)]
+	[TestCase(40)]
+	public async Task InvalidatorWithExceptionAsync(int delay)
+	{
+		int DDeleay = 65;
+		int COUNT = 20;
+		int num = 0;
+		var res = new List<int>();
+		var invalid = ActionFlow.CreateInvalidatorAsync(async () =>
+		{
+			await Task.Delay(10);
+			if (num > 10)
+				throw new InvalidOperationException("Num must be less than 10");
+			res.Add(num);
+		}, TimeSpan.FromMilliseconds(DDeleay));
+		Task lastTask = Task.CompletedTask;
+		var sw = Stopwatch.StartNew();
+		for (int i = 0; i < COUNT; i++)
+		{
+			num = i;
+			lastTask = invalid();
+			await Task.Delay(delay);
+		}
+		sw.Stop();
+		Assert.That(async () => await lastTask, Throws.Exception);
+		Console.WriteLine(string.Join(',', res));
 	}
 }
