@@ -22,25 +22,33 @@ internal sealed class InvalidatorContext
 	public void CancelLastTask() => tokenSource?.Cancel();
 }
 
-public sealed class Invalidator<T>
+public class InvalidatorBase
 {
 	private readonly InvalidatorContext context;
 
-	internal Invalidator(InvalidatorContext context, InvalidatorConfig config, T callback, Func<Task> invalidate)
+	internal InvalidatorBase(InvalidatorContext context, InvalidatorConfig config, Func<Task> invalidate)
 	{
 		this.context = context;
 		Config = config;
-		Callback = callback;
 		Invalidate = invalidate;
 	}
 	public InvalidatorConfig Config { get; }
-	public T Callback { get; }
 	public Func<Task> Invalidate { get; }
 
 	public void CancelInvalidation() => context.CancelLastTask();
 
-	public static implicit operator Func<Task>(Invalidator<T> invalidator) => invalidator.Invalidate;
-	public static implicit operator Action(Invalidator<T> invalidator) => () => invalidator.Invalidate();
+	public static implicit operator Func<Task>(InvalidatorBase invalidator) => invalidator.Invalidate;
+	public static implicit operator Action(InvalidatorBase invalidator) => () => invalidator.Invalidate();
+}
+
+public sealed class Invalidator<T> : InvalidatorBase
+{
+	internal Invalidator(InvalidatorContext context, InvalidatorConfig config, T callback, Func<Task> invalidate)
+		: base(context, config, invalidate)
+	{
+		Callback = callback;
+	}
+	public T Callback { get; }
 }
 
 static partial class ActionFlow
@@ -54,6 +62,8 @@ static partial class ActionFlow
 		{
 			lock (callback)
 			{
+				if(currentTask != null && currentTask.IsCanceled)
+					currentTask = null;
 				currentTask ??= _context.BuildTask(async ct =>
 				{
 					await Task.Delay(_config.Delay, ct);
@@ -75,7 +85,7 @@ static partial class ActionFlow
 		});
 	}
 
-	public static Invalidator<Func<Task>> CreateInvalidatorAsync(Func<Task> callback, InvalidatorConfig? config = null)
+	public static Invalidator<Func<CancellationToken, Task>> CreateInvalidatorAsync(Func<CancellationToken, Task> callback, InvalidatorConfig? config = null)
 	{
 		Task? currentTask = null;
 		bool validState = true;
@@ -86,6 +96,8 @@ static partial class ActionFlow
 			lock (callback)
 			{
 				validState = false;
+				if (currentTask != null && currentTask.IsCanceled)
+					currentTask = null;
 				currentTask ??= _context.BuildTask(async ct =>
 				{
 					while (!validState)
@@ -94,7 +106,7 @@ static partial class ActionFlow
 						validState = true;
 						if (!ct.IsCancellationRequested)
 						{
-							try { await callback(); }
+							try { await callback(ct); }
 							catch
 							{
 								if (_config.ThrowExceptions)
@@ -119,15 +131,29 @@ static partial class ActionFlow
 
 public static class InvalidatorExtension
 {
+	public static void ForceCall(this InvalidatorBase invalidator)
+	{
+		if (invalidator is not Invalidator<Action> ia)
+			throw new InvalidOperationException("In this context invalidator must be Invalidator<Action>");
+		ia.ForceCall();
+	}
+
+	public static Task ForceCall(this InvalidatorBase invalidator, CancellationToken ct)
+	{
+		if (invalidator is not Invalidator<Func<CancellationToken, Task>> it)
+			throw new InvalidOperationException("In this context invalidator must be Invalidator<Func<CancellationToken, Task>>");
+		return it.ForceCall(ct);
+	}
+
 	public static void ForceCall(this Invalidator<Action> invalidator)
 	{
 		invalidator.CancelInvalidation();
 		invalidator.Callback();
 	}
 
-	public static Task ForceCall(this Invalidator<Func<Task>> invalidator)
+	public static Task ForceCall(this Invalidator<Func<CancellationToken, Task>> invalidator, CancellationToken ct = default)
 	{
 		invalidator.CancelInvalidation();
-		return invalidator.Callback();
+		return invalidator.Callback(ct);
 	}
 }
