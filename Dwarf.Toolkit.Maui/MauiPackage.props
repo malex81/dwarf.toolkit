@@ -2,6 +2,7 @@
 	<Import Project="..\build\PackageCandidate.props" />
 	
 	<PropertyGroup>
-		<Version>$(MajorVersion)-dev.3</Version>
+		<MinorVersion>5</MinorVersion>
+		<Version>$(MajorVersion).$(MinorVersion)</Version>
 	</PropertyGroup>
 </Project>

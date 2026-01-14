@@ -65,8 +65,11 @@ public class RestrictedSizeDictionary<TKey, TValue>(int maxSize) : IDictionary<T
 		return ((ICollection<KeyValuePair<TKey, TValue>>)old).Remove(item) || res;
 	}
 
+#if NETSTANDARD
 	public bool TryGetValue(TKey key, out TValue value) => current.TryGetValue(key, out value) || old.TryGetValue(key, out value);
-
+#else
+	public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value) => current.TryGetValue(key, out value) || old.TryGetValue(key, out value);
+#endif
 	public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) => throw new NotImplementedException();
 	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => throw new NotImplementedException();
 	IEnumerator IEnumerable.GetEnumerator() => throw new NotImplementedException();

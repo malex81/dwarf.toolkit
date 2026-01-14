@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<Company>Dwarf holl</Company>
 		<Copyright>Copyright Dwarf holl © 2025-2026</Copyright>
-		<MajorVersion>0.1.5</MajorVersion>
+		<MajorVersion>0.1</MajorVersion>
 		<SignAssembly>True</SignAssembly>
 		<AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\keys\Dwarf.snk</AssemblyOriginatorKeyFile>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>

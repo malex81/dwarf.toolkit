@@ -98,7 +98,7 @@ static object __ExampleText_Coerce(global::Microsoft.Maui.Controls.BindableObjec
 
 ## Change Log
 
-### 0.1.5
+### 0.1.5 - 14.01.2026
 
 - Convert BindingMode to readable view like this `global::Microsoft.Maui.Controls.BindingMode.OneWayToSource` instead of number representation like this `(global::Microsoft.Maui.Controls.BindingMode)3`
 

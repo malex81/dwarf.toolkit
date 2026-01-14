@@ -43,7 +43,6 @@ internal sealed class ActionFlowTest
 			lastTask = debounce();
 			await Task.Delay(delay);
 		}
-		debounce();
 		await lastTask;
 		Console.WriteLine(string.Join(',', res));
 		if (delay < DDeleay)
@@ -94,7 +93,7 @@ internal sealed class ActionFlowTest
 		int COUNT = 20;
 		int num = 0;
 		var res = new List<int>();
-		var invalid = ActionFlow.CreateInvalidator(() => res.Add(num), TimeSpan.FromMilliseconds(DDeleay));
+		Func<Task> invalid = ActionFlow.CreateInvalidator(() => res.Add(num), TimeSpan.FromMilliseconds(DDeleay));
 		Task lastTask = Task.CompletedTask;
 		var sw = Stopwatch.StartNew();
 		for (int i = 0; i < COUNT; i++)
@@ -125,7 +124,7 @@ internal sealed class ActionFlowTest
 		int COUNT = 20;
 		int num = 0;
 		var res = new List<int>();
-		var invalid = ActionFlow.CreateInvalidatorAsync(async () =>
+		Func<Task> invalid = ActionFlow.CreateInvalidatorAsync(async () =>
 		{
 			res.Add(num);
 			await Task.Delay(DDeleay);
@@ -161,7 +160,7 @@ internal sealed class ActionFlowTest
 		int COUNT = 20;
 		int num = 0;
 		var res = new List<int>();
-		var invalid = ActionFlow.CreateInvalidator(() =>
+		Func<Task> invalid = ActionFlow.CreateInvalidator(() =>
 		{
 			if (num > 10)
 				throw new InvalidOperationException("Num must be less than 10");
@@ -177,7 +176,7 @@ internal sealed class ActionFlowTest
 		}
 		sw.Stop();
 		Assert.That(async () => await lastTask, Throws.Exception);
-		Console.WriteLine(string.Join(',', res));		
+		Console.WriteLine(string.Join(',', res));
 	}
 
 	[TestCase(20)]
@@ -188,7 +187,7 @@ internal sealed class ActionFlowTest
 		int COUNT = 20;
 		int num = 0;
 		var res = new List<int>();
-		var invalid = ActionFlow.CreateInvalidatorAsync(async () =>
+		Func<Task> invalid = ActionFlow.CreateInvalidatorAsync(async () =>
 		{
 			await Task.Delay(10);
 			if (num > 10)
@@ -206,5 +205,82 @@ internal sealed class ActionFlowTest
 		sw.Stop();
 		Assert.That(async () => await lastTask, Throws.Exception);
 		Console.WriteLine(string.Join(',', res));
+	}
+
+	[TestCase(20)]
+	[TestCase(50)]
+	public async Task InvalidatorWithCancel(int delay)
+	{
+		int DDeleay = 80;
+		int COUNT = 20;
+		int num = 0;
+		var res = new List<int>();
+		var invalidator = ActionFlow.CreateInvalidator(() =>
+		{
+			res.Add(num);
+		}, TimeSpan.FromMilliseconds(DDeleay));
+		Task lastTask = Task.CompletedTask;
+		var sw = Stopwatch.StartNew();
+		for (int i = 0; i < COUNT; i++)
+		{
+			num = i;
+			await Task.Delay(delay);
+			lastTask = invalidator.Invalidate();
+		}
+		var mainTime = sw.ElapsedMilliseconds;
+		sw.Restart();
+		invalidator.CancelInvalidation();
+		//Assert.ThrowsAsync<TaskCanceledException>(() => lastTask);
+		try
+		{
+			await lastTask;
+		}
+		catch (TaskCanceledException) { }
+		sw.Stop();
+
+		Console.WriteLine("Last task time: {0}ms", sw.ElapsedMilliseconds);
+		Console.WriteLine(string.Join(',', res));
+
+		//Assert.That(lastTask.IsCanceled, Is.True);
+		Assert.That(sw.ElapsedMilliseconds, Is.LessThan(10));
+		Assert.That(res.Count, Is.InRange(mainTime / (DDeleay + delay) - 1, mainTime / DDeleay));
+	}
+
+	[TestCase(20)]
+	[TestCase(50)]
+	public async Task InvalidatorWithCancelAsync(int delay)
+	{
+		int DDeleay = 80;
+		int COUNT = 20;
+		int num = 0;
+		var res = new List<int>();
+		var invalidator = ActionFlow.CreateInvalidatorAsync(async () =>
+		{
+			await Task.Delay(10);
+			res.Add(num);
+		}, TimeSpan.FromMilliseconds(DDeleay));
+		Task lastTask = Task.CompletedTask;
+		var sw = Stopwatch.StartNew();
+		for (int i = 0; i < COUNT; i++)
+		{
+			num = i;
+			await Task.Delay(delay);
+			lastTask = invalidator.Invalidate();
+		}
+		var mainTime = sw.ElapsedMilliseconds;
+		sw.Restart();
+		invalidator.CancelInvalidation();
+		try
+		{
+			await lastTask;
+		}
+		catch (TaskCanceledException) { }
+		sw.Stop();
+
+		Console.WriteLine("Last task time: {0}ms", sw.ElapsedMilliseconds);
+		Console.WriteLine(string.Join(',', res));
+
+		Assert.That(sw.ElapsedMilliseconds, Is.LessThan(10));
+		Assert.That(res.Count, Is.InRange(mainTime / (DDeleay + delay) - 1, mainTime / DDeleay));
 	}
 }
