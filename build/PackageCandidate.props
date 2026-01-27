@@ -5,6 +5,14 @@
 		<MajorVersion>0.1</MajorVersion>
 		<SignAssembly>True</SignAssembly>
 		<AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\keys\Dwarf.snk</AssemblyOriginatorKeyFile>
+		<DebugType>portable</DebugType>
+		<!-- Старый вариант - собирает pdb и dll в один большой пакет -->
+		<!--<IncludeSymbolsInPackage>true</IncludeSymbolsInPackage>
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>-->
+		<!-- Современный вариант -->
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<EmbedAllSources>true</EmbedAllSources>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 	</PropertyGroup>
 
