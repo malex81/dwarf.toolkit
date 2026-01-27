@@ -4,7 +4,8 @@
 
 	<PropertyGroup>
 		<!--<TargetFramework>netstandard2.1</TargetFramework>-->
-		<MinorVersion>5-dev.4</MinorVersion>
+		<MinorVersion>5</MinorVersion>
+		<!--<MinorVersion>5-dev.4</MinorVersion>-->
 		<Version>$(MajorVersion).$(MinorVersion)</Version>
 		<Description>Basic set of helpers for different tasks</Description>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
