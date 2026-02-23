@@ -355,7 +355,7 @@ partial class AttachedPropertyGenerator
 			bipCreateArgsBuilder.AddRange([
 				Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(propertyInfo.PropertyName))),
 				Argument(IdentifierName($"typeof({propertyInfo.RealTypeName})")),
-				Argument(IdentifierName($"typeof({hInfo.MetadataName})")),
+				Argument(IdentifierName($"typeof({hInfo.ClassSymbol})")),
 				Argument(propDefaultExpressionSyntax)
 			]);
 

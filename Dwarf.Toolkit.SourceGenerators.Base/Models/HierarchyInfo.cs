@@ -12,7 +12,7 @@ namespace Dwarf.Toolkit.SourceGenerators.Models;
 /// <param name="MetadataName">The metadata name for the current type.</param>
 /// <param name="Namespace">Gets the namespace for the current type.</param>
 /// <param name="Hierarchy">Gets the sequence of type definitions containing the current type.</param>
-internal sealed partial record HierarchyInfo(string FilenameHint, string MetadataName, string Namespace, EquatableArray<TypeInfo> Hierarchy)
+internal sealed partial record HierarchyInfo(string FilenameHint, INamedTypeSymbol ClassSymbol, string Namespace, EquatableArray<TypeInfo> Hierarchy)
 {
 	/// <summary>
 	/// Creates a new <see cref="HierarchyInfo"/> instance from a given <see cref="INamedTypeSymbol"/>.
@@ -33,7 +33,7 @@ internal sealed partial record HierarchyInfo(string FilenameHint, string Metadat
 
 		return new(
 			typeSymbol.GetFullyQualifiedMetadataName(),
-			typeSymbol.MetadataName,
+			typeSymbol.OriginalDefinition,
 			typeSymbol.ContainingNamespace.ToDisplayString(new(typeQualificationStyle: NameAndContainingTypesAndNamespaces)),
 			hierarchy.ToImmutable());
 	}

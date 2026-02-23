@@ -22,7 +22,6 @@ public enum FARegularGlyphs
 internal static partial class StaticBox
 {
 	#region Example attached property
-
 	public static readonly BindableProperty RegularGlyphProperty =
 	   BindableProperty.CreateAttached("RegularGlyph", typeof(FARegularGlyphs), typeof(StaticBox), FARegularGlyphs.None, propertyChanged: OnRegularGlyphChanged);
 
@@ -34,6 +33,7 @@ internal static partial class StaticBox
 		if (newValue is not FARegularGlyphs glyph || glyph == FARegularGlyphs.None)
 			return;
 	}
+	#endregion
 
 	const string DefaultOuterText = "Первичное значение";
 
@@ -51,12 +51,10 @@ internal static partial class StaticBox
 
 	private static partial string? CoerceOuterText(BindableObject target, string? value)
 	{
-		if(value != DefaultOuterText) return value + " - новое значение";
+		if (value != DefaultOuterText) return value + " - новое значение";
 		return value;
 	}
 
 	//[AttachedProperty(DefaultValue = "Hello world", CoerceMethod = "CoerceExampleText", ValidateMethod = "ValidateExampleText")]
 	//public static partial string? GetExampleText(BindableObject target);
-
-	#endregion
 }

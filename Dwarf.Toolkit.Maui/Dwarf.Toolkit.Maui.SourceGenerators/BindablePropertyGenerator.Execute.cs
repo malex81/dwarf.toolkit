@@ -270,7 +270,7 @@ partial class BindablePropertyGenerator
 			bipCreateArgsBuilder.AddRange([
 				Argument(IdentifierName($"nameof({propertyInfo.PropertyName})")),
 				Argument(IdentifierName($"typeof({propertyInfo.RealTypeName})")),
-				Argument(IdentifierName($"typeof({hInfo.MetadataName})"))
+				Argument(IdentifierName($"typeof({hInfo.ClassSymbol})"))
 			]);
 
 			if (propertyInfo.BindableAttribute.TryGetNamedArgumentInfo(BindableAttributeNaming.DefaultValueArg, out var defaultArgInfo))
@@ -458,7 +458,7 @@ partial class BindablePropertyGenerator
 					.WithVariables(SingletonSeparatedList(
 						VariableDeclarator(Identifier("_instance"))
 						.WithInitializer(EqualsValueClause(
-							CastExpression(IdentifierName(hInfo.MetadataName), IdentifierName("bindable"))
+							CastExpression(IdentifierName(hInfo.ClassSymbol.ToString()), IdentifierName("bindable"))
 						)))));
 
 				yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(serviceMethodName))
@@ -525,7 +525,7 @@ partial class BindablePropertyGenerator
 				.WithVariables(SingletonSeparatedList(
 					VariableDeclarator(Identifier("_instance"))
 					.WithInitializer(EqualsValueClause(
-						CastExpression(IdentifierName(hInfo.MetadataName), IdentifierName("bindable"))
+						CastExpression(IdentifierName(hInfo.ClassSymbol.ToString()), IdentifierName("bindable"))
 					)))));
 
 			yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.BoolKeyword)), Identifier(propertyInfo.Srv_ValidateValue))
@@ -582,7 +582,7 @@ partial class BindablePropertyGenerator
 				.WithVariables(SingletonSeparatedList(
 					VariableDeclarator(Identifier("_instance"))
 					.WithInitializer(EqualsValueClause(
-						CastExpression(IdentifierName(hInfo.MetadataName), IdentifierName("bindable"))
+						CastExpression(IdentifierName(hInfo.ClassSymbol.ToString()), IdentifierName("bindable"))
 					)))));
 
 			yield return MethodDeclaration(PredefinedType(Token(SyntaxKind.ObjectKeyword)), Identifier(propertyInfo.Srv_CoerceValue))

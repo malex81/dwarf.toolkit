@@ -38,7 +38,7 @@ internal sealed class AttachedPropertyTest
 				/// <summary>
 				/// Creates an attached property named TextSample, of type <see cref="string"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextSampleProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("TextSample", typeof(string), typeof(Container), default);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextSampleProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("TextSample", typeof(string), typeof(SimpleAttachedProps.Container), default);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -49,7 +49,7 @@ internal sealed class AttachedPropertyTest
 				/// <summary>
 				/// Creates an attached property named NumSample, of type <see cref="int?"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty NumSampleProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("NumSample", typeof(int?), typeof(Container), default);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty NumSampleProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("NumSample", typeof(int?), typeof(SimpleAttachedProps.Container), default);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -60,7 +60,7 @@ internal sealed class AttachedPropertyTest
 				/// <summary>
 				/// Creates an attached property named PrivateObject, of type <see cref="object"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty PrivateObjectProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("PrivateObject", typeof(object), typeof(Container), default);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty PrivateObjectProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("PrivateObject", typeof(object), typeof(SimpleAttachedProps.Container), default);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -131,7 +131,7 @@ internal sealed class AttachedPropertyTest
 				/// <summary>
 				/// Creates an attached property named TextSample, of type <see cref="string"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextSampleProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("TextSample", typeof(string), typeof(Container), "Привет, Вася!", defaultBindingMode: global::Microsoft.Maui.Controls.BindingMode.Default, propertyChanging: __TextSample_Changing);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextSampleProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("TextSample", typeof(string), typeof(AttachedWithDefaults.Container), "Привет, Вася!", defaultBindingMode: global::Microsoft.Maui.Controls.BindingMode.Default, propertyChanging: __TextSample_Changing);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -142,7 +142,7 @@ internal sealed class AttachedPropertyTest
 				/// <summary>
 				/// Creates an attached property named FloatNum, of type <see cref="float?"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty FloatNumProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("FloatNum", typeof(float?), typeof(Container), 3.14159, propertyChanged: __FloatNum_Changed);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty FloatNumProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("FloatNum", typeof(float?), typeof(AttachedWithDefaults.Container), 3.14159, propertyChanged: __FloatNum_Changed);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -227,7 +227,7 @@ internal sealed class AttachedPropertyTest
 				/// <summary>
 				/// Creates an attached property named TextSample, of type <see cref="string"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextSampleProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("TextSample", typeof(string), typeof(Container), default, propertyChanging: __TextSample_Changing, propertyChanged: __TextSample_Changed, validateValue: __TextSample_Validate);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextSampleProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("TextSample", typeof(string), typeof(AttachedWithValidation.Container), default, propertyChanging: __TextSample_Changing, propertyChanged: __TextSample_Changed, validateValue: __TextSample_Validate);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -238,7 +238,7 @@ internal sealed class AttachedPropertyTest
 				/// <summary>
 				/// Creates an attached property named FloatNum, of type <see cref="float?"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty FloatNumProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("FloatNum", typeof(float?), typeof(Container), default, propertyChanging: __FloatNum_Changing, propertyChanged: __FloatNum_Changed, validateValue: __FloatNum_Validate);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty FloatNumProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("FloatNum", typeof(float?), typeof(AttachedWithValidation.Container), default, propertyChanging: __FloatNum_Changing, propertyChanged: __FloatNum_Changed, validateValue: __FloatNum_Validate);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -342,7 +342,7 @@ internal sealed class AttachedPropertyTest
 				/// <summary>
 				/// Creates an attached property named TextSample, of type <see cref="string"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextSampleProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("TextSample", typeof(string), typeof(Container), default, propertyChanging: __TextSample_Changing, coerceValue: __TextSample_Coerce);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextSampleProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("TextSample", typeof(string), typeof(AttachedWithCoerce.Container), default, propertyChanging: __TextSample_Changing, coerceValue: __TextSample_Coerce);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -353,7 +353,7 @@ internal sealed class AttachedPropertyTest
 				/// <summary>
 				/// Creates an attached property named CustomObject, of type <see cref="object"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty CustomObjectProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("CustomObject", typeof(object), typeof(Container), default, propertyChanged: __CustomObject_Changed, coerceValue: __CustomObject_Coerce);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty CustomObjectProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached("CustomObject", typeof(object), typeof(AttachedWithCoerce.Container), default, propertyChanged: __CustomObject_Changed, coerceValue: __CustomObject_Coerce);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]

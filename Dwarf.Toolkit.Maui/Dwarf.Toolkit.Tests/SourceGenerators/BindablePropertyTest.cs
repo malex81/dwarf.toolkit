@@ -36,7 +36,7 @@ internal class BindablePropertyTest
 				/// <summary>
 				/// Creates a bindable property named MyProp, of type <see cref="string"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty MyPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(MyProp), typeof(string), typeof(Container), propertyChanged: __MyProp_Changed);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty MyPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(MyProp), typeof(string), typeof(SingleSimpleProp.Container), propertyChanged: __MyProp_Changed);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -56,7 +56,7 @@ internal class BindablePropertyTest
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp_Changed(global::Microsoft.Maui.Controls.BindableObject bindable, object oldValue, object newValue)
 				{
-					var _instance = (Container)bindable;
+					var _instance = (SingleSimpleProp.Container)bindable;
 					_instance.OnMyPropChanged((string)newValue);
 					_instance.OnMyPropChanged((string)oldValue, (string)newValue);
 				}
@@ -96,7 +96,7 @@ internal class BindablePropertyTest
 				/// <summary>
 				/// Creates a bindable property named TextProp, of type <see cref="string"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(TextProp), typeof(string), typeof(Container));
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(TextProp), typeof(string), typeof(MultiAccessorsProps.Container));
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -105,7 +105,7 @@ internal class BindablePropertyTest
 				/// <summary>
 				/// Creates a bindable property named NumProp, of type <see cref="int?"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty NumPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(NumProp), typeof(int?), typeof(Container));
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty NumPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(NumProp), typeof(int?), typeof(MultiAccessorsProps.Container));
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -163,7 +163,7 @@ internal class BindablePropertyTest
 				/// <summary>
 				/// Creates a bindable property named TextProp, of type <see cref="string"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(TextProp), typeof(string), typeof(Container), defaultValue: "Привет, Вася!", defaultBindingMode: global::Microsoft.Maui.Controls.BindingMode.OneWayToSource);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(TextProp), typeof(string), typeof(WithDefaultValue.Container), defaultValue: "Привет, Вася!", defaultBindingMode: global::Microsoft.Maui.Controls.BindingMode.OneWayToSource);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -172,7 +172,7 @@ internal class BindablePropertyTest
 				/// <summary>
 				/// Creates a bindable property named FloatProp, of type <see cref="float"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty FloatPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(FloatProp), typeof(float), typeof(Container), defaultValue: 3.14159F);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty FloatPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(FloatProp), typeof(float), typeof(WithDefaultValue.Container), defaultValue: 3.14159F);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -230,7 +230,7 @@ internal class BindablePropertyTest
 				/// <summary>
 				/// Creates a bindable property named DateTimeProp, of type <see cref="DateTime"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty DateTimePropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(DateTimeProp), typeof(DateTime), typeof(Container), defaultValue: DateTime.Now);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty DateTimePropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(DateTimeProp), typeof(DateTime), typeof(WithDefaultValueExpression.Container), defaultValue: DateTime.Now);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -239,7 +239,7 @@ internal class BindablePropertyTest
 				/// <summary>
 				/// Creates a bindable property named FloatProp, of type <see cref="float"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty FloatPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(FloatProp), typeof(float), typeof(Container), defaultValue: 3.14159);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty FloatPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(FloatProp), typeof(float), typeof(WithDefaultValueExpression.Container), defaultValue: 3.14159);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -299,7 +299,7 @@ internal class BindablePropertyTest
 				/// <summary>
 				/// Creates a bindable property named MyProp, of type <see cref="string"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty MyPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(MyProp), typeof(string), typeof(Container), propertyChanging: __MyProp_Changing, propertyChanged: __MyProp_Changed, validateValue: __MyProp_Validate);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty MyPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(MyProp), typeof(string), typeof(WithValidation.Container), propertyChanging: __MyProp_Changing, propertyChanged: __MyProp_Changed, validateValue: __MyProp_Validate);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -311,7 +311,7 @@ internal class BindablePropertyTest
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp_Changing(global::Microsoft.Maui.Controls.BindableObject bindable, object oldValue, object newValue)
 				{
-					var _instance = (Container)bindable;
+					var _instance = (WithValidation.Container)bindable;
 					_instance.OnMyPropChanging((string)newValue);
 					_instance.OnMyPropChanging((string)oldValue, (string)newValue);
 				}
@@ -322,7 +322,7 @@ internal class BindablePropertyTest
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp_Changed(global::Microsoft.Maui.Controls.BindableObject bindable, object oldValue, object newValue)
 				{
-					var _instance = (Container)bindable;
+					var _instance = (WithValidation.Container)bindable;
 					_instance.OnMyPropChanged((string)newValue);
 					_instance.OnMyPropChanged((string)oldValue, (string)newValue);
 				}
@@ -335,7 +335,7 @@ internal class BindablePropertyTest
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static bool __MyProp_Validate(global::Microsoft.Maui.Controls.BindableObject bindable, object value)
 				{
-					var _instance = (Container)bindable;
+					var _instance = (WithValidation.Container)bindable;
 					return _instance.MyPropValidation((string)value);
 				}
 			}
@@ -378,7 +378,7 @@ internal class BindablePropertyTest
 				/// <summary>
 				/// Creates a bindable property named MyProp, of type <see cref="string"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty MyPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(MyProp), typeof(string), typeof(Container), propertyChanging: __MyProp_Changing, propertyChanged: __MyProp_Changed, validateValue: __MyProp_Validate);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty MyPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(MyProp), typeof(string), typeof(WithValidationWithoutPartial.Container), propertyChanging: __MyProp_Changing, propertyChanged: __MyProp_Changed, validateValue: __MyProp_Validate);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -390,7 +390,7 @@ internal class BindablePropertyTest
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp_Changing(global::Microsoft.Maui.Controls.BindableObject bindable, object oldValue, object newValue)
 				{
-					var _instance = (Container)bindable;
+					var _instance = (WithValidationWithoutPartial.Container)bindable;
 					_instance.OnMyPropChanging((string)newValue);
 					_instance.OnMyPropChanging((string)oldValue, (string)newValue);
 				}
@@ -401,7 +401,7 @@ internal class BindablePropertyTest
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp_Changed(global::Microsoft.Maui.Controls.BindableObject bindable, object oldValue, object newValue)
 				{
-					var _instance = (Container)bindable;
+					var _instance = (WithValidationWithoutPartial.Container)bindable;
 					_instance.OnMyPropChanged((string)newValue);
 					_instance.OnMyPropChanged((string)oldValue, (string)newValue);
 				}
@@ -412,7 +412,7 @@ internal class BindablePropertyTest
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static bool __MyProp_Validate(global::Microsoft.Maui.Controls.BindableObject bindable, object value)
 				{
-					var _instance = (Container)bindable;
+					var _instance = (WithValidationWithoutPartial.Container)bindable;
 					return _instance.MyPropValidation((string)value);
 				}
 			}
@@ -463,7 +463,7 @@ internal class BindablePropertyTest
 				/// <summary>
 				/// Creates a bindable property named MyProp, of type <see cref="string"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty MyPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(MyProp), typeof(string), typeof(Container), propertyChanging: __MyProp_Changing, propertyChanged: __MyProp_Changed, coerceValue: __MyProp_Coerce);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty MyPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(MyProp), typeof(string), typeof(WithCoerce.Container), propertyChanging: __MyProp_Changing, propertyChanged: __MyProp_Changed, coerceValue: __MyProp_Coerce);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -472,7 +472,7 @@ internal class BindablePropertyTest
 				/// <summary>
 				/// Creates a bindable property named MyProp2, of type <see cref="string"/>
 				/// </summary>
-				public static readonly global::Microsoft.Maui.Controls.BindableProperty MyProp2Property = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(MyProp2), typeof(string), typeof(Container), propertyChanging: __MyProp2_Changing, propertyChanged: __MyProp2_Changed, coerceValue: __MyProp2_Coerce);
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty MyProp2Property = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(MyProp2), typeof(string), typeof(WithCoerce.Container), propertyChanging: __MyProp2_Changing, propertyChanged: __MyProp2_Changed, coerceValue: __MyProp2_Coerce);
 				/// <inheritdoc/>
 				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -484,7 +484,7 @@ internal class BindablePropertyTest
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp_Changing(global::Microsoft.Maui.Controls.BindableObject bindable, object oldValue, object newValue)
 				{
-					var _instance = (Container)bindable;
+					var _instance = (WithCoerce.Container)bindable;
 					_instance.OnMyPropChanging((string)newValue);
 					_instance.OnMyPropChanging((string)oldValue, (string)newValue);
 				}
@@ -495,7 +495,7 @@ internal class BindablePropertyTest
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp_Changed(global::Microsoft.Maui.Controls.BindableObject bindable, object oldValue, object newValue)
 				{
-					var _instance = (Container)bindable;
+					var _instance = (WithCoerce.Container)bindable;
 					_instance.OnMyPropChanged((string)newValue);
 					_instance.OnMyPropChanged((string)oldValue, (string)newValue);
 				}
@@ -506,7 +506,7 @@ internal class BindablePropertyTest
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static object __MyProp_Coerce(global::Microsoft.Maui.Controls.BindableObject bindable, object value)
 				{
-					var _instance = (Container)bindable;
+					var _instance = (WithCoerce.Container)bindable;
 					return _instance.MyPropCoerce((string)value);
 				}
 
@@ -516,7 +516,7 @@ internal class BindablePropertyTest
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp2_Changing(global::Microsoft.Maui.Controls.BindableObject bindable, object oldValue, object newValue)
 				{
-					var _instance = (Container)bindable;
+					var _instance = (WithCoerce.Container)bindable;
 					_instance.OnMyProp2Changing((string)newValue);
 					_instance.OnMyProp2Changing((string)oldValue, (string)newValue);
 				}
@@ -527,7 +527,7 @@ internal class BindablePropertyTest
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static void __MyProp2_Changed(global::Microsoft.Maui.Controls.BindableObject bindable, object oldValue, object newValue)
 				{
-					var _instance = (Container)bindable;
+					var _instance = (WithCoerce.Container)bindable;
 					_instance.OnMyProp2Changed((string)newValue);
 					_instance.OnMyProp2Changed((string)oldValue, (string)newValue);
 				}
@@ -540,12 +540,103 @@ internal class BindablePropertyTest
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				static object __MyProp2_Coerce(global::Microsoft.Maui.Controls.BindableObject bindable, object value)
 				{
-					var _instance = (Container)bindable;
+					var _instance = (WithCoerce.Container)bindable;
 					return _instance.MyProp2Coerce((string)value);
 				}
 			}
 			""";
 
 		VerifyGenerateSources(source, [new BindablePropertyGenerator()], ("WithCoerce.Container.g.cs", result));
+	}
+
+	[TestCase]
+	public void GenericBindableProperty()
+	{
+		var source = """
+			using Microsoft.Maui.Controls;
+			using Dwarf.Toolkit.Maui;
+
+			namespace GenericTypeProp;
+
+			partial class Container<T> : BindableObject
+			{
+				[BindableProperty]
+				partial string? TextProp { get; set; }
+
+				[BindableProperty]
+				partial T GenericProp { get; set; }
+				
+				partial void OnTextPropChanged(string val) {}
+				partial void OnGenericPropChanged(T val) {}
+			}
+			""";
+
+		var result = """
+			// <auto-generated/>
+			#pragma warning disable
+			#nullable enable
+			namespace GenericTypeProp;
+			/// <inheritdoc/>
+			partial class Container<T>
+			{
+				/// <summary>
+				/// Creates a bindable property named TextProp, of type <see cref="string"/>
+				/// </summary>
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty TextPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(TextProp), typeof(string), typeof(GenericTypeProp.Container<T>), propertyChanged: __TextProp_Changed);
+				/// <inheritdoc/>
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				partial string? TextProp { get => (string)GetValue(TextPropProperty); set => SetValue(TextPropProperty, value); }
+
+				/// <summary>
+				/// Creates a bindable property named GenericProp, of type <see cref="T"/>
+				/// </summary>
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty GenericPropProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(nameof(GenericProp), typeof(T), typeof(GenericTypeProp.Container<T>), propertyChanged: __GenericProp_Changed);
+				/// <inheritdoc/>
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				partial T GenericProp { get => (T)GetValue(GenericPropProperty); set => SetValue(GenericPropProperty, value); }
+
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				partial void OnTextPropChanging(string? value);
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				partial void OnTextPropChanging(string? oldValue, string? newValue);
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				partial void OnTextPropChanged(string? value);
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				partial void OnTextPropChanged(string? oldValue, string? newValue);
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				[global::System.Diagnostics.DebuggerNonUserCode]
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+				static void __TextProp_Changed(global::Microsoft.Maui.Controls.BindableObject bindable, object oldValue, object newValue)
+				{
+					var _instance = (GenericTypeProp.Container<T>)bindable;
+					_instance.OnTextPropChanged((string)newValue);
+					_instance.OnTextPropChanged((string)oldValue, (string)newValue);
+				}
+
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				partial void OnGenericPropChanging(T value);
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				partial void OnGenericPropChanging(T oldValue, T newValue);
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				partial void OnGenericPropChanged(T value);
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				partial void OnGenericPropChanged(T oldValue, T newValue);
+				[global::System.CodeDom.Compiler.GeneratedCode("Dwarf.Toolkit.Maui.SourceGenerators.BindablePropertyGenerator", <ASSEMBLY_VERSION>)]
+				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+				[global::System.Diagnostics.DebuggerNonUserCode]
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+				static void __GenericProp_Changed(global::Microsoft.Maui.Controls.BindableObject bindable, object oldValue, object newValue)
+				{
+					var _instance = (GenericTypeProp.Container<T>)bindable;
+					_instance.OnGenericPropChanged((T)newValue);
+					_instance.OnGenericPropChanged((T)oldValue, (T)newValue);
+				}
+			}
+			""";
+
+		VerifyGenerateSources(source, [new BindablePropertyGenerator()], ("GenericTypeProp.Container_1.g.cs", result));
 	}
 }
