@@ -18,12 +18,15 @@ public enum FARegularGlyphs
 	SquareCheck = 0xf14a,
 	CircleCheck = 0xf058,
 }
-
-internal static partial class StaticBox
+//internal
+public static partial class StaticBox
 {
 	#region Example attached property
-	public static readonly BindableProperty RegularGlyphProperty =
-	   BindableProperty.CreateAttached("RegularGlyph", typeof(FARegularGlyphs), typeof(StaticBox), FARegularGlyphs.None, propertyChanged: OnRegularGlyphChanged);
+	public static readonly BindableProperty RegularGlyphProperty = BindableProperty.CreateAttached("RegularGlyph",
+																	   typeof(FARegularGlyphs),
+																	   typeof(StaticBox),
+																	   FARegularGlyphs.None,
+																	   propertyChanged: OnRegularGlyphChanged);
 
 	public static FARegularGlyphs GetRegularGlyph(Label view) => (FARegularGlyphs)view.GetValue(RegularGlyphProperty);
 	public static void SetRegularGlyph(Label view, FARegularGlyphs value) => view.SetValue(RegularGlyphProperty, value);

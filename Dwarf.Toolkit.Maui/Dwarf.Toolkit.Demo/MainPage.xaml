@@ -14,9 +14,10 @@
                 Aspect="AspectFit"
                 SemanticProperties.Description="dot net bot in a race car number eight" />
 
+			<!--bunny:StaticBox.OuterText="Это пример для Attached свойства"-->
 			<Label
 				bunny:StaticBox.RegularGlyph="CirclePlay"
-				bunny:StaticBox.OuterText="Это пример для Attached свойства"
+				bunny:StaticBox.OuterText="12321"
                 Text="Hello, World!"
                 Style="{StaticResource Headline}"
                 SemanticProperties.HeadingLevel="Level1" />

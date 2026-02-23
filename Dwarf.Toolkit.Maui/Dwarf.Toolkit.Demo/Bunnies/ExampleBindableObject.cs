@@ -1,8 +1,8 @@
 ﻿using Dwarf.Toolkit.Maui;
 
 namespace Dwarf.Toolkit.Demo.Bunnies;
-
-internal sealed partial class ExampleBindableObject : BindableObject
+//internal 
+sealed partial class ExampleBindableObject : BindableObject
 {
 	public record CustomType(int Num, string Text);
 

@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using System.Collections.Immutable;
 
 namespace Dwarf.Toolkit.SourceGenerators.Models;
+
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 partial record HierarchyInfo
@@ -28,8 +29,10 @@ partial record HierarchyInfo
 		// }
 		TypeDeclarationSyntax typeDeclarationSyntax = Hierarchy[0]
 			.GetSyntax()
-			.AddModifiers(Token(TriviaList(Comment("/// <inheritdoc/>")), SyntaxKind.PartialKeyword, TriviaList()))
-			.AddMembers(memberDeclarations.ToArray());
+			.AddModifiers(Token(SyntaxKind.PublicKeyword)) // Token(SyntaxKind.StaticKeyword)
+			.AddModifiers(Token(SyntaxKind.PartialKeyword))
+			.AddMembers(memberDeclarations.ToArray())
+			.WithLeadingTrivia(TriviaList(Comment("/// <inheritdoc/>")));
 
 		// Add the base list, if present
 		if (baseList is not null)
