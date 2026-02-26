@@ -16,7 +16,7 @@ internal class BindablePropertyTest
 
 			namespace SingleSimpleProp;
 
-			partial class Container : BindableObject
+			public partial class Container : BindableObject
 			{
 				[BindableProperty]
 				partial string? MyProp { get; set; }
@@ -31,7 +31,7 @@ internal class BindablePropertyTest
 			#nullable enable
 			namespace SingleSimpleProp;
 			/// <inheritdoc/>
-			partial class Container
+			public partial class Container
 			{
 				/// <summary>
 				/// Creates a bindable property named MyProp, of type <see cref="string"/>

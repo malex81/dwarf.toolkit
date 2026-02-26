@@ -18,8 +18,8 @@ public enum FARegularGlyphs
 	SquareCheck = 0xf14a,
 	CircleCheck = 0xf058,
 }
-//internal
-public static partial class StaticBox
+
+internal static partial class StaticBox
 {
 	#region Example attached property
 	public static readonly BindableProperty RegularGlyphProperty = BindableProperty.CreateAttached("RegularGlyph",

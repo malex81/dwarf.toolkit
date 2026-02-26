@@ -29,8 +29,7 @@ partial record HierarchyInfo
 		// }
 		TypeDeclarationSyntax typeDeclarationSyntax = Hierarchy[0]
 			.GetSyntax()
-			.AddModifiers(Token(SyntaxKind.PublicKeyword)) // Token(SyntaxKind.StaticKeyword)
-			.AddModifiers(Token(SyntaxKind.PartialKeyword))
+			.WithModifiers(GetTypeModifiers(Hierarchy[0]))
 			.AddMembers(memberDeclarations.ToArray())
 			.WithLeadingTrivia(TriviaList(Comment("/// <inheritdoc/>")));
 
@@ -43,10 +42,11 @@ partial record HierarchyInfo
 		// Add all parent types in ascending order, if any
 		foreach (TypeInfo parentType in Hierarchy.AsSpan()[1..])
 		{
-			typeDeclarationSyntax =
-				parentType.GetSyntax()
-						.AddModifiers(Token(TriviaList(Comment("/// <inheritdoc/>")), SyntaxKind.PartialKeyword, TriviaList()))
-						.AddMembers(typeDeclarationSyntax);
+			typeDeclarationSyntax = parentType
+				.GetSyntax()
+				.WithModifiers(GetTypeModifiers(parentType))
+				.AddMembers(typeDeclarationSyntax)
+				.WithLeadingTrivia(TriviaList(Comment("/// <inheritdoc/>")));
 		}
 
 		// Prepare the leading trivia for the generated compilation unit.

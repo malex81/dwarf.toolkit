@@ -17,7 +17,7 @@ internal static class SyntaxTokenListExtensions
     /// </summary>
     /// <param name="syntaxList">The input <see cref="SyntaxTokenList"/> value to check.</param>
     /// <returns>Whether <paramref name="syntaxList"/> contains any accessibility modifiers.</returns>
-    public static bool ContainsAnyAccessibilityModifiers(this SyntaxTokenList syntaxList)
+    public static bool ContainsAnyAccessibilityModifiers(this IEnumerable<SyntaxToken> syntaxList)
     {
         foreach (SyntaxToken token in syntaxList)
         {

@@ -98,6 +98,10 @@ static object __ExampleText_Coerce(global::Microsoft.Maui.Controls.BindableObjec
 
 ## Change Log
 
+### 0.1.7
+
+- Add accessor to generated classes
+
 ### 0.1.6 - 15.02.2026
 
 - Fix generic type container

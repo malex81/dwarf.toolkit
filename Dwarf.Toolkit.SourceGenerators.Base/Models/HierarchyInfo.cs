@@ -1,7 +1,12 @@
-﻿using Dwarf.Toolkit.SourceGenerators.Extensions;
+﻿using Dwarf.Toolkit.Maui.SourceGenerators.Models;
+using Dwarf.Toolkit.SourceGenerators.Extensions;
 using Dwarf.Toolkit.SourceGenerators.Helpers;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Immutable;
 using static Microsoft.CodeAnalysis.SymbolDisplayTypeQualificationStyle;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Dwarf.Toolkit.SourceGenerators.Models;
 
@@ -28,6 +33,8 @@ internal sealed partial record HierarchyInfo(string FilenameHint, INamedTypeSymb
 			hierarchy.Add(new TypeInfo(
 				parent.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
 				parent.TypeKind,
+				parent.GetModifiers().ContainsAnyAccessibilityModifiers() ? parent.DeclaredAccessibility : Accessibility.NotApplicable,
+				//GetTypeModifiers(parent).AsUnderlyingType(),
 				parent.IsRecord));
 		}
 
@@ -37,4 +44,37 @@ internal sealed partial record HierarchyInfo(string FilenameHint, INamedTypeSymb
 			typeSymbol.ContainingNamespace.ToDisplayString(new(typeQualificationStyle: NameAndContainingTypesAndNamespaces)),
 			hierarchy.ToImmutable());
 	}
+
+	//private static ImmutableArray<SyntaxKind> GetTypeModifiers(INamedTypeSymbol typeSymbol)
+	//{
+	//	ReadOnlySpan<SyntaxKind> candidateKinds =
+	//	[
+	//		SyntaxKind.PrivateKeyword,
+	//		SyntaxKind.InternalKeyword,
+	//		SyntaxKind.PublicKeyword,
+	//	];
+
+	//	using ImmutableArrayBuilder<SyntaxKind> builder = ImmutableArrayBuilder<SyntaxKind>.Rent();
+	//	foreach (var syntaxReference in typeSymbol.DeclaringSyntaxReferences)
+	//		if (syntaxReference.GetSyntax() is TypeDeclarationSyntax typeDecl)
+	//		{
+	//			foreach (SyntaxKind kind in candidateKinds)
+	//				if (typeDecl.Modifiers.Any(kind))
+	//					builder.Add(kind);
+	//		}
+
+	//	return builder.ToImmutable();
+	//}
+
+	private static SyntaxTokenList GetTypeModifiers(TypeInfo typeInfo)
+	{
+		SyntaxTokenList propertyModifiers = typeInfo.PropertyAccessibility.ToSyntaxTokenList();
+		//foreach (SyntaxKind modifier in typeInfo.GetMethodModifers.AsImmutableArray().FromUnderlyingType())
+		//{
+		//	propertyModifiers = propertyModifiers.Add(Token(modifier));
+		//}
+		propertyModifiers = propertyModifiers.Add(Token(SyntaxKind.PartialKeyword));
+		return propertyModifiers;
+	}
+
 }

@@ -1,6 +1,7 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Immutable;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Dwarf.Toolkit.SourceGenerators.Models;
@@ -11,7 +12,12 @@ namespace Dwarf.Toolkit.SourceGenerators.Models;
 /// <param name="QualifiedName">The qualified name for the type.</param>
 /// <param name="Kind">The type of the type in the hierarchy.</param>
 /// <param name="IsRecord">Whether the type is a record type.</param>
-internal sealed record TypeInfo(string QualifiedName, TypeKind Kind, bool IsRecord)
+internal sealed record TypeInfo(
+	string QualifiedName,
+	TypeKind Kind,
+	Accessibility PropertyAccessibility,
+	//ImmutableArray<ushort> TypeModifers,
+	bool IsRecord)
 {
 	/// <summary>
 	/// Creates a <see cref="TypeDeclarationSyntax"/> instance for the current info.

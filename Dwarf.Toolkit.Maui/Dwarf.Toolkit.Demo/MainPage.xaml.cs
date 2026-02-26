@@ -11,7 +11,7 @@ public partial class MainPage : ContentPage
 		InitializeComponent();
 	}
 
-	private void OnCounterClicked(object sender, EventArgs e)
+	private void OnCounterClicked(object? sender, EventArgs e)
 	{
 		textLabel.Text = $"{sample.TextProp} - {sample.CustomProp.Text} ({sample.CustomProp.Num})";
 
