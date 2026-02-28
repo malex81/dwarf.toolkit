@@ -17,6 +17,7 @@
 			<!--bunny:StaticBox.OuterText="Это пример для Attached свойства"-->
 			<Label
 				bunny:StaticBox.RegularGlyph="CirclePlay"
+				bunny:StaticBox.OuterText="Это пример для Attached свойства"
                 Text="Hello, World!"
                 Style="{StaticResource Headline}"
                 SemanticProperties.HeadingLevel="Level1" />
