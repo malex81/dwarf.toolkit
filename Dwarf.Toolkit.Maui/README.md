@@ -100,12 +100,13 @@ static object __ExampleText_Coerce(global::Microsoft.Maui.Controls.BindableObjec
 
 ### 0.1.7
 
-- Add accessor to generated classes
+- Added accessor to generated classes
+- Added some diagnostic information
 
 ### 0.1.6 - 15.02.2026
 
-- Fix generic type container
-- Add namespace to type containter: `typeof(Container)` => `typeof([Full namespace].Container)`
+- Fixed generic type container
+- Added namespace to type containter: `typeof(Container)` => `typeof([Full namespace].Container)`
 
 ### 0.1.5 - 14.01.2026
 
@@ -113,22 +114,22 @@ static object __ExampleText_Coerce(global::Microsoft.Maui.Controls.BindableObjec
 
 ### 0.1.4 - 2025.12.07
 
-- Add attached property support
-- Fix some little bugs
+- Added attached property support
+- Fixed some little bugs
 
 ### 0.1.3 - 2025.11.19
 
-- Fix nullable annotation of reference types
-- Add some attributes to mark service methods
+- Fixed nullable annotation of reference types
+- Added some attributes to mark service methods
 
 ### 0.1.2 - 20125.11.18
 
-- Add `DefaultBindingMode`, `ChangingMethod`, `ChangedMethod`, `ValidateMethod` and `CoerceMethod` properties to `BindablePropertyAttribute`
+- Added `DefaultBindingMode`, `ChangingMethod`, `ChangedMethod`, `ValidateMethod` and `CoerceMethod` properties to `BindablePropertyAttribute`
 
 ### 0.1.1 - 2025.11.12
 
-- Add `DefaultValue` and `DefaultValueExpression` properties to `BindablePropertyAttribute`
-- Fix property accessibility
+- Added `DefaultValue` and `DefaultValueExpression` properties to `BindablePropertyAttribute`
+- Fixed property accessibility
 
 ### 0.1.0 - 2025.10.31
 

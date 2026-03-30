@@ -33,8 +33,8 @@ internal sealed partial record HierarchyInfo(string FilenameHint, INamedTypeSymb
 			hierarchy.Add(new TypeInfo(
 				parent.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
 				parent.TypeKind,
-				parent.GetModifiers().ContainsAnyAccessibilityModifiers() ? parent.DeclaredAccessibility : Accessibility.NotApplicable,
-				//GetTypeModifiers(parent).AsUnderlyingType(),
+				//parent.GetModifiers().ContainsAnyAccessibilityModifiers() ? parent.DeclaredAccessibility : Accessibility.NotApplicable,
+				GetTypeModifiers(parent).AsUnderlyingType(),
 				parent.IsRecord));
 		}
 
@@ -45,36 +45,40 @@ internal sealed partial record HierarchyInfo(string FilenameHint, INamedTypeSymb
 			hierarchy.ToImmutable());
 	}
 
-	//private static ImmutableArray<SyntaxKind> GetTypeModifiers(INamedTypeSymbol typeSymbol)
-	//{
-	//	ReadOnlySpan<SyntaxKind> candidateKinds =
-	//	[
-	//		SyntaxKind.PrivateKeyword,
-	//		SyntaxKind.InternalKeyword,
-	//		SyntaxKind.PublicKeyword,
-	//	];
+	private static ImmutableArray<SyntaxKind> GetTypeModifiers(INamedTypeSymbol typeSymbol)
+	{
+		ReadOnlySpan<SyntaxKind> candidateKinds =
+		[
+			SyntaxKind.PrivateKeyword,
+			SyntaxKind.ProtectedKeyword,
+			SyntaxKind.InternalKeyword,
+			SyntaxKind.PublicKeyword,
+			SyntaxKind.StaticKeyword
+		];
 
-	//	using ImmutableArrayBuilder<SyntaxKind> builder = ImmutableArrayBuilder<SyntaxKind>.Rent();
-	//	foreach (var syntaxReference in typeSymbol.DeclaringSyntaxReferences)
-	//		if (syntaxReference.GetSyntax() is TypeDeclarationSyntax typeDecl)
-	//		{
-	//			foreach (SyntaxKind kind in candidateKinds)
-	//				if (typeDecl.Modifiers.Any(kind))
-	//					builder.Add(kind);
-	//		}
+		using ImmutableArrayBuilder<SyntaxKind> builder = ImmutableArrayBuilder<SyntaxKind>.Rent();
+		//foreach (var syntaxReference in typeSymbol.DeclaringSyntaxReferences)
+		//	if (syntaxReference.GetSyntax() is TypeDeclarationSyntax typeDecl)
+		//	{
+		//		foreach (SyntaxKind kind in candidateKinds)
+		//			if (typeDecl.Modifiers.Any(kind))
+		//				builder.Add(kind);
+		//	}
+		var allModifiers = typeSymbol.GetModifiers().ToArray();
+		foreach (SyntaxKind kind in candidateKinds)
+			if (allModifiers.Any(m => m.RawKind == (int)kind))
+				builder.Add(kind);
 
-	//	return builder.ToImmutable();
-	//}
+		return builder.ToImmutable();
+	}
 
 	private static SyntaxTokenList GetTypeModifiers(TypeInfo typeInfo)
 	{
-		SyntaxTokenList propertyModifiers = typeInfo.PropertyAccessibility.ToSyntaxTokenList();
-		//foreach (SyntaxKind modifier in typeInfo.GetMethodModifers.AsImmutableArray().FromUnderlyingType())
-		//{
-		//	propertyModifiers = propertyModifiers.Add(Token(modifier));
-		//}
-		propertyModifiers = propertyModifiers.Add(Token(SyntaxKind.PartialKeyword));
-		return propertyModifiers;
+		SyntaxTokenList typeModifiers = []; //typeInfo.PropertyAccessibility.ToSyntaxTokenList();
+		foreach (SyntaxKind modifier in typeInfo.TypeModifers.AsImmutableArray().FromUnderlyingType())
+			typeModifiers = typeModifiers.Add(Token(modifier));
+		typeModifiers = typeModifiers.Add(Token(SyntaxKind.PartialKeyword));
+		return typeModifiers;
 	}
 
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using Dwarf.Toolkit.SourceGenerators.Helpers;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
@@ -15,8 +16,8 @@ namespace Dwarf.Toolkit.SourceGenerators.Models;
 internal sealed record TypeInfo(
 	string QualifiedName,
 	TypeKind Kind,
-	Accessibility PropertyAccessibility,
-	//ImmutableArray<ushort> TypeModifers,
+	//Accessibility PropertyAccessibility,
+	EquatableArray<ushort> TypeModifers,
 	bool IsRecord)
 {
 	/// <summary>

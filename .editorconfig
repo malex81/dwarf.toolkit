@@ -22,5 +22,7 @@ dotnet_diagnostic.IDE0130.severity = silent
 dotnet_diagnostic.CA1822.severity = silent	
 # Предлагает заменять сравнение через ToLower() на StringComparer.CurrentCultureIgnoreCase, при этом не учитывает контекст использования, не видит в какой запрос это будет транслироваться
 dotnet_diagnostic.CA1862.severity = none
+# Предлагает использовать сгенерированные Regex
+dotnet_diagnostic.SYSLIB1045.severity = none
 # Ошибки генерации кода
-dotnet_diagnostic.CS8785.severity = error   
+dotnet_diagnostic.CS8785.severity = error

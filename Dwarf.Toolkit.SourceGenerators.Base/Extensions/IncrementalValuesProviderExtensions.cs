@@ -40,7 +40,7 @@ internal static class IncrementalValuesProviderExtensions
     {
         return source.Collect().SelectMany((item, token) =>
         {
-            Dictionary<TKey, ImmutableArray<TElement>.Builder> map = new();
+            Dictionary<TKey, ImmutableArray<TElement>.Builder> map = [];
 
             foreach ((TLeft, TRight) pair in item)
             {

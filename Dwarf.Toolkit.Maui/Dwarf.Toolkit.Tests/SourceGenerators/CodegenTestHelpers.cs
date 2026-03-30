@@ -1,11 +1,10 @@
-﻿using NUnit.Framework.Legacy;
-using NUnit.Framework;
-using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
+﻿using Dwarf.Toolkit.Maui;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Dwarf.Toolkit.Maui;
 using Microsoft.Maui.Controls;
+using NUnit.Framework;
+using NUnit.Framework.Legacy;
+using System.Collections.Immutable;
 
 namespace Dwarf.Toolkit.Tests.SourceGenerators;
 
@@ -35,6 +34,8 @@ static class CodegenTestHelpers
 	/// <param name="results">The source files to compare.</param>
 	public static void VerifyGenerateSources(string source, IIncrementalGenerator[] generators, params (string filename, string? text)[] results)
 	{
+		// .Net 8 - C# 12
+		// .Net 9 - C# 13 - partial properties were introduced
 		VerifyGenerateSources(source, generators, LanguageVersion.CSharp13, results);
 	}
 
@@ -47,7 +48,6 @@ static class CodegenTestHelpers
 	/// <param name="results">The source files to compare.</param>
 	public static void VerifyGenerateSources(string source, IIncrementalGenerator[] generators, LanguageVersion languageVersion, params (string filename, string? text)[] results)
 	{
-		// Ensure CommunityToolkit.Mvvm and System.ComponentModel.DataAnnotations are loaded
 		Type bindableObjectType = typeof(BindableObject);
 		Type bindableAttributeType = typeof(BindablePropertyAttribute);
 
@@ -102,5 +102,5 @@ static class CodegenTestHelpers
 
 		GC.KeepAlive(bindableObjectType);
 		GC.KeepAlive(bindableAttributeType);
-	}
+	}	
 }
